@@ -16,7 +16,22 @@ ENTITY lights IS
       DRAM_DQ : INOUT STD_LOGIC_VECTOR(15 DOWNTO 0);
       DRAM_UDQM, DRAM_LDQM : BUFFER STD_LOGIC;
       LCD_DATA : inout STD_LOGIC_VECTOR(7 downto 0);
-	   LCD_ON, LCD_BLON, LCD_EN, LCD_RS, LCD_RW : out STD_LOGIC	);
+	   LCD_ON, LCD_BLON, LCD_EN, LCD_RS, LCD_RW : out STD_LOGIC;
+		VGA_R : out STD_LOGIC_VECTOR(9 downto 0);
+		VGA_G : out STD_LOGIC_VECTOR(9 downto 0);
+		VGA_B : out STD_LOGIC_VECTOR(9 downto 0);
+		VGA_CLK : out STD_LOGIC; 
+		VGA_BLANK : out STD_LOGIC;
+		VGA_HS : out STD_LOGIC;
+		VGA_VS : out STD_LOGIC; 
+		VGA_SYNC : out STD_LOGIC;
+		SRAM_DQ : INOUT STD_LOGIC_VECTOR(15 downto 0);
+		SRAM_ADDR : OUT STD_LOGIC_VECTOR(17 downto 0);
+		SRAM_LB_N : OUT STD_LOGIC;
+		SRAM_UB_N : OUT STD_LOGIC;
+		SRAM_CE_N : OUT STD_LOGIC;
+		SRAM_OE_N : OUT STD_LOGIC;
+		SRAM_WE_N : OUT STD_LOGIC);
    END lights;
 
 
@@ -44,7 +59,22 @@ ARCHITECTURE Structure OF lights IS
 		lcd_data_EN : out STD_LOGIC;
 		lcd_data_RS : out STD_LOGIC;
 		lcd_data_RW : out STD_LOGIC;
-		buttons_export : IN STD_LOGIC_VECTOR(3 downto 0));
+		buttons_export : IN STD_LOGIC_VECTOR(3 downto 0);
+		vga_controller_CLK : out STD_LOGIC;
+		vga_controller_HS : out STD_LOGIC;
+		vga_controller_VS : out STD_LOGIC; 
+		vga_controller_BLANK : out STD_LOGIC;
+		vga_controller_SYNC : out STD_LOGIC;
+		vga_controller_R : out STD_LOGIC_VECTOR(9 downto 0);
+		vga_controller_G : out STD_LOGIC_VECTOR(9 downto 0);
+		vga_controller_B : out STD_LOGIC_VECTOR(9 downto 0);
+		pixel_buffer_DQ : inout STD_LOGIC_VECTOR(15 downto 0);
+		pixel_buffer_ADDR : out STD_LOGIC_VECTOR(17 downto 0);
+		pixel_buffer_LB_N : out STD_LOGIC;
+		pixel_buffer_UB_N : out STD_LOGIC;
+		pixel_buffer_CE_N : out STD_LOGIC;
+		pixel_buffer_OE_N : out STD_LOGIC;
+		pixel_buffer_WE_N : out STD_LOGIC);
  
    END COMPONENT;
 
@@ -79,6 +109,21 @@ ARCHITECTURE Structure OF lights IS
 			 lcd_data_RS => LCD_RS,
 			 lcd_data_RW => LCD_RW,
 			 lcd_data_BLON => LCD_BLON,
-			 buttons_export => KEY );
+			 buttons_export => KEY,
+			 vga_controller_CLK => VGA_CLK,
+			 vga_controller_HS => VGA_HS,
+			 vga_controller_VS => VGA_VS, 
+			 vga_controller_BLANK => VGA_BLANK,
+			 vga_controller_SYNC => VGA_SYNC,
+			 vga_controller_R => VGA_R,
+			 vga_controller_G => VGA_G,
+			 vga_controller_B => VGA_B,
+			 pixel_buffer_DQ => SRAM_DQ,
+			 pixel_buffer_ADDR => SRAM_ADDR,
+			 pixel_buffer_LB_N => SRAM_LB_N,
+			 pixel_buffer_UB_N => SRAM_UB_N,
+			 pixel_buffer_CE_N => SRAM_CE_N,
+			 pixel_buffer_OE_N => SRAM_OE_N, 
+			 pixel_buffer_WE_N => SRAM_WE_N);
 
    END Structure;

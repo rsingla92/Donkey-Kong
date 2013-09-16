@@ -28,9 +28,9 @@
 // ------------------------------------------
 // Generation parameters:
 //   output_name:         nios_system_rsp_xbar_demux_002
-//   ST_DATA_W:           85
-//   ST_CHANNEL_W:        5
-//   NUM_OUTPUTS:         1
+//   ST_DATA_W:           87
+//   ST_CHANNEL_W:        12
+//   NUM_OUTPUTS:         2
 //   VALID_WIDTH:         1
 // ------------------------------------------
 
@@ -46,8 +46,8 @@ module nios_system_rsp_xbar_demux_002
     // Sink
     // -------------------
     input  [1-1      : 0]   sink_valid,
-    input  [85-1    : 0]   sink_data, // ST_DATA_W=85
-    input  [5-1 : 0]   sink_channel, // ST_CHANNEL_W=5
+    input  [87-1    : 0]   sink_data, // ST_DATA_W=87
+    input  [12-1 : 0]   sink_channel, // ST_CHANNEL_W=12
     input                         sink_startofpacket,
     input                         sink_endofpacket,
     output                        sink_ready,
@@ -56,11 +56,18 @@ module nios_system_rsp_xbar_demux_002
     // Sources 
     // -------------------
     output reg                      src0_valid,
-    output reg [85-1    : 0] src0_data, // ST_DATA_W=85
-    output reg [5-1 : 0] src0_channel, // ST_CHANNEL_W=5
+    output reg [87-1    : 0] src0_data, // ST_DATA_W=87
+    output reg [12-1 : 0] src0_channel, // ST_CHANNEL_W=12
     output reg                      src0_startofpacket,
     output reg                      src0_endofpacket,
     input                           src0_ready,
+
+    output reg                      src1_valid,
+    output reg [87-1    : 0] src1_data, // ST_DATA_W=87
+    output reg [12-1 : 0] src1_channel, // ST_CHANNEL_W=12
+    output reg                      src1_startofpacket,
+    output reg                      src1_endofpacket,
+    input                           src1_ready,
 
 
     // -------------------
@@ -73,7 +80,7 @@ module nios_system_rsp_xbar_demux_002
 
 );
 
-    localparam NUM_OUTPUTS = 1;
+    localparam NUM_OUTPUTS = 2;
     wire [NUM_OUTPUTS - 1 : 0] ready_vector;
 
     // -------------------
@@ -87,12 +94,20 @@ module nios_system_rsp_xbar_demux_002
 
         src0_valid         = sink_channel[0] && sink_valid;
 
+        src1_data          = sink_data;
+        src1_startofpacket = sink_startofpacket;
+        src1_endofpacket   = sink_endofpacket;
+        src1_channel       = sink_channel >> NUM_OUTPUTS;
+
+        src1_valid         = sink_channel[1] && sink_valid;
+
     end
 
     // -------------------
     // Backpressure
     // -------------------
     assign ready_vector[0] = src0_ready;
+    assign ready_vector[1] = src1_ready;
     assign sink_ready = |(sink_channel & ready_vector);
 
 endmodule

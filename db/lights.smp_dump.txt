@@ -1,4 +1,17 @@
 
+State Machine - |lights|nios_system:NiosII|nios_system_scaler:scaler|altera_up_video_scaler_multiply_height:Multiply_Height|s_multiply_height
+Name s_multiply_height.STATE_0_GET_CURRENT_LINE s_multiply_height.STATE_2_OUTPUT_LAST_LINE s_multiply_height.STATE_1_LOOP_FIFO 
+s_multiply_height.STATE_0_GET_CURRENT_LINE 0 0 0 
+s_multiply_height.STATE_1_LOOP_FIFO 1 0 1 
+s_multiply_height.STATE_2_OUTPUT_LAST_LINE 1 1 0 
+
+State Machine - |lights|nios_system:NiosII|nios_system_dma_buffer:dma_buffer|s_pixel_buffer
+Name s_pixel_buffer.STATE_3_MAX_PENDING_READS_STALL s_pixel_buffer.STATE_2_READ_BUFFER s_pixel_buffer.STATE_1_WAIT_FOR_LAST_PIXEL s_pixel_buffer.STATE_0_IDLE 
+s_pixel_buffer.STATE_0_IDLE 0 0 0 0 
+s_pixel_buffer.STATE_1_WAIT_FOR_LAST_PIXEL 0 0 1 1 
+s_pixel_buffer.STATE_2_READ_BUFFER 0 1 0 1 
+s_pixel_buffer.STATE_3_MAX_PENDING_READS_STALL 1 0 0 1 
+
 State Machine - |lights|nios_system:NiosII|nios_system_character_lcd_0:character_lcd_0|s_lcd_controller
 Name s_lcd_controller.LCD_STATE_6_COMPLETE s_lcd_controller.LCD_STATE_5_TRANSFER s_lcd_controller.LCD_STATE_4_BEGIN_TRANSFER s_lcd_controller.LCD_STATE_3_CHECK_BUSY s_lcd_controller.LCD_STATE_2_START_CHECK_BUSY s_lcd_controller.LCD_STATE_1_INITIALIZE s_lcd_controller.LCD_STATE_0_IDLE 
 s_lcd_controller.LCD_STATE_0_IDLE 0 0 0 0 0 0 0 

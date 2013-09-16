@@ -1,15 +1,20 @@
 <?xml version="1.0" ?>
 <LOG_ROOT>
 	<PROJECT NAME="lights">
+		<CBX_INST_ENTRY INSTANCE_NAME="|lights|nios_system:NiosII|nios_system_char_drawer:char_drawer|altera_up_video_128_character_rom:Character_Rom|altsyncram:character_data_rom" CBX_FILE_NAME="altsyncram_e5i1.tdf"/>
 		<CBX_INST_ENTRY INSTANCE_NAME="|lights|nios_system:NiosII|nios_system_nios2_processor:nios2_processor|lpm_add_sub:Add8" CBX_FILE_NAME="add_sub_8ri.tdf"/>
 		<CBX_INST_ENTRY INSTANCE_NAME="|lights|nios_system:NiosII|nios_system_nios2_processor:nios2_processor|nios_system_nios2_processor_ic_data_module:nios_system_nios2_processor_ic_data|altsyncram:the_altsyncram" CBX_FILE_NAME="altsyncram_qed1.tdf"/>
 		<CBX_INST_ENTRY INSTANCE_NAME="|lights|nios_system:NiosII|nios_system_nios2_processor:nios2_processor|nios_system_nios2_processor_ic_tag_module:nios_system_nios2_processor_ic_tag|altsyncram:the_altsyncram" CBX_FILE_NAME="altsyncram_sgi1.tdf"/>
 		<CBX_INST_ENTRY INSTANCE_NAME="|lights|nios_system:NiosII|nios_system_nios2_processor:nios2_processor|nios_system_nios2_processor_register_bank_b_module:nios_system_nios2_processor_register_bank_b|altsyncram:the_altsyncram" CBX_FILE_NAME="altsyncram_27i1.tdf"/>
-		<CBX_INST_ENTRY INSTANCE_NAME="|lights|nios_system:NiosII|nios_system_jtag_uart:jtag_uart|nios_system_jtag_uart_scfifo_r:the_nios_system_jtag_uart_scfifo_r|scfifo:rfifo" CBX_FILE_NAME="scfifo_1n21.tdf"/>
-		<CBX_INST_ENTRY INSTANCE_NAME="|lights|nios_system:NiosII|nios_system_onchip_memory:onchip_memory|altsyncram:the_altsyncram" CBX_FILE_NAME="altsyncram_a6d1.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|lights|nios_system:NiosII|nios_system_dma_buffer:dma_buffer|scfifo:Image_Buffer" CBX_FILE_NAME="scfifo_70a1.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|lights|nios_system:NiosII|nios_system_video_fifo:video_fifo|dcfifo:Data_FIFO" CBX_FILE_NAME="dcfifo_5oj1.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|lights|nios_system:NiosII|nios_system_char_drawer:char_drawer|altsyncram:Char_Buffer_Memory" CBX_FILE_NAME="altsyncram_4272.tdf"/>
 		<CBX_INST_ENTRY INSTANCE_NAME="|lights|nios_system:NiosII|nios_system_jtag_uart:jtag_uart|nios_system_jtag_uart_scfifo_w:the_nios_system_jtag_uart_scfifo_w|scfifo:wfifo" CBX_FILE_NAME="scfifo_1n21.tdf"/>
 		<CBX_INST_ENTRY INSTANCE_NAME="|lights|nios_system:NiosII|nios_system_nios2_processor:nios2_processor|nios_system_nios2_processor_nios2_oci:the_nios_system_nios2_processor_nios2_oci|nios_system_nios2_processor_nios2_oci_im:the_nios_system_nios2_processor_nios2_oci_im|nios_system_nios2_processor_traceram_lpm_dram_bdp_component_module:nios_system_nios2_processor_traceram_lpm_dram_bdp_component|altsyncram:the_altsyncram" CBX_FILE_NAME="altsyncram_e502.tdf"/>
 		<CBX_INST_ENTRY INSTANCE_NAME="|lights|nios_system:NiosII|nios_system_nios2_processor:nios2_processor|nios_system_nios2_processor_nios2_oci:the_nios_system_nios2_processor_nios2_oci|nios_system_nios2_processor_nios2_ocimem:the_nios_system_nios2_processor_nios2_ocimem|nios_system_nios2_processor_ociram_lpm_dram_bdp_component_module:nios_system_nios2_processor_ociram_lpm_dram_bdp_component|altsyncram:the_altsyncram" CBX_FILE_NAME="altsyncram_rg92.tdf"/>
 		<CBX_INST_ENTRY INSTANCE_NAME="|lights|nios_system:NiosII|nios_system_nios2_processor:nios2_processor|nios_system_nios2_processor_register_bank_a_module:nios_system_nios2_processor_register_bank_a|altsyncram:the_altsyncram" CBX_FILE_NAME="altsyncram_17i1.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|lights|nios_system:NiosII|nios_system_jtag_uart:jtag_uart|nios_system_jtag_uart_scfifo_r:the_nios_system_jtag_uart_scfifo_r|scfifo:rfifo" CBX_FILE_NAME="scfifo_1n21.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|lights|nios_system:NiosII|nios_system_onchip_memory:onchip_memory|altsyncram:the_altsyncram" CBX_FILE_NAME="altsyncram_a6d1.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|lights|nios_system:NiosII|nios_system_scaler:scaler|altera_up_video_scaler_multiply_height:Multiply_Height|scfifo:Multiply_Height_FIFO" CBX_FILE_NAME="scfifo_qd31.tdf"/>
 	</PROJECT>
 </LOG_ROOT>
