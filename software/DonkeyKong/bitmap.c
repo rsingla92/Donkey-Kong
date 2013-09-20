@@ -8,19 +8,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static BmpFileHeader *bmp_file_header = NULL;
-static BmpInfoHeader *bmp_info_header = NULL;
-static colour *pixel_map = NULL;
+static BmpFileHeader* fill_bmp_header(file_handle file);
+static BmpInfoHeader* fill_info_header(file_handle file);
+static short int verify_bmp_type(BmpFileHeader* bmp_file_header);
 
-static void fill_bmp_header(file_handle file);
-static void fill_info_header(file_handle file);
-static short int verify_bmp_type();
-
-void draw_bmp(int x, int y, bool alpha_enable, colour alpha_col)
+void draw_bmp(BitmapHandle* handle, int x, int y, bool alpha_enable, colour alpha_col)
 {
-	if (pixel_map == NULL || bmp_info_header == NULL) return;
+	if (handle->pixel_map == NULL || handle->bmp_info_header == NULL) return;
 
 	int col, row;
+	BmpInfoHeader *bmp_info_header = handle->bmp_info_header;
+	colour *pixel_map = handle->pixel_map;
 
 	for (row = 0; row < bmp_info_header->height; row++)
 	{
@@ -31,7 +29,7 @@ void draw_bmp(int x, int y, bool alpha_enable, colour alpha_col)
 			/* The BMP file format stores the image upside down and backwards--
 			 * must correct for that here by drawing from bottom-left to
 			 * top-right. */
-			int pixel_x = x + (bmp_info_header->width - 1 - col);
+			int pixel_x = x + col;//(bmp_info_header->width - 1 - col);
 			int pixel_y = y + (bmp_info_header->height - 1 - row);
 
 			if (alpha_enable == false || !(pixel_map[ind].r == alpha_col.r &&
@@ -44,11 +42,21 @@ void draw_bmp(int x, int y, bool alpha_enable, colour alpha_col)
 	}
 }
 
-short int load_bmp(file_handle file)
+short int load_bmp(char *filename, BitmapHandle** bmp_handle)
 {
-	clear_data();
-	fill_bmp_header(file);
-	fill_info_header(file);
+	BitmapHandle* handle = (BitmapHandle *) malloc(sizeof(BitmapHandle));
+	BmpInfoHeader *bmp_info_header = NULL;
+	BmpFileHeader *bmp_file_header = NULL;
+	colour *pixel_map = NULL;
+	file_handle file = 	open_file(filename, false);
+
+	if (file < 0)
+	{
+		return file;
+	}
+
+	bmp_file_header = fill_bmp_header(file);
+	bmp_info_header = fill_info_header(file);
 
 	if (bmp_file_header == NULL || bmp_info_header == NULL)
 	{
@@ -56,13 +64,13 @@ short int load_bmp(file_handle file)
 		return -1;
 	}
 
-	if (!verify_bmp_type())
+	if (!verify_bmp_type(bmp_file_header))
 	{
 		printf("Not a proper 24-bit bitmap.\n");
 		return -2;
 	}
 
-	dump_header_info();
+	dump_header_info(bmp_file_header, bmp_info_header);
 
 	/* Read pixel data. */
 	int bmp_alloc_size = bmp_info_header->width * bmp_info_header->height * 3;
@@ -99,22 +107,24 @@ short int load_bmp(file_handle file)
 			for (j = 0; j < padding; j++) read_file(file);
 	}
 
-	printf("First pixel: R: %x, G: %x, B: %x\n", pixel_map[0].r,
-			pixel_map[0].g, pixel_map[0].b);
-	printf("Second pixel: R: %x, G: %x, B: %x\n", pixel_map[1].r,
-			pixel_map[1].g, pixel_map[1].b);
+	alt_up_sd_card_fclose(file);
 
+	handle->bmp_file_header = bmp_file_header;
+	handle->bmp_info_header = bmp_info_header;
+	handle->pixel_map = pixel_map;
+
+	(*bmp_handle) = handle;
 	return 0;
 }
 
-void clear_data()
+void clear_data(BitmapHandle* handle)
 {
-	if (bmp_file_header != NULL) free(bmp_file_header);
-	if (bmp_info_header != NULL) free(bmp_info_header);
-	if (pixel_map != NULL) free(pixel_map);
+	if (handle->bmp_file_header != NULL) free(handle->bmp_file_header);
+	if (handle->bmp_info_header != NULL) free(handle->bmp_info_header);
+	if (handle->pixel_map != NULL) free(handle->pixel_map);
 }
 
-void dump_header_info()
+void dump_header_info(BmpFileHeader* bmp_file_header, BmpInfoHeader* bmp_info_header)
 {
 	if (bmp_file_header == NULL) return;
 
@@ -132,10 +142,11 @@ void dump_header_info()
 			bmp_info_header->colours_used);
 }
 
-static void fill_bmp_header(file_handle file)
+static BmpFileHeader* fill_bmp_header(file_handle file)
 {
 	byte *byte_list = (byte *) malloc(sizeof(BmpFileHeader));
 	byte *it = byte_list;
+	BmpFileHeader* bmp_file_header;
 	int i;
 
 	// Fill the header with bytes.
@@ -146,12 +157,14 @@ static void fill_bmp_header(file_handle file)
 	}
 
 	bmp_file_header = (BmpFileHeader*) byte_list;
+	return bmp_file_header;
 }
 
-static void fill_info_header(file_handle file)
+static BmpInfoHeader* fill_info_header(file_handle file)
 {
 	byte *byte_list = (byte *) malloc(sizeof(BmpInfoHeader));
 	byte *it = byte_list;
+	BmpInfoHeader* bmp_info_header;
 	int i;
 
 	// Fill the header with bytes.
@@ -162,14 +175,16 @@ static void fill_info_header(file_handle file)
 	}
 
 	bmp_info_header = (BmpInfoHeader*) byte_list;
+	return bmp_info_header;
 }
 
-static short int verify_bmp_type()
+static short int verify_bmp_type(BmpFileHeader* bmp_file_header)
 {
 	if((bmp_file_header->header_field & 0x00FF) != BITMAP_TYPE_BYTE1 ||
 		((bmp_file_header->header_field & 0xFF00) >> 8)  != BITMAP_TYPE_BYTE2)
 	{
-		printf("Wrong file type for bitmap.\n");
+		printf("Wrong file type for bitmap. 1st Byte: %x, 2nd Byte: %x\n",
+				bmp_file_header->header_field & 0x00FF, (bmp_file_header->header_field & 0xFF00) >> 8);
 		return 0;
 	}
 

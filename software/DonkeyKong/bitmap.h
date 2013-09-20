@@ -43,9 +43,16 @@ typedef struct
     unsigned int   important_colours;   /* Number of important colours */
 } BmpInfoHeader;
 
-short int load_bmp(file_handle file);
-void draw_bmp(int x, int y, bool alpha_enable, colour alpha_col);
-void clear_data();
-void dump_header_info();
+typedef struct
+{
+	BmpFileHeader *bmp_file_header;
+	BmpInfoHeader *bmp_info_header;
+	colour *pixel_map;
+} BitmapHandle;
+
+short int load_bmp(char *filename, BitmapHandle** handle);
+void draw_bmp(BitmapHandle* handle, int x, int y, bool alpha_enable, colour alpha_col);
+void clear_data(BitmapHandle* handle);
+void dump_header_info(BmpFileHeader* bmp_file_header, BmpInfoHeader* bmp_info_header);
 
 #endif /* BITMAP_H_ */
