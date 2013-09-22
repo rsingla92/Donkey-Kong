@@ -51,6 +51,7 @@ typedef struct
 } BitmapHandle;
 
 short int load_bmp(char *filename, BitmapHandle** handle);
+void close_bmp(BitmapHandle* handle);
 void draw_bmp(BitmapHandle* handle, int x, int y, bool alpha_enable, colour alpha_col);
 void clear_data(BitmapHandle* handle);
 void dump_header_info(BmpFileHeader* bmp_file_header, BmpInfoHeader* bmp_info_header);

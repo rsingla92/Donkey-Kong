@@ -2,6 +2,7 @@
 #include "sdcard.h"
 #include "bitmap.h"
 #include "display.h"
+#include "background.h"
 
 #define NUM_FILES 44
 
@@ -18,7 +19,8 @@ static char* file_list[NUM_FILES] = {
 int main(void) {
 	init_display();
 	sdcard_handle *sd_dev = init_sdcard();
-	BitmapHandle* images[NUM_FILES];
+	//BitmapHandle* images[NUM_FILES];
+	BitmapHandle* bmp;
 
 	clear_display();
 
@@ -27,7 +29,7 @@ int main(void) {
 		printf("Card connected.\n");
 
 		int i;
-		for (i = 0; i < NUM_FILES; i++)
+		/*for (i = 0; i < NUM_FILES; i++)
 		{
 			short int ret = load_bmp(file_list[i], &(images[i]));
 			if (ret < 0)
@@ -35,16 +37,56 @@ int main(void) {
 				printf("Invalid file! ret: %d, file_list[%d]: %s\n", ret, i, file_list[i]);
 				return -1;
 			}
+		}*/
+		load_bmp("M1.BMP", &bmp);
+		short int ret = loadBackground("BGT.BMP");
+
+		if (ret < 0) {
+			printf("Could not load background. Ret: %d\n", ret);
 		}
 
 		colour col = { 0x1F, 0x00, 0x1F };
 
-		for (i = 0; i < NUM_FILES; i++)
+/*		for (i = 0; i < NUM_FILES; i++)
 		{
 			int x = (i % 10) * 32;
 			int y = (i / 10) * 24;
 			draw_bmp(images[i], x, y, true, col);
+		}*/
+		int count = 0;
+		int x = 0;
+		int y = 72;
+
+		// Draw the background to both buffers.
+		drawBackground();
+		swap_buffers();
+		drawBackground();
+
+		while (true) {
+			if (!count) {
+				if (x > 320)
+				{
+					x = 0;
+				}
+				else
+				{
+					drawBackgroundSection(x-1, y, x, y + bmp->bmp_info_header->height);
+					//draw_box(x-1, y, x, y + bmp->bmp_info_header->height, makeCol(0, 0, 0), 1);
+					x++;
+				}
+
+				draw_bmp(bmp, x, y, true, col);
+
+				swap_buffers();
+			} else {
+				count = (count > 100000) ? 0 : count + 1;
+			}
 		}
+
+	/*	for (i = 0; i < NUM_FILES; i++)
+		{
+			close_bmp(images[i]);
+		}*/
 	}
 	return 0;
 }

@@ -11,6 +11,7 @@
 
 static alt_up_pixel_buffer_dma_dev* pixel_buffer = NULL;
 static alt_up_char_buffer_dev *char_buffer = NULL;
+static unsigned int pixel_buffer_addr1, pixel_buffer_addr2;
 
 void init_display()
 {
@@ -22,9 +23,32 @@ void init_display()
 	// Initialize the character buffer.
 	alt_up_char_buffer_init(char_buffer);
 
+	pixel_buffer_addr1 = PIXEL_BUFFER_BASE;
+	pixel_buffer_addr2 = PIXEL_BUFFER_BASE + (320 * 240 * 2);
+
 	// Set the background buffer address.
 	alt_up_pixel_buffer_dma_change_back_buffer_address(pixel_buffer,
-			PIXEL_BUFFER_BASE);
+			pixel_buffer_addr1);
+
+	// Swap background and foreground buffers
+	alt_up_pixel_buffer_dma_swap_buffers(pixel_buffer);
+
+	// Wait for the swap to complete
+	while (alt_up_pixel_buffer_dma_check_swap_buffers_status(pixel_buffer));
+
+	// Set the 2nd buffer address
+	alt_up_pixel_buffer_dma_change_back_buffer_address(pixel_buffer,
+			pixel_buffer_addr2);
+
+	// Clear both buffers (this makes all pixels black)
+	alt_up_pixel_buffer_dma_clear_screen(pixel_buffer, 0);
+	alt_up_pixel_buffer_dma_clear_screen(pixel_buffer, 1);
+}
+
+void swap_buffers()
+{
+	alt_up_pixel_buffer_dma_swap_buffers(pixel_buffer);
+	while (alt_up_pixel_buffer_dma_check_swap_buffers_status(pixel_buffer));
 }
 
 void clear_display()
@@ -63,9 +87,32 @@ void draw_line(int x0, int y0, int x1, int y1, colour col, int backbuffer)
 			intCol, backbuffer);
 }
 
+void draw_box(int x0, int y0, int x1, int y1, colour col, int backbuffer)
+{
+	if (pixel_buffer == NULL) return;
+	int intCol = colourToInt(col);
+
+    alt_up_pixel_buffer_dma_draw_box(pixel_buffer, x0, y0, x1, y1,
+			intCol, backbuffer);
+}
+
+colour makeCol(unsigned char r, unsigned char g, unsigned char b)
+{
+	colour col = {r, g, b};
+	return col;
+}
+
 void draw_string(const char *str, unsigned int x, unsigned int y)
 {
 	alt_up_char_buffer_string(char_buffer, str, x, y);
+}
+
+void draw_pixel(int x, int y, colour col)
+{
+	if (pixel_buffer == NULL) return;
+
+	int intCol = colourToInt(col);
+	alt_up_pixel_buffer_dma_draw(pixel_buffer, intCol, x, y);
 }
 
 int colourToInt(colour col)

@@ -35,8 +35,7 @@ void draw_bmp(BitmapHandle* handle, int x, int y, bool alpha_enable, colour alph
 			if (alpha_enable == false || !(pixel_map[ind].r == alpha_col.r &&
 					pixel_map[ind].g == alpha_col.g && pixel_map[ind].b == alpha_col.b))
 			{
-				draw_line(pixel_x, pixel_y,
-						pixel_x, pixel_y, pixel_map[ind], 0);
+				draw_pixel(pixel_x, pixel_y, pixel_map[ind]);
 			}
 		}
 	}
@@ -117,11 +116,13 @@ short int load_bmp(char *filename, BitmapHandle** bmp_handle)
 	return 0;
 }
 
-void clear_data(BitmapHandle* handle)
+void close_bmp(BitmapHandle* handle)
 {
+	if (handle == NULL) return;
 	if (handle->bmp_file_header != NULL) free(handle->bmp_file_header);
 	if (handle->bmp_info_header != NULL) free(handle->bmp_info_header);
 	if (handle->pixel_map != NULL) free(handle->pixel_map);
+	free(handle);
 }
 
 void dump_header_info(BmpFileHeader* bmp_file_header, BmpInfoHeader* bmp_info_header)
