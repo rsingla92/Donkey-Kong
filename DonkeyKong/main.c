@@ -35,7 +35,7 @@ int main(void) {
 
 	int i;
 	load_bmp("M1.BMP", &bmp);
-	short int ret = loadBackground("BGT.BMP");
+	short int ret = loadBackground("LVL1.BMP");
 
 	if (ret < 0) {
 		printf("Could not load background. Ret: %d\n", ret);
