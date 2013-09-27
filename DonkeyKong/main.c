@@ -2,8 +2,10 @@
 #include "sdcard.h"
 #include "bitmap.h"
 #include "display.h"
+#include "level1.h"
 #include "background.h"
 #include "sys/alt_alarm.h"
+#include "sys/alt_timestamp.h"
 
 #define NUM_FILES 44
 
@@ -35,11 +37,7 @@ int main(void) {
 
 	int i;
 	load_bmp("M1.BMP", &bmp);
-	short int ret = loadBackground("LVL1.BMP");
-
-	if (ret < 0) {
-		printf("Could not load background. Ret: %d\n", ret);
-	}
+	draw_level1();
 
 	int count = 0;
 	int x = 0;
@@ -51,8 +49,8 @@ int main(void) {
 	drawBackground();
 
 	ticks_per_sec = alt_ticks_per_second();
-	num_ticks = ticks_per_sec/60;
-
+	num_ticks = ticks_per_sec/30;
+	printf("num: %d\n\n ticks per sec: %d\n\n", num_ticks, ticks_per_sec);
 	alt_alarm *update_alarm;
 	alt_alarm_start(update_alarm, num_ticks, update, NULL);
 
@@ -60,33 +58,15 @@ int main(void) {
 		// Check events here.
 	}
 
-	/*
-	while (true) {
-		if (!count) {
-			if (x > 320)
-			{
-				x = 0;
-			}
-			else
-			{
-				drawBackgroundSection(x-1, y, x, y + bmp->bmp_info_header->height);
-				//draw_box(x-1, y, x, y + bmp->bmp_info_header->height, makeCol(0, 0, 0), 1);
-				x++;
-			}
-
-			draw_bmp(bmp, x, y, true, col);
-
-			swap_buffers();
-		} else {
-			count = (count > 100000) ? 0 : count + 1;
-		}
-	}*/
-
 	return 0;
 }
 
 static alt_32 update(void *context)
 {
+	//alt_timestamp_start();
+	//int end_time;
+	//int start_time = (int) alt_timestamp();
+
 	static int x = 0;
 	int y = 72;
 	colour col = { 0x1F, 0x00, 0x1F };
@@ -102,9 +82,14 @@ static alt_32 update(void *context)
 	}
 
 	draw_bmp(bmp, x, y, true, col);
-
+	x++;
 	swap_buffers();
 
-	alt_alarm *update_alarm;
-	alt_alarm_start(update_alarm, num_ticks, update, NULL);
+	printf("hello2\n");
+
+	//end_time = (int)alt_timestamp();
+		//printf("start %d\n end %d\n", start_time, end_time);
+		//printf("time taken: %d clock ticks\n", end_time-start_time);
+		//printf("            %f seconds \n", (float)(end_time-start_time)/(float)alt_timestamp_freq());
+
 }
