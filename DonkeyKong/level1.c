@@ -43,5 +43,3 @@ void draw_level1() {
 	drawBackground();
 
 }
-
-

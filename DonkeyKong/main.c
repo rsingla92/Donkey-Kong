@@ -4,6 +4,7 @@
 #include "display.h"
 #include "level1.h"
 #include "background.h"
+#include "level1.h"
 #include "sys/alt_alarm.h"
 #include "sys/alt_timestamp.h"
 
@@ -18,6 +19,7 @@ static char* file_list[NUM_FILES] = {
 		"M13.BMP", "M14.BMP", "M15.BMP", "P1.BMP", "P2.BMP", "PP1.BMP", "PP2.BMP",
 		"PP3.BMP", "PURSE.BMP", "UMBRLA.BMP"
 };
+
 static 	BitmapHandle* bmp;
 static alt_u32 ticks_per_sec;
 static alt_u32 num_ticks;
@@ -43,10 +45,11 @@ int main(void) {
 	int x = 0;
 	int y = 72;
 
-	// Draw the background to both buffers.
-	drawBackground();
-	swap_buffers();
-	drawBackground();
+	draw_level1();
+
+	int count = 0;
+	int x = 0;
+	int y = 72;
 
 	ticks_per_sec = alt_ticks_per_second();
 	num_ticks = ticks_per_sec/30;
@@ -54,9 +57,6 @@ int main(void) {
 	alt_alarm *update_alarm;
 	alt_alarm_start(update_alarm, num_ticks, update, NULL);
 
-	while (true) {
-		// Check events here.
-	}
 
 	return 0;
 }
@@ -71,7 +71,6 @@ static alt_32 update(void *context)
 	int y = 72;
 	colour col = { 0x1F, 0x00, 0x1F };
 
-	printf("In update.\n");
 	if (x > 320)
 	{
 		x = 0;
@@ -90,6 +89,6 @@ static alt_32 update(void *context)
 	//end_time = (int)alt_timestamp();
 		//printf("start %d\n end %d\n", start_time, end_time);
 		//printf("time taken: %d clock ticks\n", end_time-start_time);
-		//printf("            %f seconds \n", (float)(end_time-start_time)/(float)alt_timestamp_freq());
+		//printf("            %f seconds \n", (float)(end_time-start_time)/(float)alt_timestamp_freq())
 
 }
