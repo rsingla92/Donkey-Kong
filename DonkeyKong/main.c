@@ -34,22 +34,8 @@ int main(void) {
 
 	printf("Card connected.\n");
 
-	int i;
 	load_bmp("M1.BMP", &bmp);
 	draw_level1();
-
-	int count = 0;
-	int x = 0;
-	int y = 72;
-
-	// Draw the background to both buffers.
-	drawBackground();
-	swap_buffers();
-	drawBackground();
-
-	printf ("floor is at: %d\n",find_floor(1));
-	printf ("floor is at: %d\n",find_floor(0));
-	printf ("floor is at: %d\n",find_floor(280));
 
 	ticks_per_sec = alt_ticks_per_second();
 	num_ticks = ticks_per_sec / 30;
@@ -66,22 +52,26 @@ int main(void) {
 
 alt_32 update(void *context) {
 
-	static int x = 0;
-	static int y = 91;
+	static int x = 24;
+	static int y = 111;
 	colour col = { 0x1F, 0x00, 0x1F };
 
 	if (x > 320) {
-		x = 0;
+		x = 24;
 	} else {
+		drawBackgroundSection(x - 1, y, x, y + bmp->bmp_info_header->height);
+		swap_buffers();
 		drawBackgroundSection(x - 1, y, x, y + bmp->bmp_info_header->height);
 	}
 
 	draw_bmp(bmp, x, y, true, col);
-	x++;
-	y = find_floor(x);
-	if (y == -1)
-		y = 91;
 	swap_buffers();
+	draw_bmp(bmp, x, y, true, col);
+	x++;
+	y = find_floor(x, y)-12; // 12 is height of mario image
+	if (y == -13)
+		y = 111;
+	//swap_buffers();
 
 	return 1;
 

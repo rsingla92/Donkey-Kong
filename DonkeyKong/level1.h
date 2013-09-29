@@ -9,6 +9,6 @@
 #define LEVEL1_H_
 
 void draw_level1();
-int find_floor(int x);
+int find_floor(int x, int y);
 
 #endif /* LEVEL1_H_ */
