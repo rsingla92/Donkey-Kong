@@ -17,7 +17,7 @@ typedef struct {
 typedef struct {
 	Point start;
 	Point end;
-	float slope;
+	int width; // for ladder
 } Plane;
 
 static const Plane floors[] =
@@ -85,7 +85,24 @@ static const Plane floors[] =
 	{{297,226}, {320,226}, 0 },
 };
 
+static const Plane ladders[] =
+{
+	{{110,26}, {110,91}, 11 },
+};
+
 #define NUM_FLOORS (sizeof(floors)/sizeof(floors[0]))
+#define NUM_LADDERS (sizeof(ladders)/sizeof(ladders[0]))
+
+int is_ladder (int x, int y){
+	int i;
+	for (i = 0; i < NUM_LADDERS; i++){
+		if (y >= ladders[i].start.y && y <= ladders[i].end.y)
+			if (x >= ladders[i].start.x && x <= (ladders[i].start.x) + (ladders[i].width/2))
+				return 1;
+	}
+	return 0;
+}
+
 
 int find_floor(int x, int y){
 	int i;
@@ -94,7 +111,7 @@ int find_floor(int x, int y){
 		if (y <= floors[i].end.y){
 			f = i;
 			if(x >= floors[f].start.x && x <= floors[f].end.x)
-				return (floors[f].start.y - floors[f].slope*x);
+				return (floors[f].start.y);
 		}
 	}
 

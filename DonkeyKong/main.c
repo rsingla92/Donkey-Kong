@@ -52,7 +52,7 @@ int main(void) {
 
 alt_32 update(void *context) {
 
-	static int x = 10;
+	static int x = 0;
 	static int y = 5;
 	static int dir_x = -1;
 	//static int dir_y = 1;
@@ -62,32 +62,31 @@ alt_32 update(void *context) {
 	if (x > (320 - bmp->bmp_info_header->width) || x < 0) {
 		dir_x = -dir_x;
 	} else {
-		if (dir_x > 0){
-			drawBackgroundSection(x - 1, y - 2 , x - 1 + bmp->bmp_info_header->width, y - 1);
-			drawBackgroundSection(x - 1, y , x, y + bmp->bmp_info_header->height);
-			swap_buffers();
-			drawBackgroundSection(x - 1, y - 2 , x - 1 + bmp->bmp_info_header->width, y - 1);
-			drawBackgroundSection(x - 1, y , x, y + bmp->bmp_info_header->height);
-		}
-		else {
-			drawBackgroundSection(x + 1 , y - 2, x + bmp->bmp_info_header->width + 1, y - 1);
-			drawBackgroundSection(x + bmp->bmp_info_header->width, y, x + bmp->bmp_info_header->width + 1, y + bmp->bmp_info_header->height);
-			swap_buffers();
-			drawBackgroundSection(x + 1 , y - 2, x + bmp->bmp_info_header->width + 1, y - 1);
-			drawBackgroundSection(x + bmp->bmp_info_header->width, y, x + bmp->bmp_info_header->width + 1, y + bmp->bmp_info_header->height);
-		}
+		drawBackgroundSection(x - 1, y - 2 , x + bmp->bmp_info_header->width + 1, y - 1);
+		drawBackgroundSection(x - 1, y + bmp->bmp_info_header->height, x + bmp->bmp_info_header->width + 1, y + bmp->bmp_info_header->height + 1);
+		drawBackgroundSection(x - 1,y , x, y + bmp->bmp_info_header->height );
+		drawBackgroundSection(x + bmp->bmp_info_header->width, y ,x + bmp->bmp_info_header->width + 1, y + bmp->bmp_info_header->height);
+		swap_buffers();
+		drawBackgroundSection(x - 1, y - 2 , x + bmp->bmp_info_header->width + 1, y - 1);
+		drawBackgroundSection(x - 1, y + bmp->bmp_info_header->height, x + bmp->bmp_info_header->width + 1, y + bmp->bmp_info_header->height + 1);
+		drawBackgroundSection(x - 1,y , x, y + bmp->bmp_info_header->height );
+		drawBackgroundSection(x + bmp->bmp_info_header->width, y ,x + bmp->bmp_info_header->width + 1, y + bmp->bmp_info_header->height);
 	}
 
 	draw_bmp(bmp, x, y, true, col);
 	swap_buffers();
 	draw_bmp(bmp, x, y, true, col);
-
-	x += dir_x;
-	floor = find_floor(x, y)-12; // 12 is height of mario image
-	if (y < floor)
-		y ++;
-	if (y > floor)
-		y --;
+	if (is_ladder(x,y)){
+		y--;
+	}
+	else {
+		x += dir_x;
+		floor = find_floor(x, y)-12; // 12 is height of mario image
+		if (y < floor)
+			y ++;
+		if (y > floor)
+			y --;
+	}
 
 	return 1;
 }
