@@ -52,27 +52,38 @@ int main(void) {
 
 alt_32 update(void *context) {
 
-	static int x = 24;
+	static int x = 23;
 	static int y = 111;
+	static int dir_x = 1;
+	//static int dir_y = 1;
+	static int floor = 0;
 	colour col = { 0x1F, 0x00, 0x1F };
 
-	if (x > 320) {
-		x = 24;
+	if (x > (320 - bmp->bmp_info_header->width) || x < 0) {
+		dir_x = -dir_x;
 	} else {
-		drawBackgroundSection(x - 1, y, x, y + bmp->bmp_info_header->height);
-		swap_buffers();
-		drawBackgroundSection(x - 1, y, x, y + bmp->bmp_info_header->height);
+		if (dir_x >= 0){
+			drawBackgroundSection(x - 1, y - 1, x, y + bmp->bmp_info_header->height);
+			swap_buffers();
+			drawBackgroundSection(x - 1, y - 1, x, y + bmp->bmp_info_header->height);
+		}
+		else {
+			drawBackgroundSection(x + bmp->bmp_info_header->width, y - 1, x + bmp->bmp_info_header->width + 1, y + bmp->bmp_info_header->height);
+			swap_buffers();
+			drawBackgroundSection(x + bmp->bmp_info_header->width, y - 1, x + bmp->bmp_info_header->width + 1, y + bmp->bmp_info_header->height);
+		}
 	}
 
 	draw_bmp(bmp, x, y, true, col);
 	swap_buffers();
 	draw_bmp(bmp, x, y, true, col);
-	x++;
-	y = find_floor(x, y)-12; // 12 is height of mario image
-	if (y == -13)
-		y = 111;
-	//swap_buffers();
+
+	x += dir_x;
+	floor = find_floor(x, y)-12; // 12 is height of mario image
+	if (y < floor)
+		y ++;
+	if (y > floor)
+		y --;
 
 	return 1;
-
 }
