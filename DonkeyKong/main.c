@@ -52,9 +52,9 @@ int main(void) {
 
 alt_32 update(void *context) {
 
-	static int x = 23;
-	static int y = 111;
-	static int dir_x = 1;
+	static int x = 10;
+	static int y = 5;
+	static int dir_x = -1;
 	//static int dir_y = 1;
 	static int floor = 0;
 	colour col = { 0x1F, 0x00, 0x1F };
@@ -62,15 +62,19 @@ alt_32 update(void *context) {
 	if (x > (320 - bmp->bmp_info_header->width) || x < 0) {
 		dir_x = -dir_x;
 	} else {
-		if (dir_x >= 0){
-			drawBackgroundSection(x - 1, y - 1, x, y + bmp->bmp_info_header->height);
+		if (dir_x > 0){
+			drawBackgroundSection(x - 1, y - 2 , x - 1 + bmp->bmp_info_header->width, y - 1);
+			drawBackgroundSection(x - 1, y , x, y + bmp->bmp_info_header->height);
 			swap_buffers();
-			drawBackgroundSection(x - 1, y - 1, x, y + bmp->bmp_info_header->height);
+			drawBackgroundSection(x - 1, y - 2 , x - 1 + bmp->bmp_info_header->width, y - 1);
+			drawBackgroundSection(x - 1, y , x, y + bmp->bmp_info_header->height);
 		}
 		else {
-			drawBackgroundSection(x + bmp->bmp_info_header->width, y - 1, x + bmp->bmp_info_header->width + 1, y + bmp->bmp_info_header->height);
+			drawBackgroundSection(x + 1 , y - 2, x + bmp->bmp_info_header->width + 1, y - 1);
+			drawBackgroundSection(x + bmp->bmp_info_header->width, y, x + bmp->bmp_info_header->width + 1, y + bmp->bmp_info_header->height);
 			swap_buffers();
-			drawBackgroundSection(x + bmp->bmp_info_header->width, y - 1, x + bmp->bmp_info_header->width + 1, y + bmp->bmp_info_header->height);
+			drawBackgroundSection(x + 1 , y - 2, x + bmp->bmp_info_header->width + 1, y - 1);
+			drawBackgroundSection(x + bmp->bmp_info_header->width, y, x + bmp->bmp_info_header->width + 1, y + bmp->bmp_info_header->height);
 		}
 	}
 

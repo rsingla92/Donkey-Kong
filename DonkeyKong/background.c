@@ -49,8 +49,8 @@ void drawBackgroundSection(int x0, int y0, int x1, int y1)
 {
 	int x, y;
 
-	for (y = y0; y <= y1; y++)
-		if (x0 < x1){
+	for (y = y0; y <= y1; y++) {
+		if (x0 <= x1){
 			for (x = x0; x <= x1; x++)
 				draw_pixel(x, y, background_map[x][y]);
 		}
@@ -58,4 +58,5 @@ void drawBackgroundSection(int x0, int y0, int x1, int y1)
 			for (x = x1; x <= x0; x++)
 				draw_pixel(x, y, background_map[x][y]);
 		}
+	}
 }
