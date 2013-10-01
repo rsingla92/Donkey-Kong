@@ -3,9 +3,20 @@
 #include "bitmap.h"
 #include "display.h"
 #include "background.h"
+#include "priv/alt_busy_sleep.h"
 #include "sys/alt_alarm.h"
+#include "io.h"
 
 #define NUM_FILES 44
+// Controller Out: Bits: 000000AB
+// A is the Controller P/S latch
+// B is the Controller Clock
+#define controller_out (volatile char *) CONTROLLER_OUTPUT_BASE
+
+// Controller In: Only least significant bit matters.
+#define controller_in (char *) CONTROLLER_INPUT_BASE
+
+#define leds (volatile char *) LEDS_BASE
 
 static char* file_list[NUM_FILES] = {
 		"4B.BMP", "B1.BMP", "B2.BMP", "B3.BMP", "B4.BMP", "B5.BMP", "DK1.BMP",
@@ -21,8 +32,39 @@ static alt_u32 ticks_per_sec;
 static alt_u32 num_ticks;
 
 static alt_32 update(void *context);
+static void readDat();
+
+static void readDat(){
+	unsigned short accumulatedData = 0;
+	int i;
+
+	IOWR_8DIRECT(controller_out, 0, 0x01);
+	IOWR_8DIRECT(controller_out, 0, 0x03);
+	alt_busy_sleep(12);
+	IOWR_8DIRECT(controller_out, 0, 0x01);
+	alt_busy_sleep(6);
+
+	accumulatedData = IORD_8DIRECT(controller_in, 0);
+
+	for (i = 0; i < 16; i++)
+	{
+		IOWR_8DIRECT(controller_out, 0, 0x00);
+		alt_busy_sleep(6);
+		accumulatedData <<= 1;
+		accumulatedData += IORD_8DIRECT(controller_in, 0);
+		alt_busy_sleep(6);
+
+		IOWR_8DIRECT(controller_out, 0, 0x01); // Pulse clock
+	}
+
+	printf("Accumulated Data: %x\n", accumulatedData);
+	IOWR_8DIRECT(leds, 0, accumulatedData);
+}
 
 int main(void) {
+	// Set latch and clock to 0.
+	IOWR_8DIRECT(controller_out, 0, 0x00);
+
 	init_display();
 	sdcard_handle *sd_dev = init_sdcard();
 	//BitmapHandle* images[NUM_FILES];
@@ -53,11 +95,14 @@ int main(void) {
 	ticks_per_sec = alt_ticks_per_second();
 	num_ticks = ticks_per_sec/60;
 
-	alt_alarm *update_alarm;
-	alt_alarm_start(update_alarm, num_ticks, update, NULL);
+	//alt_alarm *update_alarm;
+	//alt_alarm_start(update_alarm, num_ticks, update, NULL);
 
 	while (true) {
 		// Check events here.
+		readDat();
+		printf("Point 1\n");
+		alt_busy_sleep(1000000);
 	}
 
 	/*
@@ -105,6 +150,5 @@ static alt_32 update(void *context)
 
 	swap_buffers();
 
-	alt_alarm *update_alarm;
-	alt_alarm_start(update_alarm, num_ticks, update, NULL);
+	return 1;
 }

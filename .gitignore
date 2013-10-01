@@ -1,3 +1,9 @@
+DonkeyKong_bsp/
+DonkeyKong/obj/
+*.elf
+*.objdump
+*.map
+
 # Object files
 *.o
 
