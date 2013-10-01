@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include "display.h"
 
-static alt_up_pixel_buffer_dma_dev* pixel_buffer = NULL;
+volatile static alt_up_pixel_buffer_dma_dev* pixel_buffer = NULL;
 static alt_up_char_buffer_dev *char_buffer = NULL;
 static unsigned int pixel_buffer_addr1, pixel_buffer_addr2;
 
