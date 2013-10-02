@@ -5,6 +5,7 @@
  *      Author: Jeremy
  */
 #include "mario.h"
+#include <math.h>
 
 static Mario mario;
 static char* anim_list[NUM_IMGS] = {"M9.BMP", "M10.BMP", "M11.BMP"};
@@ -37,6 +38,6 @@ void loadMario(int x, int y)
 
 void drawMario(void)
 {
-	draw_bmp(mario.animation[mario.current_frame].handle,
+	draw_bmp(mario.animation[floor(mario.current_frame)].handle,
 			mario.x, mario.y, true, mario_alpha);
 }

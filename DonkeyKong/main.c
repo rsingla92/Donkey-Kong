@@ -113,9 +113,9 @@ alt_32 update(void *context) {
 		drawBackgroundSection(x + bmp->bmp_info_header->width, y ,x + bmp->bmp_info_header->width + 1, y + bmp->bmp_info_header->height);
 	}
 
-	draw_bmp(bmp, x, y, true, col);
+	draw_bmp(bmp, x, y, true, col, 1);
 	swap_buffers();
-	draw_bmp(bmp, x, y, true, col);
+	draw_bmp(bmp, x, y, true, col, 1);
 	if (is_ladder(x,y)){
 		y--;
 	}

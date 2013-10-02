@@ -31,10 +31,10 @@ typedef struct
 {
 	AnimMap animation[NUM_ANIMS];
 	int x, y;
-	unsigned int current_frame;
+	float current_frame;
 	MarioState state;
 } Mario;
 
-void loadMario();
-
+void loadMario(void);
+void drawMario(void);
 #endif /* MARIO_H_ */

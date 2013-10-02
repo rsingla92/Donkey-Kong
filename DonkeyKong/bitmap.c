@@ -12,7 +12,7 @@ static BmpFileHeader* fill_bmp_header(file_handle file);
 static BmpInfoHeader* fill_info_header(file_handle file);
 static short int verify_bmp_type(BmpFileHeader* bmp_file_header);
 
-void draw_bmp(BitmapHandle* handle, int x, int y, bool alpha_enable, colour alpha_col)
+void draw_bmp(BitmapHandle* handle, int x, int y, bool alpha_enable, colour alpha_col, int backbuffer)
 {
 	if (handle->pixel_map == NULL || handle->bmp_info_header == NULL) return;
 
@@ -35,7 +35,8 @@ void draw_bmp(BitmapHandle* handle, int x, int y, bool alpha_enable, colour alph
 			if (alpha_enable == false || !(pixel_map[ind].r == alpha_col.r &&
 					pixel_map[ind].g == alpha_col.g && pixel_map[ind].b == alpha_col.b))
 			{
-				draw_pixel(pixel_x, pixel_y, pixel_map[ind]);
+				//draw_pixel(pixel_x, pixel_y, pixel_map[ind]);
+				draw_line(pixel_x, pixel_y, pixel_x, pixel_y, pixel_map[ind], backbuffer );
 			}
 		}
 	}
