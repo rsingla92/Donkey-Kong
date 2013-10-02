@@ -52,11 +52,12 @@ int main(void) {
 
 alt_32 update(void *context) {
 
-	static int x = 0;
-	static int y = 5;
-	static int dir_x = -1;
+	static int x = 209;
+	static int y = 102;
+	static int dir_x = 1;
 	//static int dir_y = 1;
 	static int floor = 0;
+	static int count_ladder = 1;
 	colour col = { 0x1F, 0x00, 0x1F };
 
 	if (x > (320 - bmp->bmp_info_header->width) || x < 0) {
@@ -76,10 +77,17 @@ alt_32 update(void *context) {
 	draw_bmp(bmp, x, y, true, col);
 	swap_buffers();
 	draw_bmp(bmp, x, y, true, col);
-	if (is_ladder(x,y)){
-		y--;
+	if (is_ladder(x,y) && count_ladder > 0){
+		if (y < find_ladder_floor(x,y)){
+			y++;
+		}
+		else {
+			y--;
+			count_ladder = -count_ladder;
+		}
 	}
 	else {
+		count_ladder = -count_ladder;
 		x += dir_x;
 		floor = find_floor(x, y)-12; // 12 is height of mario image
 		if (y < floor)

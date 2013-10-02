@@ -87,7 +87,25 @@ static const Plane floors[] =
 
 static const Plane ladders[] =
 {
-	{{110,26}, {110,91}, 11 },
+	{{110,26-12}, {110,91-12}, 11 },// must subtract 12 from top level. height of mario
+	{{125,26-12}, {125,91-12}, 11 },
+	{{194,62-12}, {194,91-12}, 11 },
+	{{251,94-12}, {251,114-12}, 11 },
+	{{137,91-12}, {137,104-12}, 11 },
+	{{137,113-12}, {137,119-12}, 11 },
+	{{46,123-12}, {46,143-12}, 11 },
+	{{114,120-12}, {114,145-12}, 11 },
+	{{228,115-12}, {228,128-12}, 11 },
+	{{228,139-12}, {228,150-12}, 11 },
+	{{91,144-12}, {91,157-12}, 11 },
+	{{91,162-12}, {91,177-12}, 11 },
+	{{160,147-12}, {46,175-12}, 11 },
+	{{251,151-12}, {251,171-12}, 11 },
+	{{46,178-12}, {46,200-12}, 11 },
+	{{137,175-12}, {137,203-12}, 11 },
+	{{114,202-12}, {114,215-12}, 11 },
+	{{114,221-12}, {114,232-12}, 11 },
+	{{251,207-12}, {251,228-12}, 11 },
 };
 
 #define NUM_FLOORS (sizeof(floors)/sizeof(floors[0]))
@@ -97,25 +115,42 @@ int is_ladder (int x, int y){
 	int i;
 	for (i = 0; i < NUM_LADDERS; i++){
 		if (y >= ladders[i].start.y && y <= ladders[i].end.y)
-			if (x >= ladders[i].start.x && x <= (ladders[i].start.x) + (ladders[i].width/2))
+			if (x >= ladders[i].start.x && x <= (ladders[i].start.x) + (ladders[i].width/3))
 				return 1;
 	}
 	return 0;
 }
 
+int find_ladder_floor (int x, int y){
+	int i;
+	for (i = 0; i < NUM_LADDERS; i++){
+		if (y <= ladders[i].end.y){
+			if(x >= ladders[i].start.x && x <= (ladders[i].start.x)+(ladders[i].width)/3)
+				return (ladders[i].end.y);
+		}
+	}
+	return -1;
+}
+
+int find_ladder_top (int x, int y){
+	int i;
+	for (i = 0; i < NUM_LADDERS; i++){
+		if (y <= ladders[i].end.y){
+			if(x >= ladders[i].start.x && x <= (ladders[i].start.x)+(ladders[i].width)/3)
+				return (ladders[i].start.y);
+		}
+	}
+	return -1;
+}
 
 int find_floor(int x, int y){
 	int i;
-	int f=0;
 	for (i = 0; i < NUM_FLOORS; i++){
 		if (y <= floors[i].end.y){
-			f = i;
-			if(x >= floors[f].start.x && x <= floors[f].end.x)
-				return (floors[f].start.y);
+			if(x >= floors[i].start.x && x <= floors[i].end.x)
+				return (floors[i].start.y);
 		}
 	}
-
-
 	return -1;
 }
 

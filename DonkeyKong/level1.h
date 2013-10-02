@@ -11,5 +11,7 @@
 void draw_level1();
 int find_floor(int x, int y);
 int is_ladder(int x, int y);
+int find_ladder_floor (int x, int y);
+int find_ladder_top (int x, int y);
 
 #endif /* LEVEL1_H_ */
