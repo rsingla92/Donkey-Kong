@@ -67,7 +67,6 @@ int main(void) {
 
 	init_display();
 	sdcard_handle *sd_dev = init_sdcard();
-	//BitmapHandle* images[NUM_FILES];
 
 	clear_display();
 
@@ -86,12 +85,7 @@ int main(void) {
 	alt_alarm_start(update_alarm, num_ticks, update, (void*)0);
 	// function calls here are tricky to predict
 	// printf only worked if only one printf statement was put
-	while (true) {
-		// Check events here.
-		//readDat();
-		//printf("Point 1\n");
-		//alt_busy_sleep(1000000);
-	}
+	while (true) { }
 
 	return 0;
 }
