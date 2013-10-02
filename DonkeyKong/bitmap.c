@@ -37,6 +37,39 @@ void draw_bmp(BitmapHandle* handle, int x, int y, bool alpha_enable, colour alph
 			{
 				//draw_pixel(pixel_x, pixel_y, pixel_map[ind]);
 				draw_line(pixel_x, pixel_y, pixel_x, pixel_y, pixel_map[ind], backbuffer );
+			} else if (alpha_enable == true && pixel_map[ind].r == alpha_col.r &&
+					pixel_map[ind].g == alpha_col.g && pixel_map[ind].b == alpha_col.b) {
+				drawBackgroundSection(pixel_x, pixel_y, pixel_x, pixel_y);
+			}
+		}
+	}
+}
+
+void draw_flipped_bmp(BitmapHandle* handle, int x, int y, bool alpha_enable, colour alpha_col, int backbuffer)
+{
+	if (handle->pixel_map == NULL || handle->bmp_info_header == NULL) return;
+
+	int col, row;
+	BmpInfoHeader *bmp_info_header = handle->bmp_info_header;
+	colour *pixel_map = handle->pixel_map;
+
+	for (row = 0; row < bmp_info_header->height; row++)
+	{
+		for (col = 0; col < bmp_info_header->width; col++)
+		{
+			int ind = row * bmp_info_header->width + col;
+
+			int pixel_x = x + (bmp_info_header->width - 1 - col);//(bmp_info_header->width - 1 - col);
+			int pixel_y = y + (bmp_info_header->height - 1 - row);
+
+			if (alpha_enable == false || !(pixel_map[ind].r == alpha_col.r &&
+					pixel_map[ind].g == alpha_col.g && pixel_map[ind].b == alpha_col.b))
+			{
+				//draw_pixel(pixel_x, pixel_y, pixel_map[ind]);
+				draw_line(pixel_x, pixel_y, pixel_x, pixel_y, pixel_map[ind], backbuffer );
+			} else if (alpha_enable == true && pixel_map[ind].r == alpha_col.r &&
+					pixel_map[ind].g == alpha_col.g && pixel_map[ind].b == alpha_col.b) {
+				drawBackgroundSection(pixel_x, pixel_y, pixel_x, pixel_y);
 			}
 		}
 	}

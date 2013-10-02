@@ -8,6 +8,7 @@
 #include "sys/alt_alarm.h"
 #include "io.h"
 #include "sys/alt_timestamp.h"
+#include "mario.h"
 
 #define NUM_FILES 44
 // Controller Out: Bits: 000000AB
@@ -75,8 +76,10 @@ int main(void) {
 
 	printf("Card connected.\n");
 
-	load_bmp("M1.BMP", &bmp);
+	//load_bmp("M1.BMP", &bmp);
+	loadMario(0, 5, 1);
 	draw_level1();
+	drawMario();
 
 	ticks_per_sec = alt_ticks_per_second();
 
@@ -92,14 +95,15 @@ int main(void) {
 
 alt_32 update(void *context) {
 
-	static int x = 0;
-	static int y = 5;
-	static int dir_x = -1;
-	//static int dir_y = 1;
-	static int floor = 0;
+	//static int x = 0;
+	//static int y = 5;
+	bool wallmark = true;
+	static int dir_x = 1;
+
+	int floor = 0;
 	colour col = { 0x1F, 0x00, 0x1F };
 
-	if (x > (320 - bmp->bmp_info_header->width) || x < 0) {
+/*	if (x > (320 - bmp->bmp_info_header->width) || x < 0) {
 		dir_x = -dir_x;
 	} else {
 		drawBackgroundSection(x - 1, y - 2 , x + bmp->bmp_info_header->width + 1, y - 1);
@@ -111,22 +115,31 @@ alt_32 update(void *context) {
 		drawBackgroundSection(x - 1, y + bmp->bmp_info_header->height, x + bmp->bmp_info_header->width + 1, y + bmp->bmp_info_header->height + 1);
 		drawBackgroundSection(x - 1,y , x, y + bmp->bmp_info_header->height );
 		drawBackgroundSection(x + bmp->bmp_info_header->width, y ,x + bmp->bmp_info_header->width + 1, y + bmp->bmp_info_header->height);
-	}
+	}*/
 
-	draw_bmp(bmp, x, y, true, col, 1);
+/*	draw_bmp(bmp, x, y, true, col, 1);
 	swap_buffers();
-	draw_bmp(bmp, x, y, true, col, 1);
-	if (is_ladder(x,y)){
-		y--;
+	draw_bmp(bmp, x, y, true, col, 1);*/
+
+	if (is_ladder(getMario().x,getMario().y)){
+		moveMario(UP);
+		//y--;
 	}
 	else {
-		x += dir_x;
-		floor = find_floor(x, y)-12; // 12 is height of mario image
-		if (y < floor)
-			y ++;
-		if (y > floor)
-			y --;
+		//x += dir_x;
+		wallmark = (dir_x > 0)? moveMario(RIGHT) : moveMario(LEFT);
+
+		if (wallmark == false) dir_x = -dir_x;
+		floor = find_floor(getMario().x, getMario().y)-12; // 12 is height of mario image
+		if (getMario().y < floor)
+			moveMario(DOWN);
+			// y++
+		if (getMario().y > floor)
+			moveMario(UP);
+			//y --;
 	}
+
+	drawMario();
 
 	return 1;
 }
