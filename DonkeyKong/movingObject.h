@@ -16,7 +16,8 @@ typedef enum {FLAT_BARREL,
 			  ROLLING_TOP_LEFT,
 			  ROLLING_TOP_RIGHT,
 			  ROLLING_BOTTOM_LEFT,
-			  ROLLING_BOTTOM_RIGHT
+			  ROLLING_BOTTOM_RIGHT,
+			  NUM_BARREL_IMGS
 } BarrelImage;
 
 /* Donkey Kong Files */
@@ -50,29 +51,29 @@ typedef enum { HAMMER,
 			  } OtherImage;
 
 /* Barrel Animations */
-typedef enum {} BarrelAnim;
+// typedef enum {} BarrelAnim;
 
 /* DonkeyKong Animations */
-typedef enum {} DonkeyKongAnim;
+// typedef enum {} DonkeyKongAnim;
 
 /* Fire Animations */
-typedef enum {} FireAnim;
+// typedef enum {} FireAnim;
 
 /* Other Animations */
 // I don't think there are any for these
 // typedef enum {} OtherAnim;
 
 /* Barrel States */
-typedef enum {} BarrelState;
+// typedef enum {} BarrelState;
 
 /* Donkey Kong States */
 typedef enum {STANDING, THROWING, ANGRY, CLIMBING, UPSIDE} DonkeyKongState;
 
 /* Fire States */
-typedef enum {} FireState;
+// typedef enum {} FireState;
 
 /* Other States */
-typedef enum {} OtherState;
+// typedef enum {} OtherState;
 
 // Animation image
 typedef struct
@@ -84,17 +85,17 @@ typedef struct
 // Barrel
 typedef struct
 {
-	AnimMap animation[];
+	AnimMap animation[NUM_BARREL_IMGS];
 	int x, y;
 	unsigned int current_frame;
-	BarrelState state;
+	//BarrelState state;
 
 } Barrel;
 
 // Donkey Kong
 typedef struct
 {
-	AnimMap animation[];
+	AnimMap animation[NUM_DONKEYKONG_IMGS];
 	int x, y;
 	unsigned int current_frame;
 	DonkeyKongState state;
@@ -104,12 +105,12 @@ void drawBarrel();
 void loadBarrel(BarrelImage, int, int);
 
 void drawDonkeyKong();
-void loadDonkeyKong(DonkeyKongImage, int, int);
+void loadDonkeyKong(int, int);
 
 void drawFire();
 void loadFire(FireImage, int, int);
 
 void drawOtherObject();
-void loadOtherObject(OtherImage, int, int);
+void loadOtherObject(int, int);
 
 #endif /* MOVING_OBJECT_H_ */

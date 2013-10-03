@@ -7,7 +7,7 @@
 #include "mario.h"
 #include <math.h>
 
-#define FRAME_SPEED		0.01
+#define FRAME_SPEED		0.1
 
 static Mario mario;
 static char* anim_list[NUM_IMGS] = {"M9.BMP", "M10.BMP", "M11.BMP"};
