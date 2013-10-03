@@ -1,36 +1,40 @@
 #include "movingObject.h"
 
-static Mario mario;
-static char* anim_list[NUM_IMGS] = {"M9.BMP", "M10.BMP", "M11.BMP"};
-static colour mario_alpha = { 0x1F, 0x00, 0x1F };
+/*
+ * Need to maintain a list of moving objects
+ * Need to implement random AI
+ * Need to rough plan this out
+ */
+static DonkeyKong donkeyKong;
+static char* donkeyKong_list[NUM_DONKEYKONG_IMGS] = {"M9.BMP", "M10.BMP", "M11.BMP"};
+static colour donkeyKong_alpha = { 0x1F, 0x00, 0x1F };
 
-void loadMario(int x, int y)
+void loadDonkeyKong(int x, int y)
 {
-	/* Prepare the animation map. */
-	load_bmp(anim_list[STAND_IMG], &(mario.animation[STAND_LEFT].handle));
-	load_bmp(anim_list[WALK1_IMG], &(mario.animation[WALK1_LEFT].handle));
-	load_bmp(anim_list[WALK2_IMG], &(mario.animation[WALK2_LEFT].handle));
+	// Animation list for Donkey Kong
+	load_bmp(anim_list[STANDING_STILL], &(donkeyKong.animation[STANDING_STILL].handle));
+	load_bmp(anim_list[GRABBING_BARREL], &(donkeyKong.animation[GRABBING_BARREL].handle));
+	load_bmp(anim_list[ANGRY_LEFT], &(donkeyKong.animation[ANGRY_LEFT].handle));
+	load_bmp(anim_list[ANGRY_RIGHT], &(donkeyKong.animation[ANGRY_RIGHT].handle));
+	load_bmp(anim_list[CLIMBING_LEFT], &(donkeyKong.animation[CLIMBING_LEFT].handle));
+	load_bmp(anim_list[CLIMBING_RIGHT], &(donkeyKong.animation[CLIMBING_RIGHT].handle));
+	load_bmp(anim_list[UPSIDE_DOWN_LEFT], &(donkeyKong.animation[UPSIDE_DOWN_LEFT].handle));
+	load_bmp(anim_list[UPDATE_DOWN_RIGHT], &(donkeyKong.animation[UPDATE_DOWN_RIGHT].handle));
+	load_bmp(anim_list[WALK_RIGHT], &(donkeyKong.animation[WALK_RIGHT].handle));
+	load_bmp(anim_list[SUPER_ANGRY], &(donkeyKong.animation[SUPER_ANGRY].handle));
 
-	/* The right-facing animations use the same images. */
-	mario.animation[STAND_RIGHT].handle = mario.animation[STAND_LEFT].handle;
-	mario.animation[WALK1_RIGHT].handle = mario.animation[WALK1_LEFT].handle;
-	mario.animation[WALK2_RIGHT].handle = mario.animation[WALK2_LEFT].handle;
+	// There are no right-facing animations. It's all either facing the player or not.
+	// There are no flipping animations.
 
-	mario.animation[STAND_LEFT].flip = false;
-	mario.animation[WALK1_LEFT].flip = false;
-	mario.animation[WALK2_LEFT].flip = false;
-	mario.animation[STAND_RIGHT].flip = true;
-	mario.animation[WALK1_RIGHT].flip = true;
-	mario.animation[WALK2_RIGHT].flip = true;
+	donkeyKong.current_frame = STANDING_STILL;
+	donkeyKong.x = x;
+	donkeyKong.y = y;
+	donkeyKong.state = STANDING;
 
-	mario.current_frame = STAND_RIGHT;
-	mario.state = NORMAL;
-	mario.x = x;
-	mario.y = y;
 }
 
-void drawMario(void)
+void drawDonkeyKong(void)
 {
-	draw_bmp(mario.animation[mario.current_frame].handle,
-			mario.x, mario.y, true, mario_alpha);
+	draw_bmp(donkeyKong.animation[donkeyKong.current_frame].handle,
+			donkeyKong.x, donkeyKong.y, true, donkeyKong_alpha);
 }

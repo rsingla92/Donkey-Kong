@@ -29,7 +29,8 @@ typedef enum {STANDING_STILL,
 			  UPSIDE_DOWN_LEFT,
 			  UPDATE_DOWN_RIGHT,
 			  WALK_RIGHT,
-			  SUPER_ANGRY
+			  SUPER_ANGRY,
+			  NUM_DONKEYKONG_IMGS
 } DonkeyKongImage;
 
 /* Fire Files */
@@ -65,7 +66,7 @@ typedef enum {} FireAnim;
 typedef enum {} BarrelState;
 
 /* Donkey Kong States */
-typedef enum {} DonkeyKongState;
+typedef enum {STANDING, THROWING, ANGRY, CLIMBING, UPSIDE} DonkeyKongState;
 
 /* Fire States */
 typedef enum {} FireState;
@@ -99,7 +100,16 @@ typedef struct
 	DonkeyKongState state;
 } DonkeyKong;
 
+void drawBarrel();
+void loadBarrel(BarrelImage, int, int);
 
-void loadMario();
+void drawDonkeyKong();
+void loadDonkeyKong(DonkeyKongImage, int, int);
+
+void drawFire();
+void loadFire(FireImage, int, int);
+
+void drawOtherObject();
+void loadOtherObject(OtherImage, int, int);
 
 #endif /* MOVING_OBJECT_H_ */
