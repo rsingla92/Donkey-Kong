@@ -88,6 +88,24 @@ static const Plane floors[] =
 static const Plane ladders[] =
 {
 	{{110,26}, {110,91}, 11 },
+	{{125,26}, {125,91}, 11 },
+	{{194,62}, {194,91}, 11 },
+	{{251,94}, {251,114}, 11 },
+	{{137,91}, {137,104}, 11 },
+	{{137,113}, {137,119}, 11 },
+	{{46,123}, {46,143}, 11 },
+	{{114,120}, {114,145}, 11 },
+	{{228,115}, {228,128}, 11 },
+	{{228,139}, {228,150}, 11 },
+	{{91,144}, {91,157}, 11 },
+	{{91,162}, {91,177}, 11 },
+	{{160,147}, {46,175}, 11 },
+	{{251,151}, {251,171}, 11 },
+	{{46,178}, {46,200}, 11 },
+	{{137,175}, {137,203}, 11 },
+	{{114,202}, {114,215}, 11 },
+	{{114,221}, {114,232}, 11 },
+	{{251,207}, {251,228}, 11 },
 };
 
 #define NUM_FLOORS (sizeof(floors)/sizeof(floors[0]))
@@ -96,26 +114,43 @@ static const Plane ladders[] =
 int is_ladder (int x, int y){
 	int i;
 	for (i = 0; i < NUM_LADDERS; i++){
-		if (y >= ladders[i].start.y && y <= ladders[i].end.y)
-			if (x >= ladders[i].start.x && x <= (ladders[i].start.x) + (ladders[i].width/2))
+		if (y >= (ladders[i].start.y - getCurrentHeight()) && y <= (ladders[i].end.y - getCurrentHeight()))
+			if (x >= ladders[i].start.x && x <= (ladders[i].start.x) + (ladders[i].width/3))
 				return 1;
 	}
 	return 0;
 }
 
+int find_ladder_floor (int x, int y){
+	int i;
+	for (i = 0; i < NUM_LADDERS; i++){
+		if (y <= ladders[i].end.y){
+			if(x >= ladders[i].start.x && x <= (ladders[i].start.x)+(ladders[i].width)/3)
+				return (ladders[i].end.y);
+		}
+	}
+	return -1;
+}
+
+int find_ladder_top (int x, int y){
+	int i;
+	for (i = 0; i < NUM_LADDERS; i++){
+		if (y <= ladders[i].end.y){
+			if(x >= ladders[i].start.x && x <= (ladders[i].start.x)+(ladders[i].width)/3)
+				return (ladders[i].start.y);
+		}
+	}
+	return -1;
+}
 
 int find_floor(int x, int y){
 	int i;
-	int f=0;
 	for (i = 0; i < NUM_FLOORS; i++){
 		if (y <= floors[i].end.y){
-			f = i;
-			if(x >= floors[f].start.x && x <= floors[f].end.x)
-				return (floors[f].start.y);
+			if(x >= floors[i].start.x && x <= floors[i].end.x)
+				return (floors[i].start.y);
 		}
 	}
-
-
 	return -1;
 }
 
