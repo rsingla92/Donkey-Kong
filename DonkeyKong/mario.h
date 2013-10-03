@@ -33,7 +33,6 @@ typedef struct
 {
 	AnimMap animation[NUM_ANIMS];
 	int x, y;
-	int width, height;
 	int speed;
 	float current_frame;
 	MarioState state;
@@ -49,4 +48,7 @@ bool moveUp(void);
 bool moveDown(void);
 bool moveLeft(void);
 bool moveRight(void);
+
+int getCurrentWidth(void);
+int getCurrentHeight(void);
 #endif /* MARIO_H_ */

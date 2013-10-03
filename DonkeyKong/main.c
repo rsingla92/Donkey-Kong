@@ -130,7 +130,7 @@ alt_32 update(void *context) {
 		wallmark = (dir_x > 0)? moveMario(RIGHT) : moveMario(LEFT);
 
 		if (wallmark == false) dir_x = -dir_x;
-		floor = find_floor(getMario().x, getMario().y)-12; // 12 is height of mario image
+		floor = find_floor(getMario().x, getMario().y) - getCurrentHeight(); // 12 is height of mario image
 		if (getMario().y < floor)
 			moveMario(DOWN);
 			// y++

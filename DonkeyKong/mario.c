@@ -7,11 +7,13 @@
 #include "mario.h"
 #include <math.h>
 
-#define FRAME_SPEED		0.1
+#define FRAME_SPEED		0.01
 
 static Mario mario;
 static char* anim_list[NUM_IMGS] = {"M9.BMP", "M10.BMP", "M11.BMP"};
 static colour mario_alpha = { 0x00, 0x00, 0x00 };
+static double frame_dir = FRAME_SPEED;
+static float past_frame = STAND_LEFT;
 
 Mario getMario(void) {
 	return mario;
@@ -40,8 +42,6 @@ void loadMario(int x, int y, int speed)
 	mario.state = WALKING;
 	mario.x = x;
 	mario.y = y;
-	mario.width = 13;
-	mario.height = 15;
 	mario.speed = speed;
 }
 
@@ -91,7 +91,7 @@ bool moveMario(MarioDirection dir)
 
 void animate(MarioAnims lowFrame, MarioAnims highFrame)
 {
-	static double frame_dir = FRAME_SPEED;
+	past_frame = mario.current_frame;
 
 	if (mario.current_frame < lowFrame || mario.current_frame > highFrame) {
 		mario.current_frame = lowFrame;
@@ -122,12 +122,32 @@ void drawMarioBackground(int x0, int y0, int x1, int y1) {
 	drawBackgroundSection(x0, y0, x1, y1);
 }
 
+int getCurrentWidth(void)
+{
+	return mario.animation[(int) round(mario.current_frame)].handle->bmp_info_header->width;
+}
+
+int getCurrentHeight(void)
+{
+	return mario.animation[(int) round(mario.current_frame)].handle->bmp_info_header->height;
+}
+
+int getPastWidth(void)
+{
+		return mario.animation[(int) round(past_frame)].handle->bmp_info_header->width;
+}
+
+int getPastHeight(void)
+{
+	return mario.animation[(int) round(past_frame)].handle->bmp_info_header->height;
+}
+
 bool moveLeft(void)
 {
 	if (mario.x - mario.speed > 0) {
 		move(-mario.speed, 0, STAND_LEFT, WALK2_LEFT, false);
-		drawMarioBackground(mario.x + mario.width, mario.y,
-				mario.x + mario.width + mario.speed, mario.y + mario.height);
+		drawMarioBackground(mario.x + getCurrentWidth(), mario.y,
+				mario.x + getPastWidth() + mario.speed, mario.y + getCurrentHeight());
 
 		return true;
 	}
@@ -137,10 +157,10 @@ bool moveLeft(void)
 
 bool moveRight(void)
 {
-	if (mario.x + mario.width + mario.speed < 320) {
+	if (mario.x + getCurrentWidth() + mario.speed < 320) {
 		move(mario.speed, 0, STAND_RIGHT, WALK2_RIGHT, true);
 		drawMarioBackground(mario.x-mario.speed, mario.y,
-				mario.x, mario.y + mario.height);
+				mario.x, mario.y + getCurrentHeight());
 		return true;
 	}
 
@@ -163,7 +183,7 @@ bool moveDown(void)
 */
 	mario.y += mario.speed;
 	drawMarioBackground(mario.x, mario.y - mario.speed,
-			mario.x + mario.width, mario.y);
+			mario.x + getCurrentWidth(), mario.y);
 	return true;
 }
 
@@ -181,7 +201,7 @@ bool moveUp(void)
 				mario.x + mario.width, mario.y);
 	}*/
 	mario.y -= mario.speed;
-	drawMarioBackground(mario.x, mario.y + mario.height,
-			mario.x + mario.width, mario.y + mario.height + mario.speed);
+	drawMarioBackground(mario.x, mario.y + getCurrentHeight(),
+			mario.x + getCurrentWidth(), mario.y + getCurrentHeight() + mario.speed);
 	return true;
 }
