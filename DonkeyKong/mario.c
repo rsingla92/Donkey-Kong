@@ -109,7 +109,8 @@ void move(int x, int y, MarioAnims lowFrame, MarioAnims highFrame, bool flip) {
 	mario.x += x;
 	mario.y += y;
 
-	if (mario.state == WALKING) {
+	if (mario.state == WALKING || mario.state == LADDER_TOP ||
+			mario.state == LADDER_BOTTOM) {
 		animate(lowFrame, highFrame);
 	}
 
@@ -204,4 +205,14 @@ bool moveUp(void)
 	drawMarioBackground(mario.x, mario.y + getCurrentHeight(),
 			mario.x + getCurrentWidth(), mario.y + getCurrentHeight() + mario.speed);
 	return true;
+}
+
+void changeMarioState(MarioState state)
+{
+	mario.state = state;
+}
+
+MarioState getMarioState(void)
+{
+	return mario.state;
 }

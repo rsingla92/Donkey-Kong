@@ -147,6 +147,10 @@ C_SRCS += main.c
 C_SRCS += bitmap.c
 C_SRCS += display.c
 C_SRCS += background.c
+C_SRCS += level1.c
+C_SRCS += mario.c
+C_SRCS += input.c
+C_SRCS += movingObject.c
 CXX_SRCS :=
 ASM_SRCS :=
 

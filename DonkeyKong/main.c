@@ -35,6 +35,10 @@ static alt_u32 num_ticks;
 static alt_32 update(void *context);
 static void readDat();
 
+/* Global Variables */
+unsigned char button_states[4] = {1, 1, 1, 1};
+unsigned char prev_state[4] = {1, 1, 1, 1};
+
 static void readDat(){
 	unsigned short accumulatedData = 0;
 	int i;
@@ -76,8 +80,7 @@ int main(void) {
 
 	printf("Card connected.\n");
 
-	//load_bmp("M1.BMP", &bmp);
-	loadMario(0, 5, 1);
+	loadMario(5, 5, 1);
 	draw_level1();
 	drawMario();
 
@@ -94,52 +97,11 @@ int main(void) {
 }
 
 alt_32 update(void *context) {
+	int i;
+	for (i = 0; i < 4; i++) prev_state[i] = button_states[i];
+	for (i = 0; i < 4; i++) button_states[i] = getButton(i);
 
-	//static int x = 0;
-	//static int y = 5;
-	bool wallmark = true;
-	static int dir_x = 1;
-
-	int floor = 0;
-	colour col = { 0x1F, 0x00, 0x1F };
-
-/*	if (x > (320 - bmp->bmp_info_header->width) || x < 0) {
-		dir_x = -dir_x;
-	} else {
-		drawBackgroundSection(x - 1, y - 2 , x + bmp->bmp_info_header->width + 1, y - 1);
-		drawBackgroundSection(x - 1, y + bmp->bmp_info_header->height, x + bmp->bmp_info_header->width + 1, y + bmp->bmp_info_header->height + 1);
-		drawBackgroundSection(x - 1,y , x, y + bmp->bmp_info_header->height );
-		drawBackgroundSection(x + bmp->bmp_info_header->width, y ,x + bmp->bmp_info_header->width + 1, y + bmp->bmp_info_header->height);
-		swap_buffers();
-		drawBackgroundSection(x - 1, y - 2 , x + bmp->bmp_info_header->width + 1, y - 1);
-		drawBackgroundSection(x - 1, y + bmp->bmp_info_header->height, x + bmp->bmp_info_header->width + 1, y + bmp->bmp_info_header->height + 1);
-		drawBackgroundSection(x - 1,y , x, y + bmp->bmp_info_header->height );
-		drawBackgroundSection(x + bmp->bmp_info_header->width, y ,x + bmp->bmp_info_header->width + 1, y + bmp->bmp_info_header->height);
-	}*/
-
-/*	draw_bmp(bmp, x, y, true, col, 1);
-	swap_buffers();
-	draw_bmp(bmp, x, y, true, col, 1);*/
-
-	if (is_ladder(getMario().x,getMario().y)){
-		moveMario(UP);
-		//y--;
-	}
-	else {
-		//x += dir_x;
-		wallmark = (dir_x > 0)? moveMario(RIGHT) : moveMario(LEFT);
-
-		if (wallmark == false) dir_x = -dir_x;
-		floor = find_floor(getMario().x, getMario().y) - getCurrentHeight(); // 12 is height of mario image
-		if (getMario().y < floor)
-			moveMario(DOWN);
-			// y++
-		if (getMario().y > floor)
-			moveMario(UP);
-			//y --;
-	}
-
-	drawMario();
-
+	update_level1();
 	return 1;
+
 }

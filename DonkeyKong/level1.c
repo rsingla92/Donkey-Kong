@@ -8,6 +8,12 @@
 #include "level1.h"
 #include "background.h"
 #include "bitmap.h"
+#include "mario.h"
+
+#define LADDER_ERROR	2
+
+extern unsigned char button_states[4];
+extern unsigned char prev_state[4];
 
 typedef struct {
 	int x;
@@ -116,12 +122,12 @@ int is_ladder (int x, int y){
 	for (i = 0; i < NUM_LADDERS; i++){
 		if (y >= (ladders[i].start.y - getCurrentHeight()) && y <= (ladders[i].end.y - getCurrentHeight()))
 			if (x >= ladders[i].start.x && x <= (ladders[i].start.x) + (ladders[i].width/3))
-				return 1;
+				return i;
 	}
-	return 0;
+	return -1;
 }
 
-int find_ladder_floor (int x, int y){
+int find_ladder_floor (int x, int y) {
 	int i;
 	for (i = 0; i < NUM_LADDERS; i++){
 		if (y <= ladders[i].end.y){
@@ -154,8 +160,7 @@ int find_floor(int x, int y){
 	return -1;
 }
 
-void draw_level1() {
-	printf("loading level1...\n");
+void draw_level1(void) {
 	short int ret = loadBackground("LVL1.BMP");
 	if (ret < 0) {
 			printf("Could not load level1. Ret: %d\n", ret);
@@ -167,4 +172,55 @@ void draw_level1() {
 	drawBackground();
 }
 
+bool is_num_in_range(int num, int lowBound, int highBound) {
+	return (num > lowBound && num < highBound);
+}
 
+void update_level1(void) {
+	int floor = 0;
+	int ladder_ind = 0;
+
+	if ((ladder_ind = is_ladder(getMario().x,getMario().y)) != -1) {
+		int ladder_end_y = ladders[ladder_ind].end.y;
+		int ladder_begin_y = ladders[ladder_ind].start.y;
+		changeMarioState(CLIMBING);
+		if ( is_num_in_range(getMario().y + getCurrentHeight(),
+				ladder_end_y-LADDER_ERROR, ladder_end_y+LADDER_ERROR)) {
+			changeMarioState(LADDER_BOTTOM);
+
+		} else if( is_num_in_range(getMario().y + getCurrentHeight(),
+						ladder_begin_y-LADDER_ERROR, ladder_begin_y+LADDER_ERROR)) {
+			changeMarioState(LADDER_TOP);
+		}
+
+		if (getMarioState() == LADDER_BOTTOM && button_states[1] == 0 ) {
+			/* Mario is beginning to climb. */
+			changeMarioState(CLIMBING);
+		} else if (getMarioState() == LADDER_TOP && button_states[0] == 0) {
+			changeMarioState(CLIMBING);
+		}
+
+		if (getMarioState() == CLIMBING) {
+			if (button_states[1] == 0) {
+				moveMario(UP);
+			} else if (button_states[0] == 0) {
+				moveMario(DOWN);
+			}
+		}
+	} else {
+		changeMarioState(WALKING);
+
+		/* Drop to the correct floor: */
+		floor = find_floor(getMario().x, getMario().y) - getCurrentHeight();
+		if (getMario().y < floor) moveMario(DOWN);
+		else if (getMario().y > floor) moveMario(UP);
+	}
+
+	if (getMarioState() == WALKING || getMarioState() == LADDER_BOTTOM ||
+			getMarioState() == LADDER_TOP) {
+		if (button_states[3] == 0) moveMario(LEFT);
+		else if (button_states[2] == 0) moveMario(RIGHT);
+	}
+
+	drawMario();
+}
