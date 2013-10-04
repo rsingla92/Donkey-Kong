@@ -8,6 +8,16 @@
 #include "level1.h"
 #include "background.h"
 #include "bitmap.h"
+#include "mario.h"
+#include "sys/alt_timestamp.h"
+
+#define LADDER_ERROR	2
+#define MAX_POINTS		300
+
+extern unsigned char button_states[4];
+extern unsigned char prev_state[4];
+
+static alt_timestamp_type start_time;
 
 typedef struct {
 	int x;
@@ -88,6 +98,24 @@ static const Plane floors[] =
 static const Plane ladders[] =
 {
 	{{110,26}, {110,91}, 11 },
+	{{125,26}, {125,91}, 11 },
+	{{194,62}, {194,91}, 11 },
+	{{251,94}, {251,114}, 11 },
+	{{137,91}, {137,104}, 11 },
+	{{137,113}, {137,119}, 11 },
+	{{46,123}, {46,143}, 11 },
+	{{114,120}, {114,145}, 11 },
+	{{228,115}, {228,128}, 11 },
+	{{228,139}, {228,150}, 11 },
+	{{91,144}, {91,157}, 11 },
+	{{91,162}, {91,177}, 11 },
+	{{160,147}, {46,175}, 11 },
+	{{251,151}, {251,171}, 11 },
+	{{46,178}, {46,200}, 11 },
+	{{137,175}, {137,203}, 11 },
+	{{114,202}, {114,215}, 11 },
+	{{114,221}, {114,232}, 11 },
+	{{251,207}, {251,228}, 11 },
 };
 
 #define NUM_FLOORS (sizeof(floors)/sizeof(floors[0]))
@@ -96,31 +124,47 @@ static const Plane ladders[] =
 int is_ladder (int x, int y){
 	int i;
 	for (i = 0; i < NUM_LADDERS; i++){
-		if (y >= ladders[i].start.y && y <= ladders[i].end.y)
-			if (x >= ladders[i].start.x && x <= (ladders[i].start.x) + (ladders[i].width/2))
-				return 1;
+		if (y >= (ladders[i].start.y - getCurrentHeight()) && y <= (ladders[i].end.y - getCurrentHeight()))
+			if (x >= ladders[i].start.x && x <= (ladders[i].start.x) + (ladders[i].width/3))
+				return i;
 	}
-	return 0;
-}
-
-
-int find_floor(int x, int y){
-	int i;
-	int f=0;
-	for (i = 0; i < NUM_FLOORS; i++){
-		if (y <= floors[i].end.y){
-			f = i;
-			if(x >= floors[f].start.x && x <= floors[f].end.x)
-				return (floors[f].start.y);
-		}
-	}
-
-
 	return -1;
 }
 
-void draw_level1() {
-	printf("loading level1...\n");
+int find_ladder_floor (int x, int y) {
+	int i;
+	for (i = 0; i < NUM_LADDERS; i++){
+		if (y <= ladders[i].end.y){
+			if(x >= ladders[i].start.x && x <= (ladders[i].start.x)+(ladders[i].width)/3)
+				return (ladders[i].end.y);
+		}
+	}
+	return -1;
+}
+
+int find_ladder_top (int x, int y){
+	int i;
+	for (i = 0; i < NUM_LADDERS; i++){
+		if (y <= ladders[i].end.y){
+			if(x >= ladders[i].start.x && x <= (ladders[i].start.x)+(ladders[i].width)/3)
+				return (ladders[i].start.y);
+		}
+	}
+	return -1;
+}
+
+int find_floor(int x, int y){
+	int i;
+	for (i = 0; i < NUM_FLOORS; i++){
+		if (y <= floors[i].end.y){
+			if(x >= floors[i].start.x && x <= floors[i].end.x)
+				return (floors[i].start.y);
+		}
+	}
+	return -1;
+}
+
+void draw_level1(void) {
 	short int ret = loadBackground("LVL1.BMP");
 	if (ret < 0) {
 			printf("Could not load level1. Ret: %d\n", ret);
@@ -132,4 +176,69 @@ void draw_level1() {
 	drawBackground();
 }
 
+bool is_num_in_range(int num, int lowBound, int highBound) {
+	return (num > lowBound && num < highBound);
+}
 
+void update_level1(void) {
+	static bool firstMove = true;
+	int floor = 0;
+	int ladder_ind = 0;
+
+	if (!firstMove) {
+		alt_timestamp_type end_time = alt_timestamp();
+		char buf[50];
+		sprintf(buf, "Score: %d", MAX_POINTS - (end_time-start_time)/alt_timestamp_freq());
+		draw_string(buf, 0, 0);
+	}
+
+	if ((ladder_ind = is_ladder(getMario().x,getMario().y)) != -1) {
+		int ladder_end_y = ladders[ladder_ind].end.y;
+		int ladder_begin_y = ladders[ladder_ind].start.y;
+		changeMarioState(M_CLIMBING);
+		if ( is_num_in_range(getMario().y + getCurrentHeight(),
+				ladder_end_y-LADDER_ERROR, ladder_end_y+LADDER_ERROR)) {
+			changeMarioState(LADDER_BOTTOM);
+
+		} else if( is_num_in_range(getMario().y + getCurrentHeight(),
+						ladder_begin_y-LADDER_ERROR, ladder_begin_y+LADDER_ERROR)) {
+			changeMarioState(LADDER_TOP);
+		}
+
+		if (getMarioState() == LADDER_BOTTOM && button_states[1] == 0 ) {
+			/* Mario is beginning to climb. */
+			changeMarioState(M_CLIMBING);
+		} else if (getMarioState() == LADDER_TOP && button_states[0] == 0) {
+			changeMarioState(M_CLIMBING);
+		}
+
+		if (getMarioState() == M_CLIMBING) {
+			if (button_states[1] == 0) {
+				moveMario(UP);
+			} else if (button_states[0] == 0) {
+				moveMario(DOWN);
+			}
+		}
+	} else {
+		changeMarioState(WALKING);
+
+		/* Drop to the correct floor: */
+		floor = find_floor(getMario().x, getMario().y) - getCurrentHeight();
+		if (getMario().y < floor) moveMario(DOWN);
+		else if (getMario().y > floor) moveMario(UP);
+	}
+
+	if ((button_states[3] == 0 || button_states[2] == 0) && firstMove) {
+		alt_timestamp_start();
+		start_time = alt_timestamp();
+		firstMove = false;
+	}
+
+	if (getMarioState() == WALKING || getMarioState() == LADDER_BOTTOM ||
+			getMarioState() == LADDER_TOP) {
+		if (button_states[3] == 0) moveMario(LEFT);
+		else if (button_states[2] == 0) moveMario(RIGHT);
+	}
+
+	drawMario();
+}
