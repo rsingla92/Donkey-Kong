@@ -39,15 +39,19 @@ typedef enum {FIRE_BUCKET,
 			  FIRE_BALL_ONE,
 			  FIRE_BALL_TWO,
 			  FIRE_BALL_THREE,
+			  NUM_FIRE_IMGS
 			  } FireImage;
+/* Peach Files */
+typedef enum{ PEACH_HELP,
+	   	   	  PEACH_HEARTBROKEN,
+	   	   	  PEACH_HEART,
+	   	   	  NUM_PEACH_IMGS
+			} PeachImage;
 
 /* Other Files */
 typedef enum { HAMMER,
 			   PLATFORM_DOWN,
 			   PLATFORM_UP,
-			   PEACH_HELP,
-			   PEACH_HEARTBROKEN,
-			   PEACH_HEART
 			  } OtherImage;
 
 /* Barrel Animations */
@@ -63,14 +67,14 @@ typedef enum { HAMMER,
 // I don't think there are any for these
 // typedef enum {} OtherAnim;
 
-/* Barrel States */
- typedef enum {LAYING, ROLLING} BarrelState;
+/* MovingObject States */
+ typedef enum {LAYING, ROLLING, STILL, MOVING} MovingObjectState;
 
 /* Donkey Kong States */
 typedef enum {STANDING, THROWING, ANGRY, CLIMBING, UPSIDE} DonkeyKongState;
 
-/* Fire States */
-// typedef enum {} FireState;
+/* Peach States */
+typedef enum {HEART, HEARTBROKEN} PeachState;
 
 /* Other States */
 // typedef enum {} OtherState;
@@ -82,26 +86,35 @@ typedef struct
 	bool flip;
 } AnimMap;
 
-// Barrel
+// MovingObject
 typedef struct
 {
 	int x, y, speed;
-	unsigned int current_frame;
-	BarrelState state;
+	float current_frame;
+	MovingObjectState state;
 
 	Barrel* prev;
 	Barrel* next;
 
-} Barrel;
+} MovingObject;
 
 // Donkey Kong
 typedef struct
 {
 	AnimMap animation[NUM_DONKEYKONG_IMGS];
 	int x, y;
-	unsigned int current_frame;
+	float current_frame;
 	DonkeyKongState state;
 } DonkeyKong;
+
+// Peach
+typedef struct
+{
+	AnimMap animation[NUM_PEACH_IMGS];
+	int x, y;
+	float current_frame;
+	PeachState state;
+} Peach;
 
 void drawBarrel(Barrel*);
 void drawBarrels();
@@ -112,8 +125,14 @@ void loadBarrels();
 void drawDonkeyKong();
 void loadDonkeyKong(int, int);
 
-void drawFire();
-void loadFire(Fire*, int, int);
+void drawFire(MovingObject* fire);
+void drawFires();
+void addFire(Fire*, int, int);
+void loadFire(int, int);
+void loadFires();
+
+void drawPeach();
+void loadPeach(int, int);
 
 void drawOtherObject();
 void loadOtherObject(int, int);
