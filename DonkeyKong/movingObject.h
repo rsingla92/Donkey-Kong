@@ -64,7 +64,7 @@ typedef enum { HAMMER,
 // typedef enum {} OtherAnim;
 
 /* Barrel States */
-// typedef enum {} BarrelState;
+ typedef enum {LAYING, ROLLING} BarrelState;
 
 /* Donkey Kong States */
 typedef enum {STANDING, THROWING, ANGRY, CLIMBING, UPSIDE} DonkeyKongState;
@@ -85,10 +85,12 @@ typedef struct
 // Barrel
 typedef struct
 {
-	AnimMap animation[NUM_BARREL_IMGS];
-	int x, y;
+	int x, y, speed;
 	unsigned int current_frame;
-	//BarrelState state;
+	BarrelState state;
+
+	Barrel* prev;
+	Barrel* next;
 
 } Barrel;
 
@@ -101,14 +103,17 @@ typedef struct
 	DonkeyKongState state;
 } DonkeyKong;
 
-void drawBarrel();
-void loadBarrel(BarrelImage, int, int);
+void drawBarrel(Barrel*);
+void drawBarrels();
+void loadBarrel(int, int);
+void addBarrel(Barrel*, int, int);
+void loadBarrels();
 
 void drawDonkeyKong();
 void loadDonkeyKong(int, int);
 
 void drawFire();
-void loadFire(FireImage, int, int);
+void loadFire(Fire*, int, int);
 
 void drawOtherObject();
 void loadOtherObject(int, int);
