@@ -84,13 +84,18 @@ int main(void) {
 	loadMario(5, 5, 1);
 	loadPeach(150, 10);
 	loadDonkeyKong(50, 10);
+	loadBarrels();
+	loadBarrel(20, 70);
+	loadBarrel(50, 70);
 	draw_level1();
 	drawMario();
 	drawPeach();
 	drawDonkeyKong();
+	drawBarrels();
 	swap_buffers();
 	drawPeach();
 	drawDonkeyKong();
+	drawBarrels();
 
 	ticks_per_sec = alt_ticks_per_second();
 

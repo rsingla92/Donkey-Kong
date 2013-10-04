@@ -82,19 +82,29 @@ void drawBarrels()
 	while(barrelItr != NULL)
 	{
 		drawBarrel(barrelItr);
+		barrelItr = barrelItr->next;
 	}
 }
 
 void loadBarrel( int x, int y)
 {
 	MovingObject* barrelItr = barrelListHead;
-	while(barrelItr->next != NULL)
+	MovingObject* lastItr = NULL;
+
+	while(barrelItr != NULL)
 	{
+		lastItr = barrelItr;
 		barrelItr = barrelItr->next;
 	}
 
-	MovingObject* newBarrel = malloc(sizeof(MovingObject));
-	addBarrel(newBarrel, x, y);
+	barrelItr = malloc(sizeof(MovingObject));
+	barrelItr->next = NULL;
+	barrelItr->prev = lastItr;
+	lastItr->next = barrelItr;
+
+	if (barrelListHead == NULL) barrelListHead = barrelItr;
+
+	addBarrel(barrelItr, x, y);
 }
 
 void addBarrel(MovingObject* newBarrel, int x, int y)
