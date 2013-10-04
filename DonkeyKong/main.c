@@ -9,6 +9,7 @@
 #include "io.h"
 #include "sys/alt_timestamp.h"
 #include "mario.h"
+#include "movingObject.h"
 
 #define NUM_FILES 44
 // Controller Out: Bits: 000000AB
@@ -81,8 +82,15 @@ int main(void) {
 	printf("Card connected.\n");
 
 	loadMario(5, 5, 1);
+	loadPeach(150, 10);
+	loadDonkeyKong(50, 10);
 	draw_level1();
 	drawMario();
+	drawPeach();
+	drawDonkeyKong();
+	swap_buffers();
+	drawPeach();
+	drawDonkeyKong();
 
 	ticks_per_sec = alt_ticks_per_second();
 

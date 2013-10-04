@@ -1,4 +1,5 @@
 #include "movingObject.h"
+#include "math.h"
 
 /*
  * Need to maintain a list of moving objects
@@ -6,7 +7,8 @@
  * Need to rough plan this out
  */
 static DonkeyKong donkeyKong;
-static char* donkeyKong_list[NUM_DONKEYKONG_IMGS] = {"M9.BMP", "M10.BMP", "M11.BMP"};
+static char* donkeyKong_list[NUM_DONKEYKONG_IMGS] = {"DK1.BMP", "DK2.BMP", "DK3.BMP",
+		"DK4.BMP", "DK5.BMP", "DK6.BMP", "DK7.BMP", "DK8.BMP", "DK9.BMP", "DK10.BMP", "DK11.BMP" };
 static colour donkeyKong_alpha = { 0x1F, 0x00, 0x1F };
 
 static MovingObject* barrelListHead;
@@ -25,7 +27,8 @@ static colour peach_alpha = { 0x1F, 0x00, 0x1F };
 
 void drawFire(MovingObject* fire)
 {
-	draw_bmp(fire_anim_list[fire->current_frame].handle, fire->x, fire->y,true, fire_alpha, 1);
+	int cur_frame = (int) round(fire->current_frame);
+	draw_bmp(fire_anim_list[cur_frame].handle, fire->x, fire->y,true, fire_alpha, 1);
 }
 
 void drawFires()
@@ -68,7 +71,8 @@ void loadFires()
 
 void drawBarrel(MovingObject* barrel)
 {
-	draw_bmp(barrel_anim_list[barrel->current_frame].handle, barrel->x,
+	int cur_frame = (int) round(barrel->current_frame);
+	draw_bmp(barrel_anim_list[cur_frame].handle, barrel->x,
 			barrel->y, true, barrel_alpha, 1);
 }
 
@@ -137,19 +141,26 @@ void loadDonkeyKong(int x, int y)
 
 void drawDonkeyKong(void)
 {
-	draw_bmp(donkeyKong.animation[donkeyKong.current_frame].handle,
+	int cur_frame = (int) round(donkeyKong.current_frame);
+	draw_bmp(donkeyKong.animation[cur_frame].handle,
 			donkeyKong.x, donkeyKong.y, true, donkeyKong_alpha, 1);
 }
 
 void drawPeach(void)
 {
-	draw_bmp(peach.animation[peach.current_frame].handle,
+	int cur_frame = (int) round(peach.current_frame);
+	draw_bmp(peach.animation[cur_frame].handle,
 			 peach.x, peach.y, true, peach_alpha, 1);
 }
 
-void loadPeach(void)
+void loadPeach(int x, int y)
 {
 	load_bmp(peach_list[PEACH_HELP], &(peach.animation[PEACH_HELP].handle));
 	load_bmp(peach_list[PEACH_HEARTBROKEN], &(peach.animation[PEACH_HEARTBROKEN].handle));
 	load_bmp(peach_list[PEACH_HEART], &(peach.animation[PEACH_HEART].handle));
+
+	peach.current_frame = PEACH_HELP;
+	peach.x = x;
+	peach.y = y;
+	peach.state = HELP;
 }

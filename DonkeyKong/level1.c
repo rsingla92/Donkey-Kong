@@ -9,11 +9,15 @@
 #include "background.h"
 #include "bitmap.h"
 #include "mario.h"
+#include "sys/alt_timestamp.h"
 
 #define LADDER_ERROR	2
+#define MAX_POINTS		300
 
 extern unsigned char button_states[4];
 extern unsigned char prev_state[4];
+
+static alt_timestamp_type start_time;
 
 typedef struct {
 	int x;
@@ -177,13 +181,21 @@ bool is_num_in_range(int num, int lowBound, int highBound) {
 }
 
 void update_level1(void) {
+	static bool firstMove = true;
 	int floor = 0;
 	int ladder_ind = 0;
+
+	if (!firstMove) {
+		alt_timestamp_type end_time = alt_timestamp();
+		char buf[50];
+		sprintf(buf, "Score: %d", MAX_POINTS - (end_time-start_time)/alt_timestamp_freq());
+		draw_string(buf, 0, 0);
+	}
 
 	if ((ladder_ind = is_ladder(getMario().x,getMario().y)) != -1) {
 		int ladder_end_y = ladders[ladder_ind].end.y;
 		int ladder_begin_y = ladders[ladder_ind].start.y;
-		changeMarioState(CLIMBING);
+		changeMarioState(M_CLIMBING);
 		if ( is_num_in_range(getMario().y + getCurrentHeight(),
 				ladder_end_y-LADDER_ERROR, ladder_end_y+LADDER_ERROR)) {
 			changeMarioState(LADDER_BOTTOM);
@@ -195,12 +207,12 @@ void update_level1(void) {
 
 		if (getMarioState() == LADDER_BOTTOM && button_states[1] == 0 ) {
 			/* Mario is beginning to climb. */
-			changeMarioState(CLIMBING);
+			changeMarioState(M_CLIMBING);
 		} else if (getMarioState() == LADDER_TOP && button_states[0] == 0) {
-			changeMarioState(CLIMBING);
+			changeMarioState(M_CLIMBING);
 		}
 
-		if (getMarioState() == CLIMBING) {
+		if (getMarioState() == M_CLIMBING) {
 			if (button_states[1] == 0) {
 				moveMario(UP);
 			} else if (button_states[0] == 0) {
@@ -214,6 +226,12 @@ void update_level1(void) {
 		floor = find_floor(getMario().x, getMario().y) - getCurrentHeight();
 		if (getMario().y < floor) moveMario(DOWN);
 		else if (getMario().y > floor) moveMario(UP);
+	}
+
+	if ((button_states[3] == 0 || button_states[2] == 0) && firstMove) {
+		alt_timestamp_start();
+		start_time = alt_timestamp();
+		firstMove = false;
 	}
 
 	if (getMarioState() == WALKING || getMarioState() == LADDER_BOTTOM ||

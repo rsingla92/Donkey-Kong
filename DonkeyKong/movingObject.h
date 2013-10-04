@@ -74,7 +74,7 @@ typedef enum { HAMMER,
 typedef enum {STANDING, THROWING, ANGRY, CLIMBING, UPSIDE} DonkeyKongState;
 
 /* Peach States */
-typedef enum {HEART, HEARTBROKEN} PeachState;
+typedef enum {HEART, HEARTBROKEN, HELP} PeachState;
 
 /* Other States */
 // typedef enum {} OtherState;
@@ -87,14 +87,14 @@ typedef struct
 } AnimMap;
 
 // MovingObject
-typedef struct
+typedef struct MovingObject
 {
 	int x, y, speed;
 	float current_frame;
 	MovingObjectState state;
 
-	Barrel* prev;
-	Barrel* next;
+	struct MovingObject* prev;
+	struct MovingObject* next;
 
 } MovingObject;
 
@@ -116,10 +116,10 @@ typedef struct
 	PeachState state;
 } Peach;
 
-void drawBarrel(Barrel*);
+void drawBarrel(MovingObject*);
 void drawBarrels();
 void loadBarrel(int, int);
-void addBarrel(Barrel*, int, int);
+void addBarrel(MovingObject*, int, int);
 void loadBarrels();
 
 void drawDonkeyKong();
@@ -127,11 +127,11 @@ void loadDonkeyKong(int, int);
 
 void drawFire(MovingObject* fire);
 void drawFires();
-void addFire(Fire*, int, int);
+void addFire(MovingObject*, int, int);
 void loadFire(int, int);
 void loadFires();
 
-void drawPeach();
+void drawPeach(void);
 void loadPeach(int, int);
 
 void drawOtherObject();
