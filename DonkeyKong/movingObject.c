@@ -100,7 +100,7 @@ void loadBarrel( int x, int y)
 	barrelItr = malloc(sizeof(MovingObject));
 	barrelItr->next = NULL;
 	barrelItr->prev = lastItr;
-	lastItr->next = barrelItr;
+	if (lastItr != NULL) lastItr->next = barrelItr;
 
 	if (barrelListHead == NULL) barrelListHead = barrelItr;
 

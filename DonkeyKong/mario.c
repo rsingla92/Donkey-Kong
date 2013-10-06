@@ -42,6 +42,7 @@ void loadMario(int x, int y, int speed)
 	mario.state = WALKING;
 	mario.x = x;
 	mario.y = y;
+	mario.jumpStart = y;
 	mario.speed = speed;
 }
 
@@ -143,6 +144,16 @@ int getPastHeight(void)
 	return mario.animation[(int) round(past_frame)].handle->bmp_info_header->height;
 }
 
+void setMarioJumpStart(int height)
+{
+	mario.jumpStart = height;
+}
+
+int getMarioJumpStart(void)
+{
+	return mario.jumpStart;
+}
+
 bool moveLeft(void)
 {
 	if (mario.x - mario.speed > 0) {
@@ -210,6 +221,21 @@ bool moveUp(void)
 void changeMarioState(MarioState state)
 {
 	mario.state = state;
+
+	if (mario.current_frame >= STAND_RIGHT &&
+			mario.current_frame <= WALK2_RIGHT)
+	{
+		if (mario.state == JUMPING) {
+			mario.current_frame = WALK1_RIGHT;
+		}
+	}
+	else if(mario.current_frame >= STAND_LEFT &&
+			mario.current_frame <= WALK2_LEFT)
+	{
+		if (mario.state == JUMPING) {
+			mario.current_frame = WALK1_LEFT;
+		}
+	}
 }
 
 MarioState getMarioState(void)

@@ -192,7 +192,14 @@ void update_level1(void) {
 		draw_string(buf, 0, 0);
 	}
 
-	if ((ladder_ind = is_ladder(getMario().x,getMario().y)) != -1) {
+	if (getMarioState() == JUMPING) {
+		/* Mario is jumping */
+		if (getMario().y <= getMarioJumpStart() - MAX_JUMP) {
+			changeMarioState(FALLING);
+		} else {
+			moveMario(UP);
+		}
+  	} else if (getMarioState() != FALLING && (ladder_ind = is_ladder(getMario().x,getMario().y)) != -1) {
 		int ladder_end_y = ladders[ladder_ind].end.y;
 		int ladder_begin_y = ladders[ladder_ind].start.y;
 		changeMarioState(M_CLIMBING);
@@ -210,6 +217,9 @@ void update_level1(void) {
 			changeMarioState(M_CLIMBING);
 		} else if (getMarioState() == LADDER_TOP && button_states[0] == 0) {
 			changeMarioState(M_CLIMBING);
+		} else if (getMarioState() == LADDER_TOP && button_states[1] == 0) {
+			changeMarioState(JUMPING);
+			setMarioJumpStart(getMario().y);
 		}
 
 		if (getMarioState() == M_CLIMBING) {
@@ -220,12 +230,20 @@ void update_level1(void) {
 			}
 		}
 	} else {
-		changeMarioState(WALKING);
+		// changeMarioState(WALKING);
 
 		/* Drop to the correct floor: */
 		floor = find_floor(getMario().x, getMario().y) - getCurrentHeight();
 		if (getMario().y < floor) moveMario(DOWN);
 		else if (getMario().y > floor) moveMario(UP);
+
+		if (getMario().y > floor - 2 && getMario().y < floor + 2) {
+			changeMarioState(WALKING);
+			if (button_states[1] == 0) {
+				changeMarioState(JUMPING);
+				setMarioJumpStart(getMario().y);
+			}
+		}
 	}
 
 	if ((button_states[3] == 0 || button_states[2] == 0) && firstMove) {
@@ -235,7 +253,8 @@ void update_level1(void) {
 	}
 
 	if (getMarioState() == WALKING || getMarioState() == LADDER_BOTTOM ||
-			getMarioState() == LADDER_TOP) {
+			getMarioState() == LADDER_TOP ||
+			getMarioState() == JUMPING || getMarioState() == FALLING) {
 		if (button_states[3] == 0) moveMario(LEFT);
 		else if (button_states[2] == 0) moveMario(RIGHT);
 	}

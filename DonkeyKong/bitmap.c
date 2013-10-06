@@ -32,14 +32,17 @@ void draw_bmp(BitmapHandle* handle, int x, int y, bool alpha_enable, colour alph
 			int pixel_x = x + col;//(bmp_info_header->width - 1 - col);
 			int pixel_y = y + (bmp_info_header->height - 1 - row);
 
-			if (alpha_enable == false || !(pixel_map[ind].r == alpha_col.r &&
-					pixel_map[ind].g == alpha_col.g && pixel_map[ind].b == alpha_col.b))
+			if (pixel_x >= 0 && pixel_x <= 320 && pixel_y >=0 && pixel_y <= 240)
 			{
-				//draw_pixel(pixel_x, pixel_y, pixel_map[ind]);
-				draw_line(pixel_x, pixel_y, pixel_x, pixel_y, pixel_map[ind], backbuffer );
-			} else if (alpha_enable == true && pixel_map[ind].r == alpha_col.r &&
-					pixel_map[ind].g == alpha_col.g && pixel_map[ind].b == alpha_col.b) {
-				drawBackgroundSection(pixel_x, pixel_y, pixel_x, pixel_y);
+				if (alpha_enable == false || !(pixel_map[ind].r == alpha_col.r &&
+						pixel_map[ind].g == alpha_col.g && pixel_map[ind].b == alpha_col.b))
+				{
+					//draw_pixel(pixel_x, pixel_y, pixel_map[ind]);
+					draw_line(pixel_x, pixel_y, pixel_x, pixel_y, pixel_map[ind], backbuffer );
+				} else if (alpha_enable == true && pixel_map[ind].r == alpha_col.r &&
+						pixel_map[ind].g == alpha_col.g && pixel_map[ind].b == alpha_col.b) {
+					drawBackgroundSection(pixel_x, pixel_y, pixel_x, pixel_y);
+				}
 			}
 		}
 	}
@@ -62,14 +65,17 @@ void draw_flipped_bmp(BitmapHandle* handle, int x, int y, bool alpha_enable, col
 			int pixel_x = x + (bmp_info_header->width - 1 - col);//(bmp_info_header->width - 1 - col);
 			int pixel_y = y + (bmp_info_header->height - 1 - row);
 
-			if (alpha_enable == false || !(pixel_map[ind].r == alpha_col.r &&
-					pixel_map[ind].g == alpha_col.g && pixel_map[ind].b == alpha_col.b))
+			if (pixel_x >= 0 && pixel_x <= 320 && pixel_y >=0 && pixel_y <= 240)
 			{
-				//draw_pixel(pixel_x, pixel_y, pixel_map[ind]);
-				draw_line(pixel_x, pixel_y, pixel_x, pixel_y, pixel_map[ind], backbuffer );
-			} else if (alpha_enable == true && pixel_map[ind].r == alpha_col.r &&
-					pixel_map[ind].g == alpha_col.g && pixel_map[ind].b == alpha_col.b) {
-				drawBackgroundSection(pixel_x, pixel_y, pixel_x, pixel_y);
+				if (alpha_enable == false || !(pixel_map[ind].r == alpha_col.r &&
+						pixel_map[ind].g == alpha_col.g && pixel_map[ind].b == alpha_col.b))
+				{
+					//draw_pixel(pixel_x, pixel_y, pixel_map[ind]);
+					draw_line(pixel_x, pixel_y, pixel_x, pixel_y, pixel_map[ind], backbuffer );
+				} else if (alpha_enable == true && pixel_map[ind].r == alpha_col.r &&
+						pixel_map[ind].g == alpha_col.g && pixel_map[ind].b == alpha_col.b) {
+					drawBackgroundSection(pixel_x, pixel_y, pixel_x, pixel_y);
+				}
 			}
 		}
 	}

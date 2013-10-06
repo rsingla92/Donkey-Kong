@@ -21,8 +21,10 @@ typedef enum { STAND_LEFT, WALK1_LEFT, WALK2_LEFT, STAND_RIGHT,
 			WALK1_RIGHT, WALK2_RIGHT, NUM_ANIMS } MarioAnims;
 
 /* Mario States */
-typedef enum { WALKING, JUMPING, M_CLIMBING, LADDER_BOTTOM,
+typedef enum { WALKING, JUMPING, FALLING, M_CLIMBING, LADDER_BOTTOM,
 	LADDER_TOP, DEAD, NUM_STATES } MarioState;
+
+#define MAX_JUMP 12
 
 typedef struct
 {
@@ -36,6 +38,7 @@ typedef struct
 	int x, y;
 	int speed;
 	float current_frame;
+	int jumpStart;
 	MarioState state;
 } Mario;
 
@@ -52,6 +55,8 @@ bool moveRight(void);
 
 int getCurrentWidth(void);
 int getCurrentHeight(void);
+void setMarioJumpStart(int height);
+int getMarioJumpStart(void);
 
 void changeMarioState(MarioState state);
 MarioState getMarioState(void);
