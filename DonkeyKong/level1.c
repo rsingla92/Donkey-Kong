@@ -109,7 +109,7 @@ static const Plane ladders[] =
 	{{228,139}, {228,150}, 11 },
 	{{91,144}, {91,157}, 11 },
 	{{91,162}, {91,177}, 11 },
-	{{160,147}, {46,175}, 11 },
+	{{160,147}, {160,175}, 11 },
 	{{251,151}, {251,171}, 11 },
 	{{46,178}, {46,200}, 11 },
 	{{137,175}, {137,203}, 11 },
@@ -156,7 +156,7 @@ int find_ladder_top (int x, int y){
 int find_floor(int x, int y){
 	int i;
 	for (i = 0; i < NUM_FLOORS; i++){
-		if (y <= floors[i].end.y){
+		if (y + 3*(getCurrentHeight()/4) <= floors[i].end.y){
 			if(x >= floors[i].start.x && x <= floors[i].end.x)
 				return (floors[i].start.y);
 		}
@@ -177,7 +177,7 @@ void draw_level1(void) {
 }
 
 bool is_num_in_range(int num, int lowBound, int highBound) {
-	return (num > lowBound && num < highBound);
+	return (num >= lowBound && num <= highBound);
 }
 
 void update_level1(void) {
