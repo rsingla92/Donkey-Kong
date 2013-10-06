@@ -18,6 +18,7 @@ extern unsigned char button_states[4];
 extern unsigned char prev_state[4];
 
 static alt_timestamp_type start_time;
+static int points = MAX_POINTS;
 
 typedef struct {
 	int x;
@@ -188,7 +189,15 @@ void update_level1(void) {
 	if (!firstMove) {
 		alt_timestamp_type end_time = alt_timestamp();
 		char buf[50];
-		sprintf(buf, "Score: %d", MAX_POINTS - (end_time-start_time)/alt_timestamp_freq());
+
+		if ((2*(end_time - start_time)/alt_timestamp_freq()) > 1){
+			alt_timestamp_start();
+			start_time = alt_timestamp();
+			points = points - 1;
+			if (points < 0)
+				points = 0;
+		}
+		sprintf(buf, "Score: %03d", points);
 		draw_string(buf, 0, 0);
 	}
 

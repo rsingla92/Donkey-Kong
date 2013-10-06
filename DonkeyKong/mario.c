@@ -113,7 +113,6 @@ void move(int x, int y, MarioAnims lowFrame, MarioAnims highFrame, bool flip) {
 			mario.state == LADDER_BOTTOM) {
 		animate(lowFrame, highFrame);
 	}
-
 	//drawMario(flip);
 }
 
