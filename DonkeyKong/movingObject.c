@@ -1,5 +1,6 @@
 #include "movingObject.h"
-#include <math.h>
+#include "math.h"
+
 
 /*
  * Need to maintain a list of moving objects
@@ -15,6 +16,8 @@ static MovingObject* barrelListHead;
 static char* barrel_list[NUM_BARREL_IMGS] = {"B1.BMP", "B2.BMP", "B3.BMP", "B4.BMP", "B5.BMP"};
 static AnimMap barrel_anim_list[NUM_BARREL_IMGS];
 static colour barrel_alpha = { 0x1F, 0x00, 0x1F };
+static double frame_dir = 0.5;
+static int barrel_dir = 1;
 
 static MovingObject* fireListHead;
 static char* fire_list[NUM_FIRE_IMGS] = {"FIRE.BMP", "FIRE1.BMP", "FIRE2.BMP", "FIRE3.BMP"};
@@ -84,6 +87,12 @@ void drawBarrels()
 		drawBarrel(barrelItr);
 		barrelItr = barrelItr->next;
 	}
+	swap_buffers();
+	while(barrelItr != NULL)
+	{
+		drawBarrel(barrelItr);
+		barrelItr = barrelItr->next;
+	}
 }
 
 void loadBarrel( int x, int y)
@@ -124,6 +133,74 @@ void loadBarrels()
 	load_bmp(barrel_list[ROLLING_BOTTOM_LEFT], &(barrel_anim_list[ROLLING_BOTTOM_LEFT].handle));
 	load_bmp(barrel_list[ROLLING_BOTTOM_RIGHT], &(barrel_anim_list[ROLLING_BOTTOM_RIGHT].handle));
 }
+
+void animateBarrels(BarrelImage lowFrame, BarrelImage highFrame)
+{
+	MovingObject* barrelItr = barrelListHead;
+	barrelItr->past_frame = barrelItr->current_frame;
+
+	if (barrelItr->current_frame < lowFrame || barrelItr->current_frame > highFrame) {
+		barrelItr->current_frame = lowFrame;
+	} else {
+		barrelItr->current_frame += 0.1;
+	}
+
+	if (barrelItr->current_frame > highFrame || barrelItr->current_frame < lowFrame) {
+		frame_dir = -0.1;
+	}
+}
+
+void moveBarrels(BarrelImage lowFrame, BarrelImage highFrame) {
+	//double tmp_frame = mario.current_frame;
+	MovingObject* barrelItr = barrelListHead;
+	if (barrelItr->x  + MOgetCurrentWidth(barrelItr) >= 320 || barrelItr->x <= 0)
+		barrel_dir = -barrel_dir;
+	barrelItr->x += barrel_dir;
+
+	if (barrelItr->y + MOgetCurrentHeight(barrelItr) > find_floor(barrelItr->x, barrelItr->y, 0))
+		barrelItr->y -= 1;
+	else if (barrelItr->y + MOgetCurrentHeight(barrelItr) < find_floor(barrelItr->x, barrelItr->y, 0)){
+		barrelItr->y += 1;
+		MOdrawBackground(barrelItr->x, barrelItr->y - 1 , barrelItr->x + MOgetCurrentWidth(barrelItr),barrelItr->y);
+	}
+
+	animateBarrels(lowFrame, highFrame);
+
+	if (barrel_dir < 0)
+		MOdrawBackground(barrelItr->x + MOgetCurrentWidth(barrelItr) + 1, barrelItr->y,
+				barrelItr->x + getPastWidth(barrelItr) + 1, barrelItr->y + MOgetCurrentHeight(barrelItr));
+	else
+		MOdrawBackground(barrelItr->x-1, barrelItr->y,
+						barrelItr->x, barrelItr->y + MOgetCurrentHeight(barrelItr));
+}
+
+void MOdrawBackground(int x0, int y0, int x1, int y1) {
+	drawBackgroundSection(x0, y0, x1, y1);
+	swap_buffers();
+	drawBackgroundSection(x0, y0, x1, y1);
+}
+
+int MOgetCurrentWidth(MovingObject* itr)
+{
+	return barrel_anim_list[(int) round(itr->current_frame)].handle->bmp_info_header->width;
+}
+
+int MOgetCurrentHeight(MovingObject* itr)
+{
+	return barrel_anim_list[(int) round(itr->current_frame)].handle->bmp_info_header->height;
+}
+
+int MOgetPastWidth(MovingObject* itr)
+{
+		return barrel_anim_list[(int) round(itr->past_frame)].handle->bmp_info_header->width;
+}
+
+int MOgetPastHeight(MovingObject* itr)
+{
+	return barrel_anim_list[(int) round(itr->past_frame)].handle->bmp_info_header->height;
+}
+
+
 
 void loadDonkeyKong(int x, int y)
 {
