@@ -55,7 +55,7 @@ typedef enum { HAMMER,
 			  } OtherImage;
 
 /* Barrel Animations */
-// typedef enum {} BarrelAnim;
+ typedef enum {SIDE, ROLL_1, ROLL_2, ROLL_3, ROLL_4} BarrelAnim;
 
 /* DonkeyKong Animations */
 // typedef enum {} DonkeyKongAnim;

@@ -34,7 +34,7 @@ typedef struct {
 static const Plane floors[] =
 {
 	{{137,62}, {205,62}, 0 }, 	// top floor
-	{{-1,91}, {205,91}, 0}, 		// second floor
+	{{-1,91}, {205,91}, 0}, 	// second floor
 	{{206,92}, {228,92}, 0 },
 	{{229,93}, {251,93}, 0 },
 	{{252,94}, {273,94}, 0 },
@@ -154,10 +154,10 @@ int find_ladder_top (int x, int y){
 	return -1;
 }
 
-int find_floor(int x, int y){
+int find_floor(int x, int y, double ref){
 	int i;
 	for (i = 0; i < NUM_FLOORS; i++){
-		if (y + 3*(getCurrentHeight()/4) <= floors[i].end.y){
+		if (y + ref <= floors[i].end.y){
 			if(x >= floors[i].start.x && x <= floors[i].end.x)
 				return (floors[i].start.y);
 		}
@@ -242,7 +242,7 @@ void update_level1(void) {
 		// changeMarioState(WALKING);
 
 		/* Drop to the correct floor: */
-		floor = find_floor(getMario().x, getMario().y) - getCurrentHeight();
+		floor = find_floor(getMario().x, getMario().y, 3*(getCurrentHeight()/4)) - getCurrentHeight();
 		if (getMario().y < floor) moveMario(DOWN);
 		else if (getMario().y > floor) moveMario(UP);
 

@@ -82,9 +82,9 @@ int main(void) {
 
 	printf("Card connected.\n");
 
-	loadMario(5, 5, 1);
-	loadPeach(150, 10);
-	loadDonkeyKong(50, 10);
+	loadMario(0,217, 1);
+	loadPeach(137, 43);
+	loadDonkeyKong(85, 71);
 	loadBarrels();
 	loadBarrel(20, 70);
 	loadBarrel(50, 70);
