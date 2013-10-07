@@ -1,5 +1,5 @@
 #include "movingObject.h"
-#include "math.h"
+#include <math.h>
 
 /*
  * Need to maintain a list of moving objects

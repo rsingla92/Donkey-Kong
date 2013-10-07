@@ -10,6 +10,7 @@
 #include "sys/alt_timestamp.h"
 #include "mario.h"
 #include "movingObject.h"
+#include "state_machine.h"
 
 #define NUM_FILES 44
 // Controller Out: Bits: 000000AB
@@ -114,7 +115,7 @@ alt_32 update(void *context) {
 	for (i = 0; i < 4; i++) prev_state[i] = button_states[i];
 	for (i = 0; i < 4; i++) button_states[i] = getButton(i);
 
-	update_level1();
+	runState();
 	return 1;
 
 }
