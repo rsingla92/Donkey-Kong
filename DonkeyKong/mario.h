@@ -43,7 +43,7 @@ typedef struct
 } Mario;
 
 void loadMario(int x, int y, int speed);
-void drawMario(void);
+void drawMario(bool bothBuffers);
 
 bool moveMario(MarioDirection dir);
 Mario getMario(void);

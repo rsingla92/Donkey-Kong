@@ -7,17 +7,18 @@
 
 #include "state_machine.h"
 #include "level1.h"
+#include "load_screen.h"
 
 #define NULL 0
 
 static State states[NUM_STATE_MACHINE_STATES] =
 {
 	{NULL, NULL, NULL},	/* MAIN_MENU */
-	{NULL, NULL, NULL},	/* LOADING_SCREEN */
+	{updateLoadScreen, NULL, NULL},	/* LOADING_SCREEN */
 	{update_level1, NULL, NULL},	/* LEVEL1 */
 };
 
-static eState current_state = LEVEL1;
+static eState current_state = LOADING_SCREEN;
 
 void changeState(eState new_state)
 {

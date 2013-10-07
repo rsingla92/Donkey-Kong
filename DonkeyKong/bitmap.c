@@ -99,17 +99,13 @@ short int load_bmp(char *filename, BitmapHandle** bmp_handle)
 
 	if (bmp_file_header == NULL || bmp_info_header == NULL)
 	{
-		printf("Error loading bmp headers.\n");
 		return -1;
 	}
 
 	if (!verify_bmp_type(bmp_file_header))
 	{
-		printf("Not a proper 24-bit bitmap.\n");
 		return -2;
 	}
-
-	dump_header_info(bmp_file_header, bmp_info_header);
 
 	/* Read pixel data. */
 	int bmp_alloc_size = bmp_info_header->width * bmp_info_header->height * 3;
@@ -129,7 +125,6 @@ short int load_bmp(char *filename, BitmapHandle** bmp_handle)
 	}
 
 	padding = byte_width - (bmp_info_header->width*3);
-	printf("\nPadding: %d\n", padding);
 
 	for (it = pixel_map, i = 0;
 			i < bmp_info_header->width*bmp_info_header->height; i++, it++)
@@ -224,8 +219,6 @@ static short int verify_bmp_type(BmpFileHeader* bmp_file_header)
 	if((bmp_file_header->header_field & 0x00FF) != BITMAP_TYPE_BYTE1 ||
 		((bmp_file_header->header_field & 0xFF00) >> 8)  != BITMAP_TYPE_BYTE2)
 	{
-		printf("Wrong file type for bitmap. 1st Byte: %x, 2nd Byte: %x\n",
-				bmp_file_header->header_field & 0x00FF, (bmp_file_header->header_field & 0xFF00) >> 8);
 		return 0;
 	}
 
