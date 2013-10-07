@@ -46,7 +46,7 @@ void loadMario(int x, int y, int speed)
 	mario.speed = speed;
 }
 
-void drawMario()
+void drawMario(bool bothBuffers)
 {
 	int cur_frame = (int) round(mario.current_frame);
 
@@ -54,17 +54,23 @@ void drawMario()
 	{
 		draw_flipped_bmp(mario.animation[cur_frame].handle,
 				mario.x, mario.y, true, mario_alpha, 1);
-		swap_buffers();
-		draw_flipped_bmp(mario.animation[cur_frame].handle,
-				mario.x, mario.y, true, mario_alpha, 1);
+		if (bothBuffers == true)
+		{
+			swap_buffers();
+			draw_flipped_bmp(mario.animation[cur_frame].handle,
+					mario.x, mario.y, true, mario_alpha, 1);
+		}
 	}
 	else
 	{
 		draw_bmp(mario.animation[cur_frame].handle,
 				mario.x, mario.y, true, mario_alpha, 1);
-		swap_buffers();
-		draw_bmp(mario.animation[cur_frame].handle,
-				mario.x, mario.y, true, mario_alpha, 1);
+		if (bothBuffers == true)
+		{
+			swap_buffers();
+			draw_bmp(mario.animation[cur_frame].handle,
+					mario.x, mario.y, true, mario_alpha, 1);
+		}
 	}
 }
 

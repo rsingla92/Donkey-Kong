@@ -82,22 +82,6 @@ int main(void) {
 
 	printf("Card connected.\n");
 
-	loadMario(0,217, 1);
-	loadPeach(137, 43);
-	loadDonkeyKong(85, 71);
-	loadBarrels();
-	loadBarrel(20, 70);
-	loadBarrel(50, 70);
-	draw_level1();
-	drawMario();
-	drawPeach();
-	drawDonkeyKong();
-	drawBarrels();
-	swap_buffers();
-	drawPeach();
-	drawDonkeyKong();
-	drawBarrels();
-
 	ticks_per_sec = alt_ticks_per_second();
 
 	num_ticks = ticks_per_sec / 30;

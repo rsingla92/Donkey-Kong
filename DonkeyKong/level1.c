@@ -173,8 +173,8 @@ void draw_level1(void) {
 
 	// Draw the background to both buffers.
 	drawBackground();
-	swap_buffers();
-	drawBackground();
+	//swap_buffers();
+	//drawBackground();
 }
 
 bool is_num_in_range(int num, int lowBound, int highBound) {
@@ -268,5 +268,5 @@ void update_level1(void) {
 		else if (button_states[2] == 0) moveMario(RIGHT);
 	}
 
-	drawMario();
+	drawMario(true);
 }
