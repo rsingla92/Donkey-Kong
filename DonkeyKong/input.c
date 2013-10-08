@@ -7,6 +7,7 @@
 
 #include "input.h"
 #include "system.h"
+#include "io.h"
 
 /*
  * getButton
@@ -20,5 +21,5 @@ unsigned char getButton(int buttonNum) {
 
 	unsigned char mask = 1 << buttonNum;
 
-	return ((*buttons) & mask) >> buttonNum;
+	return (IORD_8DIRECT(buttons, 0) & mask) >> buttonNum;
 }
