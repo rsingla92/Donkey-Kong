@@ -14,11 +14,11 @@
 typedef enum { UP, DOWN, LEFT, RIGHT } MarioDirection;
 
 /* Mario Files */
-typedef enum { STAND_IMG, WALK1_IMG, WALK2_IMG, NUM_IMGS } MarioImages;
+typedef enum { STAND_IMG, WALK1_IMG, WALK2_IMG, CLIMB_IMG, NUM_IMGS } MarioImages;
 
 /* Mario Animations */
 typedef enum { STAND_LEFT, WALK1_LEFT, WALK2_LEFT, STAND_RIGHT,
-			WALK1_RIGHT, WALK2_RIGHT, NUM_ANIMS } MarioAnims;
+			WALK1_RIGHT, WALK2_RIGHT, CLIMB1, CLIMB2, NUM_ANIMS } MarioAnims;
 
 /* Mario States */
 typedef enum { WALKING, JUMPING, FALLING, M_CLIMBING, LADDER_BOTTOM,
