@@ -87,12 +87,12 @@ void drawBarrels()
 		drawBarrel(barrelItr);
 		barrelItr = barrelItr->next;
 	}
-	swap_buffers();
-	while(barrelItr != NULL)
-	{
-		drawBarrel(barrelItr);
-		barrelItr = barrelItr->next;
-	}
+//	swap_buffers();
+//	while(barrelItr != NULL)
+//	{
+//		drawBarrel(barrelItr);
+//		barrelItr = barrelItr->next;
+//	}
 }
 
 void loadBarrel( int x, int y)
