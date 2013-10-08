@@ -181,6 +181,20 @@ bool is_num_in_range(int num, int lowBound, int highBound) {
 	return (num >= lowBound && num <= highBound);
 }
 
+void init_level1(void) {
+	draw_level1();
+	drawMario(false);
+	drawPeach();
+	drawDonkeyKong();
+	drawBarrels();
+
+	swap_buffers();
+	draw_level1();
+	drawPeach();
+	drawDonkeyKong();
+	drawBarrels();
+}
+
 void update_level1(void) {
 	static bool firstMove = true;
 	int floor = 0;
@@ -211,7 +225,7 @@ void update_level1(void) {
   	} else if (getMarioState() != FALLING && (ladder_ind = is_ladder(getMario().x,getMario().y)) != -1) {
 		int ladder_end_y = ladders[ladder_ind].end.y;
 		int ladder_begin_y = ladders[ladder_ind].start.y;
-		changeMarioState(M_CLIMBING);
+
 		if ( is_num_in_range(getMario().y + getCurrentHeight(),
 				ladder_end_y-LADDER_ERROR, ladder_end_y+LADDER_ERROR)) {
 			changeMarioState(LADDER_BOTTOM);

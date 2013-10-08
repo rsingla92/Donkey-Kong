@@ -16,6 +16,7 @@ typedef struct {
 	handler_func handler;
 	pre_func init_func;
 	after_func destructor_func;
+	unsigned char initialized;
 } State;
 
 typedef enum {MAIN_MENU, LOADING_SCREEN, LEVEL1, NUM_STATE_MACHINE_STATES} eState;

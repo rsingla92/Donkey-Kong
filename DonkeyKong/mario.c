@@ -241,15 +241,15 @@ void changeMarioState(MarioState state)
 {
 	mario.state = state;
 
-	if (mario.current_frame >= STAND_RIGHT &&
-			mario.current_frame <= WALK2_RIGHT)
+	float frame = round(mario.current_frame);
+
+	if (frame >= STAND_RIGHT && frame <= WALK2_RIGHT)
 	{
 		if (mario.state == JUMPING || mario.state == FALLING) {
 			mario.current_frame = WALK1_RIGHT;
 		}
 	}
-	else if(mario.current_frame >= STAND_LEFT &&
-			mario.current_frame <= WALK2_LEFT)
+	else if(frame >= STAND_LEFT && frame <= WALK2_LEFT)
 	{
 		if (mario.state == JUMPING || mario.state == FALLING) {
 			mario.current_frame = WALK1_LEFT;

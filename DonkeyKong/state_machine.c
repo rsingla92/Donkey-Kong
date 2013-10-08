@@ -13,29 +13,35 @@
 
 static State states[NUM_STATE_MACHINE_STATES] =
 {
-	{NULL, NULL, NULL},	/* MAIN_MENU */
-	{updateLoadScreen, NULL, NULL},	/* LOADING_SCREEN */
-	{update_level1, NULL, NULL},	/* LEVEL1 */
+	{NULL, NULL, NULL, 0},	/* MAIN_MENU */
+	{updateLoadScreen, NULL, NULL, 0},	/* LOADING_SCREEN */
+	{update_level1, init_level1, NULL, 0},	/* LEVEL1 */
 };
 
 static eState current_state = LOADING_SCREEN;
 
 void changeState(eState new_state)
 {
-	if (states[current_state].destructor_func != NULL) {
+	if (states[current_state].destructor_func != NULL)
+	{
 		states[current_state].destructor_func();
 	}
 
+	states[current_state].initialized = 0;
 	current_state = new_state;
-
-	if (states[current_state].init_func != NULL) {
-		states[current_state].init_func();
-	}
 }
 
 void runState()
 {
-	if (states[current_state].handler != NULL) {
+	if (!states[current_state].initialized &&
+			states[current_state].init_func != NULL)
+	{
+		states[current_state].initialized = 1;
+		states[current_state].init_func();
+	}
+
+	if (states[current_state].handler != NULL)
+	{
 		states[current_state].handler();
 	}
 }

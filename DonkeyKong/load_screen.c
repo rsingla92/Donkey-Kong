@@ -9,9 +9,12 @@
 #include "bitmap.h"
 #include "mario.h"
 #include "state_machine.h"
+#include "movingObject.h"
 
 static BitmapHandle* background_bmp;
 static colour back_alpha = { 0x00, 0x00, 0x00 };
+
+static void draw_load_screen(void);
 
 void updateLoadScreen(void)
 {
@@ -30,24 +33,12 @@ void updateLoadScreen(void)
 	loadBarrel(20, 70);
 	loadBarrel(50, 70);
 
-	draw_level1();
-	drawMario(false);
-	drawPeach();
-	drawDonkeyKong();
-	drawBarrels();
-
 	close_bmp(background_bmp);
-
-	swap_buffers();
-	draw_level1();
-	drawPeach();
-	drawDonkeyKong();
-	drawBarrels();
 
 	changeState(LEVEL1);
 }
 
-void draw_load_screen(void)
+static void draw_load_screen(void)
 {
 	// Draw the background to both buffers.
 	draw_bmp(background_bmp, 0, 240 - background_bmp->bmp_info_header->height,
