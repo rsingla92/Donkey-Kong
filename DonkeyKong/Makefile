@@ -151,6 +151,7 @@ C_SRCS += level1.c
 C_SRCS += mario.c
 C_SRCS += input.c
 C_SRCS += movingObject.c
+C_SRCS += audio.c
 CXX_SRCS :=
 ASM_SRCS :=
 

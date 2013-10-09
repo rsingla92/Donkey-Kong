@@ -10,6 +10,7 @@
 #include "sys/alt_timestamp.h"
 #include "mario.h"
 #include "movingObject.h"
+#include "audio.h"
 
 #define NUM_FILES 44
 // Controller Out: Bits: 000000AB
@@ -68,11 +69,30 @@ static void readDat(){
 }
 
 int main(void) {
+
+	playMusic("dingding.wav");
+	alt_up_audio_reset_audio_core;
+	//playMusic("Title2.wav");
+	playMusic("dingding.wav");
+	alt_up_audio_reset_audio_core;
+	//playMusic("dead2.wav");
+	playMusic("dingding.wav");
+	alt_up_audio_reset_audio_core;
+	playMusic("boing.wav");
+	alt_up_audio_reset_audio_core;
+	//playMusic("gsmod2.wav");
+	playMusic("dingding.wav");
+	alt_up_audio_reset_audio_core;
+	//playMusic("dingding.wav");
+	playMusic("dingding.wav");
+
 	// Set latch and clock to 0.
 	IOWR_8DIRECT(controller_out, 0, 0x00);
 
 	init_display();
 	sdcard_handle *sd_dev = init_sdcard();
+
+
 
 	clear_display();
 
@@ -80,6 +100,7 @@ int main(void) {
 		return 1;
 
 	printf("Card connected.\n");
+
 
 	loadMario(5, 5, 1);
 	loadPeach(150, 10);
@@ -96,6 +117,7 @@ int main(void) {
 	drawPeach();
 	drawDonkeyKong();
 	drawBarrels();
+
 
 	ticks_per_sec = alt_ticks_per_second();
 
