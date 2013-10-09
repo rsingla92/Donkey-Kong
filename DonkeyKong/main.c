@@ -30,7 +30,7 @@ static char* file_list[NUM_FILES] = { "4B.BMP", "B1.BMP", "B2.BMP", "B3.BMP",
 		"HMR.BMP", "M1.BMP", "M2.BMP", "M3.BMP", "M4.BMP", "M5.BMP", "M6.BMP",
 		"M7.BMP", "M8.BMP", "M9.BMP", "M10.BMP", "M11.BMP", "M12.BMP",
 		"M13.BMP", "M14.BMP", "M15.BMP", "P1.BMP", "P2.BMP", "PP1.BMP",
-		"PP2.BMP", "PP3.BMP", "PURSE.BMP", "UMBRLA.BMP" };
+		"PP2.BMP", "PP3.BMP", "PURSE.BMP", "UMBRLA.BMP", "MM1.BMP", "MM2.BMP"};
 static BitmapHandle* bmp;
 static alt_u32 ticks_per_sec;
 static alt_u32 num_ticks;
