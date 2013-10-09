@@ -9,5 +9,5 @@
 #define LOAD_SCREEN_H_
 
 void updateLoadScreen(void);
-
+void draw_main_menu(void);
 #endif /* LOAD_SCREEN_H_ */
