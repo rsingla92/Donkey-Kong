@@ -34,7 +34,7 @@ typedef struct {
 static const Plane floors[] =
 {
 	{{137,62}, {205,62}, 0 }, 	// top floor
-	{{-1,91}, {205,91}, 0}, 		// second floor
+	{{-1,91}, {205,91}, 0}, 	// second floor
 	{{206,92}, {228,92}, 0 },
 	{{229,93}, {251,93}, 0 },
 	{{252,94}, {273,94}, 0 },
@@ -98,25 +98,25 @@ static const Plane floors[] =
 
 static const Plane ladders[] =
 {
-	{{110,26}, {110,91}, 11 },
-	{{125,26}, {125,91}, 11 },
-	{{194,62}, {194,91}, 11 },
-	{{251,94}, {251,114}, 11 },
-	{{137,91}, {137,104}, 11 },
-	{{137,113}, {137,119}, 11 },
-	{{46,123}, {46,143}, 11 },
-	{{114,120}, {114,145}, 11 },
-	{{228,115}, {228,128}, 11 },
-	{{228,139}, {228,150}, 11 },
-	{{91,144}, {91,157}, 11 },
-	{{91,162}, {91,177}, 11 },
-	{{160,147}, {160,175}, 11 },
-	{{251,151}, {251,171}, 11 },
-	{{46,178}, {46,200}, 11 },
-	{{137,175}, {137,203}, 11 },
-	{{114,202}, {114,215}, 11 },
-	{{114,221}, {114,232}, 11 },
-	{{251,207}, {251,228}, 11 },
+	{{108,26}, {108,91}, 13 },
+	{{123,26}, {123,91}, 13 },
+	{{192,62}, {192,91}, 13 },
+	{{249,94}, {249,114}, 13 },
+	{{135,91}, {135,104}, 13 },
+	{{135,113}, {135,119}, 13 },
+	{{44,123}, {44,143}, 13 },
+	{{112,120}, {112,145}, 13 },
+	{{226,115}, {226,128}, 13 },
+	{{226,139}, {226,150}, 13 },
+	{{89,144}, {89,157}, 13 },
+	{{89,162}, {89,177}, 13 },
+	{{158,147}, {158,175}, 13 },
+	{{249,151}, {249,171}, 13 },
+	{{44,178}, {44,200}, 13 },
+	{{135,175}, {135,203}, 13 },
+	{{112,202}, {112,215}, 13 },
+	{{112,221}, {112,232}, 13 },
+	{{249,207}, {249,228}, 13 },
 };
 
 #define NUM_FLOORS (sizeof(floors)/sizeof(floors[0]))
@@ -154,10 +154,10 @@ int find_ladder_top (int x, int y){
 	return -1;
 }
 
-int find_floor(int x, int y){
+int find_floor(int x, int y, double ref){
 	int i;
 	for (i = 0; i < NUM_FLOORS; i++){
-		if (y + 3*(getCurrentHeight()/4) <= floors[i].end.y){
+		if (y + ref <= floors[i].end.y){
 			if(x >= floors[i].start.x && x <= floors[i].end.x)
 				return (floors[i].start.y);
 		}
@@ -173,12 +173,26 @@ void draw_level1(void) {
 
 	// Draw the background to both buffers.
 	drawBackground();
-	swap_buffers();
-	drawBackground();
+	//swap_buffers();
+	//drawBackground();
 }
 
 bool is_num_in_range(int num, int lowBound, int highBound) {
 	return (num >= lowBound && num <= highBound);
+}
+
+void init_level1(void) {
+	draw_level1();
+	drawMario(false);
+	drawPeach();
+	drawDonkeyKong();
+	drawBarrels();
+
+	swap_buffers();
+	draw_level1();
+	drawPeach();
+	drawDonkeyKong();
+	drawBarrels();
 }
 
 void update_level1(void) {
@@ -211,7 +225,7 @@ void update_level1(void) {
   	} else if (getMarioState() != FALLING && (ladder_ind = is_ladder(getMario().x,getMario().y)) != -1) {
 		int ladder_end_y = ladders[ladder_ind].end.y;
 		int ladder_begin_y = ladders[ladder_ind].start.y;
-		changeMarioState(M_CLIMBING);
+
 		if ( is_num_in_range(getMario().y + getCurrentHeight(),
 				ladder_end_y-LADDER_ERROR, ladder_end_y+LADDER_ERROR)) {
 			changeMarioState(LADDER_BOTTOM);
@@ -242,7 +256,7 @@ void update_level1(void) {
 		// changeMarioState(WALKING);
 
 		/* Drop to the correct floor: */
-		floor = find_floor(getMario().x, getMario().y) - getCurrentHeight();
+		floor = find_floor(getMario().x, getMario().y, 3*(getCurrentHeight()/4)) - getCurrentHeight();
 		if (getMario().y < floor) moveMario(DOWN);
 		else if (getMario().y > floor) moveMario(UP);
 
@@ -268,5 +282,5 @@ void update_level1(void) {
 		else if (button_states[2] == 0) moveMario(RIGHT);
 	}
 
-	drawMario();
+	drawMario(true);
 }

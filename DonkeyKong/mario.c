@@ -10,7 +10,7 @@
 #define FRAME_SPEED		0.1
 
 static Mario mario;
-static char* anim_list[NUM_IMGS] = {"M9.BMP", "M10.BMP", "M11.BMP"};
+static char* anim_list[NUM_IMGS] = {"M9.BMP", "M10.BMP", "M11.BMP", "M12.BMP"};
 static colour mario_alpha = { 0x00, 0x00, 0x00 };
 static double frame_dir = FRAME_SPEED;
 static float past_frame = STAND_LEFT;
@@ -25,11 +25,13 @@ void loadMario(int x, int y, int speed)
 	load_bmp(anim_list[STAND_IMG], &(mario.animation[STAND_LEFT].handle));
 	load_bmp(anim_list[WALK1_IMG], &(mario.animation[WALK1_LEFT].handle));
 	load_bmp(anim_list[WALK2_IMG], &(mario.animation[WALK2_LEFT].handle));
+	load_bmp(anim_list[CLIMB_IMG], &(mario.animation[CLIMB1].handle));
 
 	/* The right-facing animations use the same images. */
 	mario.animation[STAND_RIGHT].handle = mario.animation[STAND_LEFT].handle;
 	mario.animation[WALK1_RIGHT].handle = mario.animation[WALK1_LEFT].handle;
 	mario.animation[WALK2_RIGHT].handle = mario.animation[WALK2_LEFT].handle;
+	mario.animation[CLIMB2].handle = mario.animation[CLIMB1].handle;
 
 	mario.animation[STAND_LEFT].flip = false;
 	mario.animation[WALK1_LEFT].flip = false;
@@ -37,6 +39,7 @@ void loadMario(int x, int y, int speed)
 	mario.animation[STAND_RIGHT].flip = true;
 	mario.animation[WALK1_RIGHT].flip = true;
 	mario.animation[WALK2_RIGHT].flip = true;
+	mario.animation[CLIMB2].flip = true;
 
 	mario.current_frame = STAND_RIGHT;
 	mario.state = WALKING;
@@ -46,7 +49,7 @@ void loadMario(int x, int y, int speed)
 	mario.speed = speed;
 }
 
-void drawMario()
+void drawMario(bool bothBuffers)
 {
 	int cur_frame = (int) round(mario.current_frame);
 
@@ -54,17 +57,23 @@ void drawMario()
 	{
 		draw_flipped_bmp(mario.animation[cur_frame].handle,
 				mario.x, mario.y, true, mario_alpha, 1);
-		swap_buffers();
-		draw_flipped_bmp(mario.animation[cur_frame].handle,
-				mario.x, mario.y, true, mario_alpha, 1);
+		if (bothBuffers == true)
+		{
+			swap_buffers();
+			draw_flipped_bmp(mario.animation[cur_frame].handle,
+					mario.x, mario.y, true, mario_alpha, 1);
+		}
 	}
 	else
 	{
 		draw_bmp(mario.animation[cur_frame].handle,
 				mario.x, mario.y, true, mario_alpha, 1);
-		swap_buffers();
-		draw_bmp(mario.animation[cur_frame].handle,
-				mario.x, mario.y, true, mario_alpha, 1);
+		if (bothBuffers == true)
+		{
+			swap_buffers();
+			draw_bmp(mario.animation[cur_frame].handle,
+					mario.x, mario.y, true, mario_alpha, 1);
+		}
 	}
 }
 
@@ -114,6 +123,7 @@ void move(int x, int y, MarioAnims lowFrame, MarioAnims highFrame, bool flip) {
 			mario.state == LADDER_BOTTOM) {
 		animate(lowFrame, highFrame);
 	}
+
 	//drawMario(flip);
 }
 
@@ -195,6 +205,11 @@ bool moveDown(void)
 	mario.y += mario.speed;
 	drawMarioBackground(mario.x, mario.y - mario.speed,
 			mario.x + getCurrentWidth(), mario.y);
+
+	if (mario.state == M_CLIMBING) {
+		animate(CLIMB1, CLIMB2);
+	}
+
 	return true;
 }
 
@@ -214,6 +229,11 @@ bool moveUp(void)
 	mario.y -= mario.speed;
 	drawMarioBackground(mario.x, mario.y + getCurrentHeight(),
 			mario.x + getCurrentWidth(), mario.y + getCurrentHeight() + mario.speed);
+
+	if (mario.state == M_CLIMBING) {
+		animate(CLIMB1, CLIMB2);
+	}
+
 	return true;
 }
 
@@ -221,19 +241,23 @@ void changeMarioState(MarioState state)
 {
 	mario.state = state;
 
-	if (mario.current_frame >= STAND_RIGHT &&
-			mario.current_frame <= WALK2_RIGHT)
+	float frame = round(mario.current_frame);
+
+	if (frame >= STAND_RIGHT && frame <= WALK2_RIGHT)
 	{
-		if (mario.state == JUMPING) {
+		if (mario.state == JUMPING || mario.state == FALLING) {
 			mario.current_frame = WALK1_RIGHT;
 		}
 	}
-	else if(mario.current_frame >= STAND_LEFT &&
-			mario.current_frame <= WALK2_LEFT)
+	else if(frame >= STAND_LEFT && frame <= WALK2_LEFT)
 	{
-		if (mario.state == JUMPING) {
+		if (mario.state == JUMPING || mario.state == FALLING) {
 			mario.current_frame = WALK1_LEFT;
 		}
+	}
+
+	if (mario.state == M_CLIMBING) {
+		mario.current_frame = CLIMB1;
 	}
 }
 

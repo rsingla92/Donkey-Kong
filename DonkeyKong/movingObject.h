@@ -10,6 +10,7 @@
 
 #include "display.h"
 #include "bitmap.h"
+#include "background.h"
 
 /* Barrel Files */
 typedef enum {FLAT_BARREL,
@@ -55,7 +56,7 @@ typedef enum { HAMMER,
 			  } OtherImage;
 
 /* Barrel Animations */
-// typedef enum {} BarrelAnim;
+// typedef enum {SIDE, ROLL_1, ROLL_2, ROLL_3, ROLL_4} BarrelAnim;
 
 /* DonkeyKong Animations */
 // typedef enum {} DonkeyKongAnim;
@@ -91,8 +92,8 @@ typedef struct MovingObject
 {
 	int x, y, speed;
 	float current_frame;
+	float past_frame;
 	MovingObjectState state;
-
 	struct MovingObject* prev;
 	struct MovingObject* next;
 
@@ -121,6 +122,11 @@ void drawBarrels();
 void loadBarrel(int, int);
 void addBarrel(MovingObject*, int, int);
 void loadBarrels();
+int MOgetCurrentWidth(MovingObject* itr);
+int MOgetCurrentHeight(MovingObject* itr);
+int MOgetPastWidth(MovingObject* itr);
+int MOgetPastHeight(MovingObject* itr);
+void MOdrawBackground(int x0, int y0, int x1, int y1);
 
 void drawDonkeyKong();
 void loadDonkeyKong(int, int);
