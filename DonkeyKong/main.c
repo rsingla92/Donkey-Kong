@@ -11,6 +11,8 @@
 #include "mario.h"
 #include "movingObject.h"
 #include "state_machine.h"
+#include "audio.h"
+
 
 #define NUM_FILES 44
 // Controller Out: Bits: 000000AB
@@ -69,6 +71,10 @@ static void readDat(){
 }
 
 int main(void) {
+
+	playMusic("Title2.wav");
+	playMusic("dead2.wav");
+
 	// Set latch and clock to 0.
 	IOWR_8DIRECT(controller_out, 0, 0x00);
 

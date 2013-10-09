@@ -154,6 +154,7 @@ C_SRCS += movingObject.c
 C_SRCS += load_screen.c
 C_SRCS += state_machine.c
 C_SRCS += mainMenu.c
+C_SRCS += audio.c
 CXX_SRCS :=
 ASM_SRCS :=
 

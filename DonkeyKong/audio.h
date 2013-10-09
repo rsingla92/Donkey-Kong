@@ -16,6 +16,15 @@
 #define AUDIO_ERROR -1
 
 
+
+int checkInitSD (alt_up_sd_card_dev *device_reference);
+
+int initAVConfig(alt_up_av_config_dev* av_config);
+
+int initAudioCore(alt_up_audio_dev* audio);
+
+int findWavSize(char* audioFile);
+
 int playMusic(char* audioFile);
 
 #endif /* AUDIO_H_ */
