@@ -1,6 +1,7 @@
 #include "movingObject.h"
 #include "math.h"
-
+#include "level1.h"
+#include <stdlib.h>
 
 /*
  * Need to maintain a list of moving objects
@@ -15,7 +16,7 @@ static colour donkeyKong_alpha = { 0x1F, 0x00, 0x1F };
 static MovingObject* barrelListHead;
 static char* barrel_list[NUM_BARREL_IMGS] = {"B1.BMP", "B2.BMP", "B3.BMP", "B4.BMP", "B5.BMP"};
 static AnimMap barrel_anim_list[NUM_BARREL_IMGS];
-static colour barrel_alpha = { 0x1F, 0x00, 0x1F };
+static colour barrel_alpha = { 0x00, 0x00, 0x00 };
 static double frame_dir = 0.5;
 static int barrel_dir = 1;
 
@@ -26,7 +27,7 @@ static colour fire_alpha = { 0x1F, 0x00, 0x1F };
 
 static Peach peach;
 static char* peach_list[NUM_PEACH_IMGS] = {"PP1.BMP", "PP2.BMP", "PP3.BMP"};
-static colour peach_alpha = { 0x1F, 0x00, 0x1F };
+static colour peach_alpha = { 0x00, 0x00, 0x00 };
 
 void drawFire(MovingObject* fire)
 {
@@ -161,17 +162,15 @@ void moveBarrels(BarrelImage lowFrame, BarrelImage highFrame) {
 	animateBarrels(lowFrame, highFrame);
 
 	if (barrel_dir < 0)
-		MOdrawBackground(barrelItr->x + MOgetCurrentWidth(barrelItr) + 1, barrelItr->y,
-				barrelItr->x + getPastWidth(barrelItr) + 1, barrelItr->y + MOgetCurrentHeight(barrelItr));
+		MOdrawBackground(barrelItr->x + MOgetCurrentWidth(barrelItr), barrelItr->y,
+				barrelItr->x + MOgetPastWidth(barrelItr) + 1, barrelItr->y + MOgetCurrentHeight(barrelItr));
 	else
-		MOdrawBackground(barrelItr->x-1, barrelItr->y,
-						barrelItr->x, barrelItr->y + MOgetCurrentHeight(barrelItr));
+		MOdrawBackground(barrelItr->x-2, barrelItr->y,
+						barrelItr->x-1, barrelItr->y + MOgetCurrentHeight(barrelItr));
 }
 
 void MOdrawBackground(int x0, int y0, int x1, int y1) {
-	drawBackgroundSection(x0, y0, x1, y1);
-	swap_buffers();
-	drawBackgroundSection(x0, y0, x1, y1);
+	pushEraseNode(x0, y0, x1, y1);
 }
 
 int MOgetCurrentWidth(MovingObject* itr)
@@ -193,8 +192,6 @@ int MOgetPastHeight(MovingObject* itr)
 {
 	return barrel_anim_list[(int) round(itr->past_frame)].handle->bmp_info_header->height;
 }
-
-
 
 void loadDonkeyKong(int x, int y)
 {

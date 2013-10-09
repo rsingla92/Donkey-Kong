@@ -9,6 +9,7 @@
 #include "background.h"
 #include "bitmap.h"
 #include "mario.h"
+#include "movingObject.h"
 #include "sys/alt_timestamp.h"
 
 #define LADDER_ERROR	2
@@ -101,7 +102,7 @@ static const Plane ladders[] =
 	{{108,26}, {108,91}, 13 },
 	{{123,26}, {123,91}, 13 },
 	{{192,62}, {192,91}, 13 },
-	{{249,94}, {249,114}, 13 },
+	{{249,93}, {249,114}, 13 },
 	{{135,91}, {135,104}, 13 },
 	{{135,113}, {135,119}, 13 },
 	{{44,123}, {44,143}, 13 },
@@ -190,6 +191,8 @@ void update_level1(void) {
 	int floor = 0;
 	int ladder_ind = 0;
 
+	moveBarrels(ROLLING_TOP_LEFT, ROLLING_BOTTOM_RIGHT);
+
 	if (!firstMove) {
 		alt_timestamp_type end_time = alt_timestamp();
 		char buf[50];
@@ -272,6 +275,7 @@ void update_level1(void) {
 		else if (button_states[2] == 0) moveMario(RIGHT);
 	}
 
+	drawBarrels();
 	drawMario(false);
 	eraseAllNoPop();
 	swap_buffers();
