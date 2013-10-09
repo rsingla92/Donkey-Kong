@@ -7,7 +7,7 @@
 #include "mario.h"
 #include <math.h>
 
-#define FRAME_SPEED		0.1
+#define FRAME_SPEED		0.05
 
 static Mario mario;
 static char* anim_list[NUM_IMGS] = {"M9.BMP", "M10.BMP", "M11.BMP", "M12.BMP"};
@@ -128,9 +128,10 @@ void move(int x, int y, MarioAnims lowFrame, MarioAnims highFrame, bool flip) {
 }
 
 void drawMarioBackground(int x0, int y0, int x1, int y1) {
-	drawBackgroundSection(x0, y0, x1, y1);
-	swap_buffers();
-	drawBackgroundSection(x0, y0, x1, y1);
+	//drawBackgroundSection(x0, y0, x1, y1);
+	//swap_buffers();
+	//drawBackgroundSection(x0, y0, x1, y1);
+	pushEraseNode(x0, y0, x1, y1);
 }
 
 int getCurrentWidth(void)

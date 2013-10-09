@@ -13,6 +13,64 @@
 
 static colour background_map[SCREEN_WIDTH][SCREEN_HEIGHT];
 
+static EraseStack* head = 0;
+
+void pushEraseNode(int x0, int y0, int x1, int y1)
+{
+	EraseRect newRect;
+	EraseStack* newNode = head;
+	newRect.x0 = x0;
+	newRect.x1 = x1;
+	newRect.y0 = y0;
+	newRect.y1 = y1;
+
+	newNode = (EraseStack*) malloc(sizeof(EraseStack));
+	newNode->next = head;
+	newNode->rect = newRect;
+	head = newNode;
+}
+
+EraseRect popEraseNode()
+{
+	EraseRect retRect = {-1, -1, -1, -1};
+	if (head == 0) return retRect;
+
+	EraseStack* tmp = head;
+	head = head->next;
+	retRect.x0 = tmp->rect.x0;
+	retRect.y0 = tmp->rect.y0;
+	retRect.x1 = tmp->rect.x1;
+	retRect.y1 = tmp->rect.y1;
+
+	free(tmp);
+	return retRect;
+}
+
+void eraseAllNoPop()
+{
+	EraseStack* it = head;
+
+	while (it != NULL)
+	{
+		EraseRect rect = it->rect;
+		if (rect.x0 < 0) break;
+
+		drawBackgroundSection(rect.x0, rect.y0, rect.x1, rect.y1);
+		it = it->next;
+	}
+}
+
+void eraseAll()
+{
+	while (1)
+	{
+		EraseRect rect = popEraseNode();
+		if (rect.x0 < 0) break;
+
+		drawBackgroundSection(rect.x0, rect.y0, rect.x1, rect.y1);
+	}
+}
+
 short int loadBackground(char *filename)
 {
 	BitmapHandle *bmp;

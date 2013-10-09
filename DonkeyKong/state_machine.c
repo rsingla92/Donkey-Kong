@@ -15,7 +15,7 @@ static State states[NUM_STATE_MACHINE_STATES] =
 {
 	{NULL, NULL, NULL, 0},	/* MAIN_MENU */
 	{updateLoadScreen, NULL, NULL, 0},	/* LOADING_SCREEN */
-	{update_level1, init_level1, NULL, 0},	/* LEVEL1 */
+	{update_level1, NULL, NULL, 0},	/* LEVEL1 */
 };
 
 static eState current_state = LOADING_SCREEN;

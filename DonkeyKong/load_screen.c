@@ -33,6 +33,18 @@ void updateLoadScreen(void)
 	loadBarrel(20, 70);
 	loadBarrel(50, 70);
 
+	draw_level1();
+	drawMario(false);
+	drawPeach();
+	drawDonkeyKong();
+	drawBarrels();
+
+	swap_buffers();
+	draw_level1();
+	drawPeach();
+	drawDonkeyKong();
+	drawBarrels();
+
 	close_bmp(background_bmp);
 
 	changeState(LEVEL1);

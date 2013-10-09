@@ -182,17 +182,7 @@ bool is_num_in_range(int num, int lowBound, int highBound) {
 }
 
 void init_level1(void) {
-	draw_level1();
-	drawMario(false);
-	drawPeach();
-	drawDonkeyKong();
-	drawBarrels();
 
-	swap_buffers();
-	draw_level1();
-	drawPeach();
-	drawDonkeyKong();
-	drawBarrels();
 }
 
 void update_level1(void) {
@@ -282,5 +272,8 @@ void update_level1(void) {
 		else if (button_states[2] == 0) moveMario(RIGHT);
 	}
 
-	drawMario(true);
+	drawMario(false);
+	eraseAllNoPop();
+	swap_buffers();
+	eraseAll();
 }
