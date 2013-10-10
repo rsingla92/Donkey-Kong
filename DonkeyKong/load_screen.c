@@ -53,9 +53,11 @@ void updateLoadScreen(void)
 static void draw_load_screen(void)
 {
 	// Draw the background to both buffers.
+	draw_box( 0,  50,  320,  170, back_alpha,  1);
 	draw_bmp(background_bmp, 0, 240 - background_bmp->bmp_info_header->height,
 			false, back_alpha, 1);
 	swap_buffers();
+	draw_box( 0,  50,  320,  170, back_alpha,  1);
 	draw_bmp(background_bmp, 0, 240 - background_bmp->bmp_info_header->height,
 			false, back_alpha, 1);
 }
