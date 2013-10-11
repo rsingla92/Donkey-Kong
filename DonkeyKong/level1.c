@@ -199,8 +199,6 @@ void update_level1(void) {
 	int floor = 0;
 	int ladder_ind = 0;
 
-	moveBarrels(ROLLING_TOP_LEFT, ROLLING_BOTTOM_RIGHT);
-
 	if (!firstMove) {
 		alt_timestamp_type end_time = alt_timestamp();
 		char buf[50];
@@ -282,6 +280,8 @@ void update_level1(void) {
 		if (button_states[3] == 0) moveMario(LEFT);
 		else if (button_states[2] == 0) moveMario(RIGHT);
 	}
+
+	moveBarrels(ROLLING_TOP_LEFT, ROLLING_BOTTOM_RIGHT);
 
 	drawBarrels();
 	drawMario(false);

@@ -9,8 +9,10 @@
  * Need to rough plan this out
  */
 static DonkeyKong donkeyKong;
-static char* donkeyKong_list[NUM_DONKEYKONG_IMGS] = {"DK1.BMP", "DK2.BMP", "DK3.BMP",
-		"DK4.BMP", "DK5.BMP", "DK6.BMP", "DK7.BMP", "DK8.BMP", "DK9.BMP", "DK10.BMP", "DK11.BMP" };
+static char* donkeyKong_list[NUM_DONKEYKONG_IMGS] = {"DK1.BMP", "DK10.BMP", "DK2.BMP","DK9.BMP", "DK3.BMP",
+		"DK4.BMP", "DK5.BMP", "DK6.BMP", "DK7.BMP", "DK8.BMP"};
+static AnimMap DK_anim_list[NUM_DONKEYKONG_IMGS];
+static double dk_frame_dir = 0.03;
 static colour donkeyKong_alpha = { 0x1F, 0x00, 0x1F };
 
 static MovingObject* barrelListHead;
@@ -120,7 +122,7 @@ void addBarrel(MovingObject* newBarrel, int x, int y)
 	newBarrel->y = y;
 	newBarrel->speed = 1;
 	newBarrel->current_frame = FLAT_BARREL;
-	newBarrel->state = LAYING;
+	newBarrel->state = ROLLING; // TODO: change this to THROWABLE once DK is able to throw barrels.
 }
 
 void loadBarrels()
@@ -164,7 +166,7 @@ void moveBarrels(BarrelImage lowFrame, BarrelImage highFrame) {
 			barrelItr->state = ROLLING;
 		}
 
-		if (barrelItr->state = ROLLING){
+		if (barrelItr->state == ROLLING){
 			if (should_barrel_die(barrelItr->x, barrelItr->y+MOgetCurrentHeight(barrelItr))){
 				if (barrelItr->x+MOgetCurrentWidth(barrelItr) <= 0)
 					barrelItr->state = THROWABLE;
@@ -191,6 +193,7 @@ void moveBarrels(BarrelImage lowFrame, BarrelImage highFrame) {
 				MOdrawBackground(barrelItr->x-2, barrelItr->y,
 								barrelItr->x-1, barrelItr->y + MOgetCurrentHeight(barrelItr));
 		}
+
 		barrelItr = barrelItr->next;
 	}
 }
@@ -224,14 +227,14 @@ void loadDonkeyKong(int x, int y)
 	// Animation list for Donkey Kong
 	load_bmp(donkeyKong_list[STANDING_STILL], &(donkeyKong.animation[STANDING_STILL].handle));
 	load_bmp(donkeyKong_list[GRABBING_BARREL], &(donkeyKong.animation[GRABBING_BARREL].handle));
+	load_bmp(donkeyKong_list[CARRYING_BARREL], &(donkeyKong.animation[CARRYING_BARREL].handle));
+	load_bmp(donkeyKong_list[ROLLING_BARREL], &(donkeyKong.animation[ROLLING_BARREL].handle));
 	load_bmp(donkeyKong_list[ANGRY_LEFT], &(donkeyKong.animation[ANGRY_LEFT].handle));
 	load_bmp(donkeyKong_list[ANGRY_RIGHT], &(donkeyKong.animation[ANGRY_RIGHT].handle));
 	load_bmp(donkeyKong_list[CLIMBING_LEFT], &(donkeyKong.animation[CLIMBING_LEFT].handle));
 	load_bmp(donkeyKong_list[CLIMBING_RIGHT], &(donkeyKong.animation[CLIMBING_RIGHT].handle));
 	load_bmp(donkeyKong_list[UPSIDE_DOWN_LEFT], &(donkeyKong.animation[UPSIDE_DOWN_LEFT].handle));
 	load_bmp(donkeyKong_list[UPDATE_DOWN_RIGHT], &(donkeyKong.animation[UPDATE_DOWN_RIGHT].handle));
-	load_bmp(donkeyKong_list[WALK_RIGHT], &(donkeyKong.animation[WALK_RIGHT].handle));
-	load_bmp(donkeyKong_list[SUPER_ANGRY], &(donkeyKong.animation[SUPER_ANGRY].handle));
 
 	// There are no right-facing animations. It's all either facing the player or not.
 	// There are no flipping animations.
