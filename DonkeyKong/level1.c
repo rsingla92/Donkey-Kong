@@ -11,12 +11,15 @@
 #include "mario.h"
 #include "movingObject.h"
 #include "sys/alt_timestamp.h"
+#include "input.h"
 
 #define LADDER_ERROR	2
 #define MAX_POINTS		300
 
 extern unsigned char button_states[4];
 extern unsigned char prev_state[4];
+extern controller_buttons controller_state;
+extern controller_buttons prev_controller_state;
 
 static alt_timestamp_type start_time;
 static int points = MAX_POINTS;
@@ -228,20 +231,23 @@ void update_level1(void) {
 			changeMarioState(LADDER_TOP);
 		}
 
-		if (getMarioState() == LADDER_BOTTOM && button_states[1] == 0 ) {
+		if (getMarioState() == LADDER_BOTTOM &&
+				(button_states[1] == 0 || controller_state.UP_ARROW) ) {
 			/* Mario is beginning to climb. */
 			changeMarioState(M_CLIMBING);
-		} else if (getMarioState() == LADDER_TOP && button_states[0] == 0) {
+		} else if (getMarioState() == LADDER_TOP &&
+				(button_states[0] == 0 || controller_state.DOWN_ARROW)) {
 			changeMarioState(M_CLIMBING);
-		} else if (getMarioState() == LADDER_TOP && button_states[1] == 0) {
+		} else if (getMarioState() == LADDER_TOP &&
+				(button_states[1] == 0 || controller_state.B_BUTTON)) {
 			changeMarioState(JUMPING);
 			setMarioJumpStart(getMario().y);
 		}
 
 		if (getMarioState() == M_CLIMBING) {
-			if (button_states[1] == 0) {
+			if (button_states[1] == 0 || controller_state.UP_ARROW) {
 				moveMario(UP);
-			} else if (button_states[0] == 0) {
+			} else if (button_states[0] == 0 || controller_state.DOWN_ARROW) {
 				moveMario(DOWN);
 			}
 		}
@@ -255,14 +261,15 @@ void update_level1(void) {
 
 		if (getMario().y > floor - 2 && getMario().y < floor + 2) {
 			changeMarioState(WALKING);
-			if (button_states[1] == 0) {
+			if (button_states[1] == 0 || controller_state.B_BUTTON) {
 				changeMarioState(JUMPING);
 				setMarioJumpStart(getMario().y);
 			}
 		}
 	}
 
-	if ((button_states[3] == 0 || button_states[2] == 0) && firstMove) {
+	if ((button_states[3] == 0 || button_states[2] == 0 ||
+			controller_state.RIGHT_ARROW || controller_state.LEFT_ARROW) && firstMove) {
 		alt_timestamp_start();
 		start_time = alt_timestamp();
 		firstMove = false;
@@ -271,8 +278,8 @@ void update_level1(void) {
 	if (getMarioState() == WALKING || getMarioState() == LADDER_BOTTOM ||
 			getMarioState() == LADDER_TOP ||
 			getMarioState() == JUMPING || getMarioState() == FALLING) {
-		if (button_states[3] == 0) moveMario(LEFT);
-		else if (button_states[2] == 0) moveMario(RIGHT);
+		if (button_states[3] == 0 || controller_state.LEFT_ARROW) moveMario(LEFT);
+		else if (button_states[2] == 0 || controller_state.RIGHT_ARROW) moveMario(RIGHT);
 	}
 
 	drawBarrels();

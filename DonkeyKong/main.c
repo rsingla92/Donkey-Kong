@@ -11,15 +11,16 @@
 #include "mario.h"
 #include "movingObject.h"
 #include "state_machine.h"
+#include "input.h"
 
 #define NUM_FILES 44
 // Controller Out: Bits: 000000AB
 // A is the Controller P/S latch
 // B is the Controller Clock
-#define controller_out (volatile char *) CONTROLLER_OUTPUT_BASE
+#define controller_out (char *) CONTROLLER_OUTPUT_BASE
 
 // Controller In: Only least significant bit matters.
-#define controller_in (char *) CONTROLLER_INPUT_BASE
+#define controller_in (volatile char *) CONTROLLER_INPUT_BASE
 
 #define leds (volatile char *) LEDS_BASE
 
@@ -40,10 +41,24 @@ static void readDat();
 /* Global Variables */
 unsigned char button_states[4] = {1, 1, 1, 1};
 unsigned char prev_state[4] = {1, 1, 1, 1};
+controller_buttons controller_state;
+controller_buttons prev_controller_state;
+
+#define BYTETOBINARYPATTERN "%d%d%d%d%d%d%d%d"
+#define BYTETOBINARY(byte)  \
+  (byte & 0x80 ? 1 : 0), \
+  (byte & 0x40 ? 1 : 0), \
+  (byte & 0x20 ? 1 : 0), \
+  (byte & 0x10 ? 1 : 0), \
+  (byte & 0x08 ? 1 : 0), \
+  (byte & 0x04 ? 1 : 0), \
+  (byte & 0x02 ? 1 : 0), \
+  (byte & 0x01 ? 1 : 0)
 
 static void readDat(){
 	unsigned short accumulatedData = 0;
 	int i;
+	copyController(&prev_controller_state, controller_state);
 
 	IOWR_8DIRECT(controller_out, 0, 0x01);
 	IOWR_8DIRECT(controller_out, 0, 0x03);
@@ -59,13 +74,13 @@ static void readDat(){
 		alt_busy_sleep(6);
 		accumulatedData <<= 1;
 		accumulatedData += IORD_8DIRECT(controller_in, 0);
-		alt_busy_sleep(6);
-
 		IOWR_8DIRECT(controller_out, 0, 0x01); // Pulse clock
+		alt_busy_sleep(6);
 	}
 
-	printf("Accumulated Data: %x\n", accumulatedData);
 	IOWR_8DIRECT(leds, 0, accumulatedData);
+
+	copyController(&controller_state, getControllerButtons(accumulatedData));
 }
 
 int main(void) {
@@ -89,7 +104,11 @@ int main(void) {
 	alt_alarm_start(update_alarm, num_ticks, update, (void*)0);
 	// function calls here are tricky to predict
 	// printf only worked if only one printf statement was put
-	while (true) { }
+	while (true)
+	{
+		// readDat();
+	//	alt_busy_sleep(1000);
+	}
 
 	return 0;
 }
@@ -99,6 +118,7 @@ alt_32 update(void *context) {
 	for (i = 0; i < 4; i++) prev_state[i] = button_states[i];
 	for (i = 0; i < 4; i++) button_states[i] = getButton(i);
 
+	readDat();
 	runState();
 	return 1;
 
