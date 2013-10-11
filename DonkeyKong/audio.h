@@ -11,6 +11,7 @@
 #include "altera_up_avalon_audio.h"
 #include "altera_up_sd_card_avalon_interface.h"
 //#include "sdcard.c"
+#include "sys/alt_irq.h"
 
 #define FIFO_SIZE 112
 #define AUDIO_ERROR -1
@@ -26,6 +27,8 @@ int initAudioCore(alt_up_audio_dev* audio);
 int findWavSize(char* audioFile);
 
 unsigned int reduceVolume(unsigned int buffer);
+
+int set_audio_interrupt(alt_up_audio_dev *audio, volatile int edge_pointer_thing);
 
 int playMusic(char* audioFile);
 

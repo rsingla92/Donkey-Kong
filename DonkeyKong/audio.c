@@ -8,6 +8,12 @@
 #include "audio.h"
 #include "system.h"
 
+#ifdef ALT_ENHANCED_INTERRUPT_API_PRESENT
+static void playMusicISR (void* context);
+#else
+static void playMusicISR (void* context, alt_u32 id);
+#endif
+
 //Checks if SD Card is usable
 int checkInitSD (alt_up_sd_card_dev *device_reference) {
 
@@ -41,7 +47,7 @@ int initAVConfig(alt_up_av_config_dev* av_config) {
 	if (alt_up_av_config_enable_interrupt(av_config) == 0) {
 		printf("Config interrupt enabled\n");
 	}
-	*/
+	*/b
 
 	while (!alt_up_av_config_read_ready(av_config)) {
 	}
@@ -57,6 +63,10 @@ int initAudioCore(alt_up_audio_dev* audio) {
 	if (audio == NULL) {
 		return AUDIO_ERROR;
 	}
+
+
+	alt_up_audio_enable_write_interrupt(audio);
+
 
 	return 0;
 
@@ -87,7 +97,6 @@ int findWavSize(char* audioFile) {
 	for (i = 0; i < 8; i++) {
 		cardRead = alt_up_sd_card_read(fileHandle);
 		tempBuf[i] = cardRead;
-		//printf("%x \n",tempBuf[i]);
 	}
 
 	//Do shifting math to get .wav file length
@@ -103,6 +112,31 @@ int findWavSize(char* audioFile) {
 //Reduces the volume by halfing the sample.
 unsigned int reduceVolume(unsigned int buffer) {
 	return (buffer/2);
+}
+
+#ifdef ALT_ENHANCED_INTERRUPT_API_PRESENT
+static void playMusicISR (void* context)
+#else
+static void playMusicISR (void* context, alt_u32 id)
+#endif
+{
+
+}
+
+int set_audio_interrupt(alt_up_audio_dev *audio, volatile int edge_capture_thing)
+{
+
+    // Need to disable both audio interrupts before setting them up
+    // otherwise you get stuck in them when they are setup
+    alt_up_audio_disable_read_interrupt(audio);
+    alt_up_audio_disable_write_interrupt(audio);
+
+    void *edge_pointer = (void*)&edge_capture_thing;
+	#ifdef ALT_ENHANCED_INTERRUPT_API_PRESENT
+	return alt_ic_isr_register(AUDIO_CORE_IRQ_INTERRUPT_CONTROLLER_ID, AUDIO_CORE_IRQ, playMusicISR, edge_pointer, 0x0);
+	#else
+	return alt_irq_register(AUDIO_CORE_IRQ, edge_pointer, playMusicISR);
+	#endif
 }
 
 
@@ -169,8 +203,9 @@ int playMusic(char* audioFile) {
 			length = fileLength - currentSample;
 		}
 
-		//if ( ( (i / FIFO_SIZE) > 100 ) || length < FIFO_SIZE )
-		if ((i >= (fileLength*0.0008)) || length < FIFO_SIZE )
+		//Start playing (filling audio buffer) Currently being filled faster than buffer loading
+		if ( ( (i / FIFO_SIZE) > 100 ) || length < FIFO_SIZE )
+		//if ((i >= (fileLength*0.0008)) || length < FIFO_SIZE )
 		{
 //			unsigned int *cursor;
 //			int toWrite = getFifoSpace();
@@ -178,7 +213,7 @@ int playMusic(char* audioFile) {
 //				write(cursor, toWrite);
 //				cursor += toWrite;
 //			}
-			//printf("%i \n", i);
+
 			if (alt_up_audio_write_fifo_space(audio, ALT_UP_AUDIO_RIGHT) > FIFO_SIZE+1) {
 				sample = &(buf[currentSample]);
 				alt_up_audio_write_fifo(audio, sample, length, ALT_UP_AUDIO_LEFT);
