@@ -251,6 +251,22 @@ void drawDonkeyKong(void)
 	int cur_frame = (int) round(donkeyKong.current_frame);
 	draw_bmp(donkeyKong.animation[cur_frame].handle,
 			donkeyKong.x, donkeyKong.y, true, donkeyKong_alpha, 1);
+	animateDonkeyKong(STANDING_STILL,ROLLING_BARREL);
+}
+
+void animateDonkeyKong(DonkeyKongImage lowFrame, DonkeyKongImage highFrame)
+{
+	donkeyKong.past_frame = donkeyKong.current_frame;
+
+	if (donkeyKong.current_frame < lowFrame || donkeyKong.current_frame > highFrame) {
+		donkeyKong.current_frame = lowFrame;
+	} else {
+		donkeyKong.current_frame += dk_frame_dir;
+	}
+
+	if (donkeyKong.current_frame > highFrame || donkeyKong.current_frame < lowFrame) {
+		dk_frame_dir = -dk_frame_dir;
+	}
 }
 
 void drawPeach(void)

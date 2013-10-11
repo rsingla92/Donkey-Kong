@@ -89,6 +89,7 @@ typedef struct
 	AnimMap animation[NUM_DONKEYKONG_IMGS];
 	int x, y;
 	float current_frame;
+	float past_frame;
 	DonkeyKongState state;
 } DonkeyKong;
 
@@ -115,7 +116,7 @@ void MOdrawBackground(int x0, int y0, int x1, int y1);
 
 void drawDonkeyKong();
 void loadDonkeyKong(int, int);
-
+void animateDonkeyKong(DonkeyKongImage lowFrame, DonkeyKongImage highFrame);
 void drawFire(MovingObject* fire);
 void drawFires();
 void addFire(MovingObject*, int, int);

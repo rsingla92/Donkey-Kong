@@ -282,7 +282,7 @@ void update_level1(void) {
 	}
 
 	moveBarrels(ROLLING_TOP_LEFT, ROLLING_BOTTOM_RIGHT);
-
+	drawDonkeyKong();
 	drawBarrels();
 	drawMario(false);
 	eraseAllNoPop();
