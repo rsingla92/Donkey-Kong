@@ -72,8 +72,17 @@ static void readDat(){
 
 int main(void) {
 
+	/*
 	playMusic("Title2.wav");
 	playMusic("dead2.wav");
+	playMusic("gsmod2.wav");
+	*/
+
+	playMusic("gsmod2.wav");
+	playMusic("Title2.wav");
+	playMusic("dead2.wav");
+
+
 
 	// Set latch and clock to 0.
 	IOWR_8DIRECT(controller_out, 0, 0x00);

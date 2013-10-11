@@ -5,6 +5,7 @@
  *      Author: Jeremy
  */
 #include "mario.h"
+#include "audio.h"
 #include <math.h>
 
 #define FRAME_SPEED		0.1
@@ -246,6 +247,9 @@ void changeMarioState(MarioState state)
 	if (frame >= STAND_RIGHT && frame <= WALK2_RIGHT)
 	{
 		if (mario.state == JUMPING || mario.state == FALLING) {
+			if (mario.state != FALLING) {
+				playMusic("boing.wav");
+			}
 			mario.current_frame = WALK1_RIGHT;
 		}
 	}

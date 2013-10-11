@@ -35,6 +35,8 @@ int initAVConfig(alt_up_av_config_dev* av_config) {
 		return AUDIO_ERROR;
 	}
 
+	alt_up_av_config_reset(av_config);
+
 	/*
 	if (alt_up_av_config_enable_interrupt(av_config) == 0) {
 		printf("Config interrupt enabled\n");
@@ -98,6 +100,12 @@ int findWavSize(char* audioFile) {
 	return fileLength;
 }
 
+//Reduces the volume by halfing the sample.
+unsigned int reduceVolume(unsigned int buffer) {
+	return (buffer/2);
+}
+
+
 // Requires:
 // Effects: Plays an audio .wav file. Returns 0 on success or -1 for error.
 //
@@ -109,7 +117,6 @@ int playMusic(char* audioFile) {
 	int currentSample = 0;
 	int length = FIFO_SIZE;
 	unsigned int *sample;
-	int remainder = 0;
 	unsigned char firstPart;
 	unsigned char secondPart;
 
@@ -156,13 +163,14 @@ int playMusic(char* audioFile) {
 
 		// Ignore the upper halves. Get the REAL PCM sample
 		buf[i] = (secondPart << 8) | firstPart;
+		//Now, suppose we want to reduce the volume. We	could divide the sample by two
 
 		if (currentSample + FIFO_SIZE > fileLength) {
 			length = fileLength - currentSample;
 		}
 
-		//if ( ( (i % FIFO_SIZE) == (FIFO_SIZE - 1) ) || length < FIFO_SIZE )
-		if ( ( (i / FIFO_SIZE) > 10 ) || length < FIFO_SIZE )
+		//if ( ( (i / FIFO_SIZE) > 100 ) || length < FIFO_SIZE )
+		if ((i >= (fileLength*0.0008)) || length < FIFO_SIZE )
 		{
 //			unsigned int *cursor;
 //			int toWrite = getFifoSpace();
@@ -170,6 +178,7 @@ int playMusic(char* audioFile) {
 //				write(cursor, toWrite);
 //				cursor += toWrite;
 //			}
+			//printf("%i \n", i);
 			if (alt_up_audio_write_fifo_space(audio, ALT_UP_AUDIO_RIGHT) > FIFO_SIZE+1) {
 				sample = &(buf[currentSample]);
 				alt_up_audio_write_fifo(audio, sample, length, ALT_UP_AUDIO_LEFT);

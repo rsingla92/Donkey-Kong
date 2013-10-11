@@ -25,6 +25,8 @@ int initAudioCore(alt_up_audio_dev* audio);
 
 int findWavSize(char* audioFile);
 
+unsigned int reduceVolume(unsigned int buffer);
+
 int playMusic(char* audioFile);
 
 #endif /* AUDIO_H_ */
