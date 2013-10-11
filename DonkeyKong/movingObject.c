@@ -156,26 +156,41 @@ void moveBarrels(BarrelImage lowFrame, BarrelImage highFrame) {
 	MovingObject* barrelItr = barrelListHead;
 
 	while(barrelItr != NULL){
-		if (barrelItr->x  + MOgetCurrentWidth(barrelItr) >= 320 || barrelItr->x <= 0)
-			barrelItr->speed = -barrelItr->speed;;
-		barrelItr->x += barrelItr->speed;
 
-		if (barrelItr->y + MOgetCurrentHeight(barrelItr) > find_floor(barrelItr->x, barrelItr->y, 0))
-			barrelItr->y -= 1;
-		else if (barrelItr->y + MOgetCurrentHeight(barrelItr) < find_floor(barrelItr->x, barrelItr->y, 0)){
-			barrelItr->y += 1;
-			MOdrawBackground(barrelItr->x, barrelItr->y - 1 , barrelItr->x + MOgetCurrentWidth(barrelItr),barrelItr->y);
+		if (barrelItr->state == THROWABLE){ // TODO: implement some DK thing here to trigger a throw
+			barrelItr->x = 20;
+			barrelItr->y = 70;
+			barrelItr->speed = 1;
+			barrelItr->state = ROLLING;
 		}
 
-		animateBarrels(lowFrame, highFrame);
+		if (barrelItr->state = ROLLING){
+			if (should_barrel_die(barrelItr->x, barrelItr->y+MOgetCurrentHeight(barrelItr))){
+				if (barrelItr->x+MOgetCurrentWidth(barrelItr) <= 0)
+					barrelItr->state = THROWABLE;
+			}
+			else {
+				if (barrelItr->x  + MOgetCurrentWidth(barrelItr) >= 320 || barrelItr->x <= 0)
+					barrelItr->speed = -barrelItr->speed;
 
-		if (barrelItr->speed < 0)
-			MOdrawBackground(barrelItr->x + MOgetCurrentWidth(barrelItr), barrelItr->y,
-					barrelItr->x + MOgetPastWidth(barrelItr) + 1, barrelItr->y + MOgetCurrentHeight(barrelItr));
-		else
-			MOdrawBackground(barrelItr->x-2, barrelItr->y,
-							barrelItr->x-1, barrelItr->y + MOgetCurrentHeight(barrelItr));
+				if (barrelItr->y + MOgetCurrentHeight(barrelItr) > find_floor(barrelItr->x, barrelItr->y, 0))
+					barrelItr->y -= 1;
+				else if (barrelItr->y + MOgetCurrentHeight(barrelItr) < find_floor(barrelItr->x, barrelItr->y, 0)){
+					barrelItr->y += 1;
+					MOdrawBackground(barrelItr->x, barrelItr->y - 1 , barrelItr->x + MOgetCurrentWidth(barrelItr),barrelItr->y);
+				}
+			}
+			barrelItr->x += barrelItr->speed;
 
+			animateBarrels(lowFrame, highFrame);
+
+			if (barrelItr->speed < 0)
+				MOdrawBackground(barrelItr->x + MOgetCurrentWidth(barrelItr), barrelItr->y,
+						barrelItr->x + MOgetPastWidth(barrelItr) + 1, barrelItr->y + MOgetCurrentHeight(barrelItr));
+			else
+				MOdrawBackground(barrelItr->x-2, barrelItr->y,
+								barrelItr->x-1, barrelItr->y + MOgetCurrentHeight(barrelItr));
+		}
 		barrelItr = barrelItr->next;
 	}
 }

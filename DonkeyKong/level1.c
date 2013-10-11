@@ -32,6 +32,8 @@ typedef struct {
 	int width; // for ladder
 } Plane;
 
+Point barrels_die = {0,200};
+
 static const Plane floors[] =
 {
 	{{137,62}, {205,62}, 0 }, 	// top floor
@@ -184,6 +186,12 @@ bool is_num_in_range(int num, int lowBound, int highBound) {
 
 void init_level1(void) {
 
+}
+
+int should_barrel_die(int x, int y){
+	if (x <= barrels_die.x && y >= barrels_die.y)
+		return 1;
+	return 0;
 }
 
 void update_level1(void) {

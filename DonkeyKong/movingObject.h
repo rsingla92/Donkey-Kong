@@ -69,7 +69,7 @@ typedef enum { HAMMER,
 // typedef enum {} OtherAnim;
 
 /* MovingObject States */
- typedef enum {LAYING, ROLLING, STILL, MOVING} MovingObjectState;
+ typedef enum {LAYING, ROLLING, STILL, MOVING, THROWABLE} MovingObjectState;
 
 /* Donkey Kong States */
 typedef enum {STANDING, THROWING, ANGRY, CLIMBING, UPSIDE} DonkeyKongState;
@@ -96,7 +96,6 @@ typedef struct MovingObject
 	MovingObjectState state;
 	struct MovingObject* prev;
 	struct MovingObject* next;
-
 } MovingObject;
 
 // Donkey Kong
@@ -122,6 +121,7 @@ void drawBarrels();
 void loadBarrel(int, int);
 void addBarrel(MovingObject*, int, int);
 void loadBarrels();
+void moveBarrels(BarrelImage lowFrame, BarrelImage highFrame);
 int MOgetCurrentWidth(MovingObject* itr);
 int MOgetCurrentHeight(MovingObject* itr);
 int MOgetPastWidth(MovingObject* itr);
