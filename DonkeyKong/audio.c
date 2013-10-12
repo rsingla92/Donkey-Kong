@@ -86,6 +86,23 @@ unsigned int reduceVolume(unsigned int buffer) {
 	return (buffer/2);
 }
 
+void pauseMusic(void)
+{
+	// Stops writing to the audio buffer.
+	alt_up_audio_disable_write_interrupt(audio);
+}
+
+void resumeMusic(void)
+{
+	alt_up_audio_enable_write_interrupt(audio);
+}
+
+void restartMusic(void)
+{
+	interruptSample = 0;
+	alt_up_audio_enable_write_interrupt(audio);
+}
+
 unsigned char isMusicDone(void)
 {
 	return musicDone;
@@ -185,12 +202,17 @@ int loadMusic(char* audioFile, unsigned short loop)
 
 	int fileLength = findWavSize(fileHandle);
 
+	// Discard header-- we are making an assumption about
+	// how the data is stored to make it easier to
+	// add sound to the music.
+	for (i = 0; i < 32; i++) read_file(fileHandle);
+
 	// Allocate the main music buffer to be the size of the file.
 	if (interruptMusicBuffer != 0) free(interruptMusicBuffer);
 	musicLoop = loop;
 	musicDone = 0;
-	interruptMusicBuffer = (unsigned int*) malloc(fileLength * 2);
-	interruptBufSize = fileLength/2;
+	interruptMusicBuffer = (unsigned int*) malloc((fileLength-32) * 2);
+	interruptBufSize = (fileLength-32)/2;
 	interruptSample = 0;
 
 	for (i = 0; i < interruptBufSize; i++)

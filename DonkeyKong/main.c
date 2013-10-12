@@ -75,25 +75,12 @@ int main(void)
 	sdcard_handle *sd_dev = init_sdcard();
 	initAudio();
 
-	/*
-	playMusic("Title2.wav");
-	playMusic("dead2.wav");
-	playMusic("gsmod2.wav");
-	*/
-
-	//playMusic("gsmod2.wav");
-	//playBlockingMusic("Title2.wav");
-	//playBlockingMusic("dead2.wav");
-	loadMusic("gsmod2.wav", 0);
-	// Loop until the music is done playing:
-	while (!isMusicDone());
 	loadMusic("Title2.wav", 1);
 
 	// Set latch and clock to 0.
-	/*IOWR_8DIRECT(controller_out, 0, 0x00);
+	IOWR_8DIRECT(controller_out, 0, 0x00);
 
 	init_display();
-	sdcard_handle *sd_dev = init_sdcard();
 
 	clear_display();
 
@@ -108,7 +95,7 @@ int main(void)
 	alt_alarm *update_alarm = malloc(sizeof(alt_alarm));
 	alt_alarm_start(update_alarm, num_ticks, update, (void*)0);
 	// function calls here are tricky to predict
-	// printf only worked if only one printf statement was put*/
+	// printf only worked if only one printf statement was put
 	while (true) { }
 
 	return 0;
