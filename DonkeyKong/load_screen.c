@@ -32,6 +32,8 @@ void updateLoadScreen(void)
 	loadBarrels();
 	loadBarrel(20, 70);
 	loadBarrel(50, 70);
+	loadBarrel(210, 30);
+	loadBarrel(240, 30);
 
 	draw_level1();
 	drawMario(false);
