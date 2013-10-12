@@ -32,6 +32,20 @@ void updateLoadScreen(void)
 	loadBarrels();
 	loadBarrel(20, 70);
 	loadBarrel(50, 70);
+	loadBarrel(210, 30);
+	loadBarrel(240, 30);
+
+	draw_level1();
+	drawMario(false);
+	drawPeach();
+	drawDonkeyKong();
+	drawBarrels();
+
+	swap_buffers();
+	draw_level1();
+	drawPeach();
+	drawDonkeyKong();
+	drawBarrels();
 
 	close_bmp(background_bmp);
 
@@ -41,9 +55,11 @@ void updateLoadScreen(void)
 static void draw_load_screen(void)
 {
 	// Draw the background to both buffers.
+	draw_box( 0,  50,  320,  170, back_alpha,  1);
 	draw_bmp(background_bmp, 0, 240 - background_bmp->bmp_info_header->height,
 			false, back_alpha, 1);
 	swap_buffers();
+	draw_box( 0,  50,  320,  170, back_alpha,  1);
 	draw_bmp(background_bmp, 0, 240 - background_bmp->bmp_info_header->height,
 			false, back_alpha, 1);
 }

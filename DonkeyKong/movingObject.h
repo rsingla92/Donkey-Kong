@@ -24,14 +24,14 @@ typedef enum {FLAT_BARREL,
 /* Donkey Kong Files */
 typedef enum {STANDING_STILL,
 			  GRABBING_BARREL,
+			  CARRYING_BARREL,
+			  ROLLING_BARREL,
 			  ANGRY_LEFT,
 			  ANGRY_RIGHT,
 			  CLIMBING_LEFT,
 			  CLIMBING_RIGHT,
 			  UPSIDE_DOWN_LEFT,
 			  UPDATE_DOWN_RIGHT,
-			  WALK_RIGHT,
-			  SUPER_ANGRY,
 			  NUM_DONKEYKONG_IMGS
 } DonkeyKongImage;
 
@@ -55,30 +55,15 @@ typedef enum { HAMMER,
 			   PLATFORM_UP,
 			  } OtherImage;
 
-/* Barrel Animations */
-// typedef enum {SIDE, ROLL_1, ROLL_2, ROLL_3, ROLL_4} BarrelAnim;
-
-/* DonkeyKong Animations */
-// typedef enum {} DonkeyKongAnim;
-
-/* Fire Animations */
-// typedef enum {} FireAnim;
-
-/* Other Animations */
-// I don't think there are any for these
-// typedef enum {} OtherAnim;
 
 /* MovingObject States */
- typedef enum {LAYING, ROLLING, STILL, MOVING} MovingObjectState;
+ typedef enum {LAYING, ROLLING, STILL, MOVING, THROWABLE, OBJ_FALLING} MovingObjectState;
 
 /* Donkey Kong States */
 typedef enum {STANDING, THROWING, ANGRY, CLIMBING, UPSIDE} DonkeyKongState;
 
 /* Peach States */
 typedef enum {HEART, HEARTBROKEN, HELP} PeachState;
-
-/* Other States */
-// typedef enum {} OtherState;
 
 // Animation image
 typedef struct
@@ -93,10 +78,11 @@ typedef struct MovingObject
 	int x, y, speed;
 	float current_frame;
 	float past_frame;
+	int currentFloor;
+	int byLadder;
 	MovingObjectState state;
 	struct MovingObject* prev;
 	struct MovingObject* next;
-
 } MovingObject;
 
 // Donkey Kong
@@ -105,6 +91,7 @@ typedef struct
 	AnimMap animation[NUM_DONKEYKONG_IMGS];
 	int x, y;
 	float current_frame;
+	float past_frame;
 	DonkeyKongState state;
 } DonkeyKong;
 
@@ -122,6 +109,7 @@ void drawBarrels();
 void loadBarrel(int, int);
 void addBarrel(MovingObject*, int, int);
 void loadBarrels();
+void moveBarrels(BarrelImage lowFrame, BarrelImage highFrame);
 int MOgetCurrentWidth(MovingObject* itr);
 int MOgetCurrentHeight(MovingObject* itr);
 int MOgetPastWidth(MovingObject* itr);
@@ -130,7 +118,7 @@ void MOdrawBackground(int x0, int y0, int x1, int y1);
 
 void drawDonkeyKong();
 void loadDonkeyKong(int, int);
-
+void animateDonkeyKong(DonkeyKongImage lowFrame, DonkeyKongImage highFrame);
 void drawFire(MovingObject* fire);
 void drawFires();
 void addFire(MovingObject*, int, int);
@@ -142,5 +130,6 @@ void loadPeach(int, int);
 
 void drawOtherObject();
 void loadOtherObject(int, int);
+MovingObject* getBarrelListHead(void);
 
 #endif /* MOVING_OBJECT_H_ */

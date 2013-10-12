@@ -4,14 +4,26 @@
  *  Created on: 2013-09-18
  *      Author: Jeremy
  */
-#include "altera_up_avalon_video_pixel_buffer_dma.h"
-#include "altera_up_avalon_video_character_buffer_with_dma.h";
 #include <stdio.h>
 #include "display.h"
+#include "io.h"
 
 volatile static alt_up_pixel_buffer_dma_dev* pixel_buffer = NULL;
 static alt_up_char_buffer_dev *char_buffer = NULL;
 static unsigned int pixel_buffer_addr1, pixel_buffer_addr2;
+
+/* The following function was taken from Jeff's optimization code: */
+int draw_pixel_fast(alt_up_pixel_buffer_dma_dev *pixel_buffer,
+		unsigned int color, unsigned int x, unsigned int y) {
+	unsigned int addr;
+
+	addr = ((x & pixel_buffer->x_coord_mask) << 1);
+	addr += (((y & pixel_buffer->y_coord_mask) * 320) << 1);
+
+	IOWR_16DIRECT(pixel_buffer->back_buffer_start_address, addr, color);
+
+	return 0;
+}
 
 void init_display()
 {
@@ -112,7 +124,8 @@ void draw_pixel(int x, int y, colour col)
 	if (pixel_buffer == NULL) return;
 
 	int intCol = colourToInt(col);
-	alt_up_pixel_buffer_dma_draw(pixel_buffer, intCol, x, y);
+	//alt_up_pixel_buffer_dma_draw(pixel_buffer, intCol, x, y);
+	draw_pixel_fast(pixel_buffer, intCol, x, y);
 }
 
 int colourToInt(colour col)
