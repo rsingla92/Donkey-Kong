@@ -332,7 +332,7 @@ void update_level1(void) {
 		} else {
 			moveMario(UP);
 		}
-  	} else if (getMarioState() != FALLING && (ladder_ind = is_ladder(getMario().x,getMario().y)) != -1) {
+  	} else if (getMarioState() != FALLING && (ladder_ind = is_ladder(getMario().x, getMario().y)) != -1) {
 		int ladder_end_y = ladders[ladder_ind].end.y;
 		int ladder_begin_y = ladders[ladder_ind].start.y;
 
