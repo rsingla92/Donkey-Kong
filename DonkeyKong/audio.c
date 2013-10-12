@@ -86,6 +86,23 @@ unsigned int reduceVolume(unsigned int buffer) {
 	return (buffer/2);
 }
 
+void pauseMusic(void)
+{
+	// Stops writing to the audio buffer.
+	alt_up_audio_disable_write_interrupt(audio);
+}
+
+void resumeMusic(void)
+{
+	alt_up_audio_enable_write_interrupt(audio);
+}
+
+void restartMusic(void)
+{
+	interruptSample = 0;
+	alt_up_audio_enable_write_interrupt(audio);
+}
+
 unsigned char isMusicDone(void)
 {
 	return musicDone;

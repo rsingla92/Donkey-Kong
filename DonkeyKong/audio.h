@@ -39,4 +39,8 @@ int loadMusic(char* audioFile, unsigned short loop);
 
 unsigned char isMusicDone(void);
 
+void resumeMusic(void);
+
+void restartMusic(void);
+
 #endif /* AUDIO_H_ */
