@@ -78,6 +78,7 @@ typedef struct MovingObject
 	int x, y, speed;
 	float current_frame;
 	float past_frame;
+	int currentFloor;
 	MovingObjectState state;
 	struct MovingObject* prev;
 	struct MovingObject* next;

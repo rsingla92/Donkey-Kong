@@ -47,6 +47,7 @@ void loadMario(int x, int y, int speed)
 	mario.y = y;
 	mario.jumpStart = y;
 	mario.speed = speed;
+	mario.currentFloor = 6;
 }
 
 void drawMario(bool bothBuffers)
@@ -265,4 +266,21 @@ void changeMarioState(MarioState state)
 MarioState getMarioState(void)
 {
 	return mario.state;
+}
+
+Mario* getMarioRef(void)
+{
+	return &mario;
+}
+
+int getMarioCurrentFloor(void)
+{
+	return mario.currentFloor;
+}
+
+void setMarioCurrentFloor(int currentFloor)
+{
+	if (currentFloor < 0 || currentFloor > 6) return;
+
+	mario.currentFloor = currentFloor;
 }

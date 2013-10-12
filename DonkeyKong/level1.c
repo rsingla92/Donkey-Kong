@@ -4,7 +4,7 @@
  *  Created on: Sep 24, 2013
  *      Author: lauren
  */
-
+#include <stdlib.h>
 #include "level1.h"
 #include "background.h"
 #include "bitmap.h"
@@ -23,9 +23,6 @@ extern controller_buttons prev_controller_state;
 
 static alt_timestamp_type start_time;
 static int points = MAX_POINTS;
-
-/* For efficiency, from 0 to 6 */
-static int current_floor = 6;
 
 typedef struct {
 	int x;
@@ -156,7 +153,7 @@ static int floorToLadderMap[7] = {0, 0, 3, 6, 10, 14, 16};
 #define FLOOR_X_LOW_BOUND			23
 #define FLOOR_X_HIGH_BOUND			296
 
-int is_ladder (int x, int y){
+int is_ladder (int x, int y, int current_floor){
 	int i;
 	for (i = floorToLadderMap[current_floor]; i < NUM_LADDERS; i++){
 		if (y >= (ladders[i].start.y - getCurrentHeight()) && y <= (ladders[i].end.y - getCurrentHeight()))
@@ -166,7 +163,7 @@ int is_ladder (int x, int y){
 	return -1;
 }
 
-int find_ladder_floor (int x, int y) {
+int find_ladder_floor (int x, int y, int current_floor) {
 	int i;
 	if (current_floor == 0) return -1;
 	for (i = floorToLadderMap[current_floor]; i < NUM_LADDERS; i++){
@@ -178,7 +175,7 @@ int find_ladder_floor (int x, int y) {
 	return -1;
 }
 
-int find_ladder_top (int x, int y){
+int find_ladder_top (int x, int y, int current_floor){
 	int i;
 	if (current_floor == 6) return -1;
 	for (i = floorToLadderMap[current_floor + 1]; i < NUM_LADDERS; i++){
@@ -190,7 +187,7 @@ int find_ladder_top (int x, int y){
 	return -1;
 }
 
-int find_floor(int x, int y, double ref, unsigned char isMario)
+int find_floor(int x, int y, double ref, int* current_floor)
 {
 	int i, start;
 
@@ -199,11 +196,11 @@ int find_floor(int x, int y, double ref, unsigned char isMario)
 	if (y + ref <= FIRST_FLOOR_Y && x >= FIRST_FLOOR_X_LOW_BOUND && x <= FIRST_FLOOR_X_HIGH_BOUND)
 	{
 		start = FIRST_FLOOR_IND;
-		if (isMario) current_floor = 0;
+		*current_floor = 0;
 	}
 	else if (y + ref <= SECOND_FLOOR_Y && x <= FLOOR_X_HIGH_BOUND)
 	{
-		if (isMario) current_floor = 1;
+		*current_floor = 1;
 		if (x < floors[SECOND_FLOOR_IND + 3].start.x)
 		{
 			start = SECOND_FLOOR_IND;
@@ -215,7 +212,7 @@ int find_floor(int x, int y, double ref, unsigned char isMario)
 	}
 	else if (y + ref <= THIRD_FLOOR_Y && x >= FLOOR_X_LOW_BOUND)
 	{
-		if (isMario) current_floor = 2;
+		*current_floor = 2;
 		if (x < floors[THIRD_FLOOR_IND + 6].start.x)
 		{
 			start = THIRD_FLOOR_IND;
@@ -227,7 +224,7 @@ int find_floor(int x, int y, double ref, unsigned char isMario)
 	}
 	else if (y+ref <= FOURTH_FLOOR_Y && x <= FLOOR_X_HIGH_BOUND)
 	{
-		if (isMario) current_floor = 3;
+		*current_floor = 3;
 		if (x < floors[FOURTH_FLOOR_IND + 6].start.x)
 		{
 			start = FOURTH_FLOOR_IND;
@@ -239,7 +236,7 @@ int find_floor(int x, int y, double ref, unsigned char isMario)
 	}
 	else if (y+ref <= FIFTH_FLOOR_Y && x >= FLOOR_X_LOW_BOUND)
 	{
-		if (isMario) current_floor = 4;
+		*current_floor = 4;
 		if (x < floors[FIFTH_FLOOR_IND + 6].start.x)
 		{
 			start = FIFTH_FLOOR_IND;
@@ -251,7 +248,7 @@ int find_floor(int x, int y, double ref, unsigned char isMario)
 	}
 	else if (y+ref <= SIXTH_FLOOR_Y && x <= FLOOR_X_HIGH_BOUND)
 	{
-		if (isMario) current_floor = 5;
+		*current_floor = 5;
 		if (x < floors[SIXTH_FLOOR_IND + 6].start.x)
 		{
 			start = SIXTH_FLOOR_IND;
@@ -263,7 +260,7 @@ int find_floor(int x, int y, double ref, unsigned char isMario)
 	}
 	else
 	{
-		if (isMario) current_floor = 6;
+		*current_floor = 6;
 		if (x < floors[SEVENTH_FLOOR_IND + 3].start.x)
 		{
 			start = SEVENTH_FLOOR_IND;
@@ -334,7 +331,7 @@ void update_level1(void) {
 		} else {
 			moveMario(UP);
 		}
-  	} else if (getMarioState() != FALLING && (ladder_ind = is_ladder(getMario().x, getMario().y)) != -1) {
+  	} else if (getMarioState() != FALLING && (ladder_ind = is_ladder(getMario().x, getMario().y, getMario().currentFloor)) != -1) {
 		int ladder_end_y = ladders[ladder_ind].end.y;
 		int ladder_begin_y = ladders[ladder_ind].start.y;
 
@@ -371,7 +368,7 @@ void update_level1(void) {
 		// changeMarioState(WALKING);
 
 		/* Drop to the correct floor: */
-		floor = find_floor(getMario().x, getMario().y, 3*(getCurrentHeight()/4), 1) - getCurrentHeight();
+		floor = find_floor(getMario().x, getMario().y, 3*(getCurrentHeight()/4), &(getMarioRef()->currentFloor)) - getCurrentHeight();
 		if (getMario().y < floor) moveMario(DOWN);
 		else if (getMario().y > floor) moveMario(UP);
 

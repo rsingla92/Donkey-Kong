@@ -39,6 +39,7 @@ typedef struct
 	int speed;
 	float current_frame;
 	int jumpStart;
+	int currentFloor;
 	MarioState state;
 } Mario;
 
@@ -47,6 +48,7 @@ void drawMario(bool bothBuffers);
 
 bool moveMario(MarioDirection dir);
 Mario getMario(void);
+Mario* getMarioRef(void);
 
 bool moveUp(void);
 bool moveDown(void);
@@ -57,6 +59,9 @@ int getCurrentWidth(void);
 int getCurrentHeight(void);
 void setMarioJumpStart(int height);
 int getMarioJumpStart(void);
+
+int getMarioCurrentFloor(void);
+void setMarioCurrentFloor(int currentFloor);
 
 void changeMarioState(MarioState state);
 MarioState getMarioState(void);

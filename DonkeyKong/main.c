@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "sdcard.h"
 #include "bitmap.h"
 #include "display.h"
@@ -84,6 +85,8 @@ static void readDat(){
 }
 
 int main(void) {
+	// Start the timestamp -- will be used for seeding the random number generator.
+	alt_timestamp_start();
 	// Set latch and clock to 0.
 	IOWR_8DIRECT(controller_out, 0, 0x00);
 
@@ -98,6 +101,8 @@ int main(void) {
 	printf("Card connected.\n");
 
 	ticks_per_sec = alt_ticks_per_second();
+
+	srand(alt_timestamp());
 
 	num_ticks = ticks_per_sec / 30;
 	alt_alarm *update_alarm = malloc(sizeof(alt_alarm));

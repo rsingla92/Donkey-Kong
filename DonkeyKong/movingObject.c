@@ -64,6 +64,7 @@ void addFire(MovingObject* newFire, int x, int y)
 	newFire->speed = 1;
 	newFire->current_frame = FIRE_BUCKET;
 	newFire->state = STILL;
+	newFire->currentFloor = 6;
 }
 
 void loadFires()
@@ -122,6 +123,7 @@ void addBarrel(MovingObject* newBarrel, int x, int y)
 	newBarrel->x = x;
 	newBarrel->y = y;
 	newBarrel->speed = 1;
+	newBarrel->currentFloor = 1;
 	newBarrel->current_frame = FLAT_BARREL;
 	newBarrel->state = ROLLING; // TODO: change this to THROWABLE once DK is able to throw barrels.
 }
@@ -174,7 +176,7 @@ void moveBarrels(BarrelImage lowFrame, BarrelImage highFrame) {
 				if (barrelItr->x  + MOgetCurrentWidth(barrelItr) >= 320 || barrelItr->x <= 0)
 					barrelItr->speed = -barrelItr->speed;
 
-				int floorFound = find_floor(barrelItr->x, barrelItr->y, 0, 0);
+				int floorFound = find_floor(barrelItr->x, barrelItr->y, 0, &barrelItr->currentFloor);
 
 				if (barrelItr->y + MOgetCurrentHeight(barrelItr) > floorFound)
 					barrelItr->y -= 1;
