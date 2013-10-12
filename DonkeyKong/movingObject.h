@@ -57,7 +57,7 @@ typedef enum { HAMMER,
 
 
 /* MovingObject States */
- typedef enum {LAYING, ROLLING, STILL, MOVING, THROWABLE} MovingObjectState;
+ typedef enum {LAYING, ROLLING, STILL, MOVING, THROWABLE, OBJ_FALLING} MovingObjectState;
 
 /* Donkey Kong States */
 typedef enum {STANDING, THROWING, ANGRY, CLIMBING, UPSIDE} DonkeyKongState;
@@ -79,6 +79,7 @@ typedef struct MovingObject
 	float current_frame;
 	float past_frame;
 	int currentFloor;
+	int byLadder;
 	MovingObjectState state;
 	struct MovingObject* prev;
 	struct MovingObject* next;
@@ -129,5 +130,6 @@ void loadPeach(int, int);
 
 void drawOtherObject();
 void loadOtherObject(int, int);
+MovingObject* getBarrelListHead(void);
 
 #endif /* MOVING_OBJECT_H_ */

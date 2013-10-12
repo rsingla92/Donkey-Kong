@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <stdlib.h>
+#include "random.h"
 #include "sdcard.h"
 #include "bitmap.h"
 #include "display.h"
@@ -102,7 +102,7 @@ int main(void) {
 
 	ticks_per_sec = alt_ticks_per_second();
 
-	srand(alt_timestamp());
+	seed(alt_timestamp());
 
 	num_ticks = ticks_per_sec / 30;
 	alt_alarm *update_alarm = malloc(sizeof(alt_alarm));

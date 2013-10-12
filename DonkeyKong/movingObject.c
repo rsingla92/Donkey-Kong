@@ -1,7 +1,8 @@
 #include "movingObject.h"
 #include "math.h"
 #include "level1.h"
-#include <stdlib.h>
+#include "random.h"
+#include "mario.h"
 
 /*
  * Need to maintain a list of moving objects
@@ -29,6 +30,13 @@ static colour fire_alpha = { 0x1F, 0x00, 0x1F };
 static Peach peach;
 static char* peach_list[NUM_PEACH_IMGS] = {"PP1.BMP", "PP2.BMP", "PP3.BMP"};
 static colour peach_alpha = { 0x00, 0x00, 0x00 };
+
+static unsigned int goDownLadder(MovingObject* barrelItr);
+
+MovingObject* getBarrelListHead(void)
+{
+	return barrelListHead;
+}
 
 void drawFire(MovingObject* fire)
 {
@@ -64,6 +72,7 @@ void addFire(MovingObject* newFire, int x, int y)
 	newFire->speed = 1;
 	newFire->current_frame = FIRE_BUCKET;
 	newFire->state = STILL;
+	newFire->byLadder = 0;
 	newFire->currentFloor = 6;
 }
 
@@ -124,6 +133,7 @@ void addBarrel(MovingObject* newBarrel, int x, int y)
 	newBarrel->y = y;
 	newBarrel->speed = 1;
 	newBarrel->currentFloor = 1;
+	newBarrel->byLadder = 0;
 	newBarrel->current_frame = FLAT_BARREL;
 	newBarrel->state = ROLLING; // TODO: change this to THROWABLE once DK is able to throw barrels.
 }
@@ -156,52 +166,139 @@ void animateBarrels(BarrelImage lowFrame, BarrelImage highFrame)
 	}
 }
 
-void moveBarrels(BarrelImage lowFrame, BarrelImage highFrame) {
+static unsigned int goDownLadder(MovingObject* barrelItr) {
+	unsigned int ret = 0;
+
+	if (barrelItr->byLadder == 0 && getMario().currentFloor > barrelItr->currentFloor)
+	{
+		if (getMario().currentFloor == barrelItr->currentFloor + 1)
+		{
+			// Mario is on the floor directly below. Go down according to this rule:
+			if (getMario().currentFloor % 2 == 0 && barrelItr->x > getMario().x)
+			{
+				ret = 1;
+			}
+			else if (getMario().currentFloor % 2 != 0 && barrelItr->x < getMario().x)
+			{
+				ret = 1;
+			}
+			else
+			{
+				ret = 0;
+			}
+		}
+		else
+		{
+			ret = 1;
+		}
+	}
+
+	return ret && nextRand() % 3 == 0;
+}
+
+void moveBarrels(BarrelImage lowFrame, BarrelImage highFrame)
+{
 	MovingObject* barrelItr = barrelListHead;
 
-	while(barrelItr != NULL) {
+	while(barrelItr != NULL)
+	{
+		int ladderIndicator = -1;
 
-		if (barrelItr->state == THROWABLE) { // TODO: implement some DK thing here to trigger a throw
+		if (barrelItr->state == THROWABLE)
+		{ // TODO: implement some DK thing here to trigger a throw
 			barrelItr->x = 20;
 			barrelItr->y = 70;
 			barrelItr->speed = 1;
 			barrelItr->state = ROLLING;
 		}
 
-		if (barrelItr->state == ROLLING) {
-			if (should_barrel_die(barrelItr->x, barrelItr->y + MOgetCurrentHeight(barrelItr))){
+		if (barrelItr->state == ROLLING)
+		{
+			if (should_barrel_die(barrelItr->x, barrelItr->y + MOgetCurrentHeight(barrelItr)))
+			{
 				if (barrelItr->x+MOgetCurrentWidth(barrelItr) <= 0)
 					barrelItr->state = THROWABLE;
-			} else {
+			}
+			else if ((ladderIndicator = find_ladder_top(barrelItr->x, barrelItr->y, MOgetCurrentHeight(barrelItr), barrelItr->currentFloor)) != -1 && goDownLadder(barrelItr))
+			{
+				barrelItr->state = OBJ_FALLING;
+				barrelItr->y += 1;
+				MOdrawBackground(barrelItr->x, barrelItr->y - 1 , barrelItr->x + MOgetCurrentWidth(barrelItr), barrelItr->y);
+			}
+			else
+			{
+				if (ladderIndicator != -1 && !barrelItr->byLadder)
+				{
+					// The barrel is now by a ladder.
+					barrelItr->byLadder = 1;
+				}
+
+				if (ladderIndicator == -1 && barrelItr->byLadder)
+				{
+					// This indicator makes sure the barrel will only attempt
+					// to go down the ladder once, and not for each frame in which
+					// it is by the ladder (otherwise it will nearly always go down).
+					barrelItr->byLadder = 0;
+				}
+
 				if (barrelItr->x  + MOgetCurrentWidth(barrelItr) >= 320 || barrelItr->x <= 0)
 					barrelItr->speed = -barrelItr->speed;
 
 				int floorFound = find_floor(barrelItr->x, barrelItr->y, 0, &barrelItr->currentFloor);
 
 				if (barrelItr->y + MOgetCurrentHeight(barrelItr) > floorFound)
+				{
 					barrelItr->y -= 1;
-				else if (barrelItr->y + MOgetCurrentHeight(barrelItr) < floorFound){
+				}
+				else if (barrelItr->y + MOgetCurrentHeight(barrelItr) < floorFound)
+				{
 					barrelItr->y += 1;
 					MOdrawBackground(barrelItr->x, barrelItr->y - 1 , barrelItr->x + MOgetCurrentWidth(barrelItr),barrelItr->y);
 				}
 			}
-			barrelItr->x += barrelItr->speed;
 
-			animateBarrels(lowFrame, highFrame);
+			if (barrelItr->state != OBJ_FALLING)
+			{
+				barrelItr->x += barrelItr->speed;
 
-			if (barrelItr->speed < 0)
-				MOdrawBackground(barrelItr->x + MOgetCurrentWidth(barrelItr), barrelItr->y,
-						barrelItr->x + MOgetPastWidth(barrelItr) + 1, barrelItr->y + MOgetCurrentHeight(barrelItr));
+				animateBarrels(lowFrame, highFrame);
+
+				if (barrelItr->speed < 0)
+				{
+					MOdrawBackground(barrelItr->x + MOgetCurrentWidth(barrelItr), barrelItr->y,
+							barrelItr->x + MOgetPastWidth(barrelItr) + 1, barrelItr->y + MOgetCurrentHeight(barrelItr));
+				}
+				else
+				{
+					MOdrawBackground(barrelItr->x-2, barrelItr->y,
+									barrelItr->x-1, barrelItr->y + MOgetCurrentHeight(barrelItr));
+				}
+			}
+		}
+		else if (barrelItr->state == OBJ_FALLING)
+		{
+			int ladder_ind = is_ladder(barrelItr->x, barrelItr->y, MOgetCurrentHeight(barrelItr), barrelItr->currentFloor);
+			int ladder_end_y = getLaddersElement(ladder_ind).end.y;
+
+			if (barrelItr->y + MOgetCurrentHeight(barrelItr) >= ladder_end_y-2 &&
+					barrelItr->y + MOgetCurrentHeight(barrelItr) <= ladder_end_y+2)
+			{
+				barrelItr->state = ROLLING;
+				barrelItr->speed = -barrelItr->speed;
+			}
 			else
-				MOdrawBackground(barrelItr->x-2, barrelItr->y,
-								barrelItr->x-1, barrelItr->y + MOgetCurrentHeight(barrelItr));
+			{
+				barrelItr->y += 1;
+				MOdrawBackground(barrelItr->x, barrelItr->y - 1 , barrelItr->x + MOgetCurrentWidth(barrelItr),barrelItr->y);
+			}
 		}
 
 		barrelItr = barrelItr->next;
 	}
 }
 
-void MOdrawBackground(int x0, int y0, int x1, int y1) {
+void MOdrawBackground(int x0, int y0, int x1, int y1)
+{
 	pushEraseNode(x0, y0, x1, y1);
 }
 

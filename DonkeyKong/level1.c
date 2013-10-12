@@ -4,7 +4,6 @@
  *  Created on: Sep 24, 2013
  *      Author: lauren
  */
-#include <stdlib.h>
 #include "level1.h"
 #include "background.h"
 #include "bitmap.h"
@@ -23,17 +22,6 @@ extern controller_buttons prev_controller_state;
 
 static alt_timestamp_type start_time;
 static int points = MAX_POINTS;
-
-typedef struct {
-	int x;
-	int y;
-} Point;
-
-typedef struct {
-	Point start;
-	Point end;
-	int width; // for ladder
-} Plane;
 
 Point barrels_die = {0,200};
 
@@ -153,10 +141,15 @@ static int floorToLadderMap[7] = {0, 0, 3, 6, 10, 14, 16};
 #define FLOOR_X_LOW_BOUND			23
 #define FLOOR_X_HIGH_BOUND			296
 
-int is_ladder (int x, int y, int current_floor){
+Plane getLaddersElement(int index)
+{
+	return ladders[index];
+}
+
+int is_ladder (int x, int y, int height, int current_floor){
 	int i;
 	for (i = floorToLadderMap[current_floor]; i < NUM_LADDERS; i++){
-		if (y >= (ladders[i].start.y - getCurrentHeight()) && y <= (ladders[i].end.y - getCurrentHeight()))
+		if (y >= (ladders[i].start.y - height) && y <= (ladders[i].end.y - height))
 			if (x >= ladders[i].start.x && x <= (ladders[i].start.x) + (ladders[i].width/3))
 				return i;
 	}
@@ -175,11 +168,12 @@ int find_ladder_floor (int x, int y, int current_floor) {
 	return -1;
 }
 
-int find_ladder_top (int x, int y, int current_floor){
+int find_ladder_top (int x, int y, int height, int current_floor){
 	int i;
 	if (current_floor == 6) return -1;
+
 	for (i = floorToLadderMap[current_floor + 1]; i < NUM_LADDERS; i++){
-		if (y <= ladders[i].end.y){
+		if (y <= ladders[i].start.y && y + height >= ladders[i].start.y - 2){
 			if(x >= ladders[i].start.x && x <= (ladders[i].start.x)+(ladders[i].width)/3)
 				return (ladders[i].start.y);
 		}
@@ -309,62 +303,90 @@ void update_level1(void) {
 	int floor = 0;
 	int ladder_ind = 0;
 
-	if (!firstMove) {
+	if (!firstMove)
+	{
 		alt_timestamp_type end_time = alt_timestamp();
 		char buf[50];
 
-		if ((2*(end_time - start_time)/alt_timestamp_freq()) > 1){
+		if ((2*(end_time - start_time)/alt_timestamp_freq()) > 1)
+		{
 			alt_timestamp_start();
 			start_time = alt_timestamp();
 			points = points - 1;
 			if (points < 0)
 				points = 0;
+			sprintf(buf, "Score: %03d", points);
+			draw_string(buf, 0, 0);
 		}
-		sprintf(buf, "Score: %03d", points);
+	}
+	else
+	{
+		char buf[50];
+		sprintf(buf, "Score: %03d", MAX_POINTS);
 		draw_string(buf, 0, 0);
 	}
 
-	if (getMarioState() == JUMPING) {
+	if (getMarioState() == JUMPING)
+	{
 		/* Mario is jumping */
-		if (getMario().y <= getMarioJumpStart() - MAX_JUMP) {
+		if (getMario().y <= getMarioJumpStart() - MAX_JUMP)
+		{
 			changeMarioState(FALLING);
-		} else {
+		}
+		else
+		{
 			moveMario(UP);
 		}
-  	} else if (getMarioState() != FALLING && (ladder_ind = is_ladder(getMario().x, getMario().y, getMario().currentFloor)) != -1) {
+  	}
+	else if (getMarioState() != FALLING && (ladder_ind = is_ladder(getMario().x, getMario().y, getCurrentHeight(), getMario().currentFloor)) != -1)
+	{
 		int ladder_end_y = ladders[ladder_ind].end.y;
 		int ladder_begin_y = ladders[ladder_ind].start.y;
 
 		if ( is_num_in_range(getMario().y + getCurrentHeight(),
-				ladder_end_y-LADDER_ERROR, ladder_end_y+LADDER_ERROR)) {
+				ladder_end_y-LADDER_ERROR, ladder_end_y+LADDER_ERROR))
+		{
 			changeMarioState(LADDER_BOTTOM);
 
-		} else if( is_num_in_range(getMario().y + getCurrentHeight(),
-						ladder_begin_y-LADDER_ERROR, ladder_begin_y+LADDER_ERROR)) {
+		}
+		else if( is_num_in_range(getMario().y + getCurrentHeight(),
+						ladder_begin_y-LADDER_ERROR, ladder_begin_y+LADDER_ERROR))
+		{
 			changeMarioState(LADDER_TOP);
 		}
 
 		if (getMarioState() == LADDER_BOTTOM &&
-				(button_states[1] == 0 || controller_state.UP_ARROW) ) {
+				(button_states[1] == 0 || controller_state.UP_ARROW) )
+		{
 			/* Mario is beginning to climb. */
 			changeMarioState(M_CLIMBING);
-		} else if (getMarioState() == LADDER_TOP &&
-				(button_states[0] == 0 || controller_state.DOWN_ARROW)) {
+		}
+		else if (getMarioState() == LADDER_TOP &&
+				(button_states[0] == 0 || controller_state.DOWN_ARROW))
+		{
 			changeMarioState(M_CLIMBING);
-		} else if (getMarioState() == LADDER_TOP &&
-				(button_states[1] == 0 || controller_state.B_BUTTON)) {
+		}
+		else if (getMarioState() == LADDER_TOP &&
+				(button_states[1] == 0 || controller_state.B_BUTTON))
+		{
 			changeMarioState(JUMPING);
 			setMarioJumpStart(getMario().y);
 		}
 
-		if (getMarioState() == M_CLIMBING) {
-			if (button_states[1] == 0 || controller_state.UP_ARROW) {
+		if (getMarioState() == M_CLIMBING)
+		{
+			if (button_states[1] == 0 || controller_state.UP_ARROW)
+			{
 				moveMario(UP);
-			} else if (button_states[0] == 0 || controller_state.DOWN_ARROW) {
+			}
+			else if (button_states[0] == 0 || controller_state.DOWN_ARROW)
+			{
 				moveMario(DOWN);
 			}
 		}
-	} else {
+	}
+	else
+	{
 		// changeMarioState(WALKING);
 
 		/* Drop to the correct floor: */
@@ -372,9 +394,11 @@ void update_level1(void) {
 		if (getMario().y < floor) moveMario(DOWN);
 		else if (getMario().y > floor) moveMario(UP);
 
-		if (getMario().y > floor - 2 && getMario().y < floor + 2) {
+		if (getMario().y > floor - 2 && getMario().y < floor + 2)
+		{
 			changeMarioState(WALKING);
-			if (button_states[1] == 0 || controller_state.B_BUTTON) {
+			if (button_states[1] == 0 || controller_state.B_BUTTON)
+			{
 				changeMarioState(JUMPING);
 				setMarioJumpStart(getMario().y);
 			}
@@ -382,7 +406,8 @@ void update_level1(void) {
 	}
 
 	if ((button_states[3] == 0 || button_states[2] == 0 ||
-			controller_state.RIGHT_ARROW || controller_state.LEFT_ARROW) && firstMove) {
+			controller_state.RIGHT_ARROW || controller_state.LEFT_ARROW) && firstMove)
+	{
 		alt_timestamp_start();
 		start_time = alt_timestamp();
 		firstMove = false;
@@ -390,7 +415,8 @@ void update_level1(void) {
 
 	if (getMarioState() == WALKING || getMarioState() == LADDER_BOTTOM ||
 			getMarioState() == LADDER_TOP ||
-			getMarioState() == JUMPING || getMarioState() == FALLING) {
+			getMarioState() == JUMPING || getMarioState() == FALLING)
+	{
 		if (button_states[3] == 0 || controller_state.LEFT_ARROW) moveMario(LEFT);
 		else if (button_states[2] == 0 || controller_state.RIGHT_ARROW) moveMario(RIGHT);
 	}
