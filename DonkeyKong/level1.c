@@ -128,6 +128,27 @@ static const Plane ladders[] =
 #define NUM_FLOORS (sizeof(floors)/sizeof(floors[0]))
 #define NUM_LADDERS (sizeof(ladders)/sizeof(ladders[0]))
 
+/* For efficiency in searching the floor list */
+#define FIRST_FLOOR_IND		0
+#define SECOND_FLOOR_IND	1
+#define THIRD_FLOOR_IND		6
+#define FOURTH_FLOOR_IND	18
+#define FIFTH_FLOOR_IND		30
+#define SIXTH_FLOOR_IND		42
+#define SEVENTH_FLOOR_IND	54
+
+#define FIRST_FLOOR_Y				62
+#define FIRST_FLOOR_X_LOW_BOUND		137
+#define FIRST_FLOOR_X_HIGH_BOUND	205
+#define SECOND_FLOOR_Y				95
+#define THIRD_FLOOR_Y				123
+#define FOURTH_FLOOR_Y				152
+#define FIFTH_FLOOR_Y				180
+#define SIXTH_FLOOR_Y				209
+#define SEVENTH_FLOOR_Y				232
+#define FLOOR_X_LOW_BOUND			23
+#define FLOOR_X_HIGH_BOUND			296
+
 int is_ladder (int x, int y){
 	int i;
 	for (i = 0; i < NUM_LADDERS; i++){
@@ -160,9 +181,84 @@ int find_ladder_top (int x, int y){
 	return -1;
 }
 
-int find_floor(int x, int y, double ref){
-	int i;
-	for (i = 0; i < NUM_FLOORS; i++){
+int find_floor(int x, int y, double ref)
+{
+	int i, start;
+
+	/* The following checks greatly improve efficiency, by making sure we loop through at most
+	 * 6 times. */
+	if (y + ref <= FIRST_FLOOR_Y && x >= FIRST_FLOOR_X_LOW_BOUND && x <= FIRST_FLOOR_X_HIGH_BOUND)
+	{
+		start = FIRST_FLOOR_IND;
+	}
+	else if (y + ref <= SECOND_FLOOR_Y && x <= FLOOR_X_HIGH_BOUND)
+	{
+		if (x < floors[SECOND_FLOOR_IND + 3].start.x)
+		{
+			start = SECOND_FLOOR_IND;
+		}
+		else
+		{
+			start = SECOND_FLOOR_IND + 3;
+		}
+	}
+	else if (y + ref <= THIRD_FLOOR_Y && x >= FLOOR_X_LOW_BOUND)
+	{
+		if (x < floors[THIRD_FLOOR_IND + 6].start.x)
+		{
+			start = THIRD_FLOOR_IND;
+		}
+		else
+		{
+			start = THIRD_FLOOR_IND + 6;
+		}
+	}
+	else if (y+ref <= FOURTH_FLOOR_Y && x <= FLOOR_X_HIGH_BOUND)
+	{
+		if (x < floors[FOURTH_FLOOR_IND + 6].start.x)
+		{
+			start = FOURTH_FLOOR_IND;
+		}
+		else
+		{
+			start = FOURTH_FLOOR_IND + 6;
+		}
+	}
+	else if (y+ref <= FIFTH_FLOOR_Y && x >= FLOOR_X_LOW_BOUND)
+	{
+		if (x < floors[FIFTH_FLOOR_IND + 6].start.x)
+		{
+			start = FIFTH_FLOOR_IND;
+		}
+		else
+		{
+			start = FIFTH_FLOOR_IND + 6;
+		}
+	}
+	else if (y+ref <= SIXTH_FLOOR_Y && x <= FLOOR_X_HIGH_BOUND)
+	{
+		if (x < floors[SIXTH_FLOOR_IND + 6].start.x)
+		{
+			start = SIXTH_FLOOR_IND;
+		}
+		else
+		{
+			start = SIXTH_FLOOR_IND + 6;
+		}
+	}
+	else
+	{
+		if (x < floors[SEVENTH_FLOOR_IND + 3].start.x)
+		{
+			start = SEVENTH_FLOOR_IND;
+		}
+		else
+		{
+			start = SEVENTH_FLOOR_IND + 3;
+		}
+	}
+
+	for (i = start; i < NUM_FLOORS; i++){
 		if (y + ref <= floors[i].end.y){
 			if(x >= floors[i].start.x && x <= floors[i].end.x)
 				return (floors[i].start.y);

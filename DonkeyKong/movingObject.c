@@ -13,7 +13,7 @@ static char* donkeyKong_list[NUM_DONKEYKONG_IMGS] = {"DK1.BMP", "DK10.BMP", "DK2
 		"DK4.BMP", "DK5.BMP", "DK6.BMP", "DK7.BMP", "DK8.BMP"};
 static AnimMap DK_anim_list[NUM_DONKEYKONG_IMGS];
 static double dk_frame_dir = 0.03;
-static colour donkeyKong_alpha = { 0x1F, 0x00, 0x1F };
+static colour donkeyKong_alpha = { 0x00, 0x00, 0x00 };
 
 static MovingObject* barrelListHead;
 static char* barrel_list[NUM_BARREL_IMGS] = {"B1.BMP", "B2.BMP", "B3.BMP", "B4.BMP", "B5.BMP"};
@@ -78,11 +78,12 @@ void drawBarrel(MovingObject* barrel)
 {
 	int cur_frame = (int) round(barrel->current_frame);
 	if (barrel->speed < 0){
-		draw_flipped_bmp(barrel_anim_list[cur_frame].handle,barrel->x, barrel->y, true, barrel_alpha,1);
+		draw_flipped_bmp(barrel_anim_list[cur_frame].handle, barrel->x, barrel->y, true, barrel_alpha, 1);
 	}
-	else
+	else {
 		draw_bmp(barrel_anim_list[cur_frame].handle, barrel->x,
 				barrel->y, true, barrel_alpha, 1);
+	}
 }
 
 void drawBarrels()
@@ -154,24 +155,22 @@ void animateBarrels(BarrelImage lowFrame, BarrelImage highFrame)
 }
 
 void moveBarrels(BarrelImage lowFrame, BarrelImage highFrame) {
-	//double tmp_frame = mario.current_frame;
 	MovingObject* barrelItr = barrelListHead;
 
-	while(barrelItr != NULL){
+	while(barrelItr != NULL) {
 
-		if (barrelItr->state == THROWABLE){ // TODO: implement some DK thing here to trigger a throw
+		if (barrelItr->state == THROWABLE) { // TODO: implement some DK thing here to trigger a throw
 			barrelItr->x = 20;
 			barrelItr->y = 70;
 			barrelItr->speed = 1;
 			barrelItr->state = ROLLING;
 		}
 
-		if (barrelItr->state == ROLLING){
-			if (should_barrel_die(barrelItr->x, barrelItr->y+MOgetCurrentHeight(barrelItr))){
+		if (barrelItr->state == ROLLING) {
+			if (should_barrel_die(barrelItr->x, barrelItr->y + MOgetCurrentHeight(barrelItr))){
 				if (barrelItr->x+MOgetCurrentWidth(barrelItr) <= 0)
 					barrelItr->state = THROWABLE;
-			}
-			else {
+			} else {
 				if (barrelItr->x  + MOgetCurrentWidth(barrelItr) >= 320 || barrelItr->x <= 0)
 					barrelItr->speed = -barrelItr->speed;
 
