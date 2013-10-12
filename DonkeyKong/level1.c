@@ -35,6 +35,8 @@ typedef struct {
 	int width; // for ladder
 } Plane;
 
+Point barrels_die = {0,200};
+
 static const Plane floors[] =
 {
 	{{137,62}, {205,62}, 0 }, 	// top floor
@@ -189,12 +191,16 @@ void init_level1(void) {
 
 }
 
+int should_barrel_die(int x, int y){
+	if (x <= barrels_die.x && y >= barrels_die.y)
+		return 1;
+	return 0;
+}
+
 void update_level1(void) {
 	static bool firstMove = true;
 	int floor = 0;
 	int ladder_ind = 0;
-
-	moveBarrels(ROLLING_TOP_LEFT, ROLLING_BOTTOM_RIGHT);
 
 	if (!firstMove) {
 		alt_timestamp_type end_time = alt_timestamp();
@@ -282,6 +288,8 @@ void update_level1(void) {
 		else if (button_states[2] == 0 || controller_state.RIGHT_ARROW) moveMario(RIGHT);
 	}
 
+	moveBarrels(ROLLING_TOP_LEFT, ROLLING_BOTTOM_RIGHT);
+	drawDonkeyKong();
 	drawBarrels();
 	drawMario(false);
 	eraseAllNoPop();

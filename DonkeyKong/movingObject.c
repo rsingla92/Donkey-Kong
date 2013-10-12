@@ -9,16 +9,17 @@
  * Need to rough plan this out
  */
 static DonkeyKong donkeyKong;
-static char* donkeyKong_list[NUM_DONKEYKONG_IMGS] = {"DK1.BMP", "DK2.BMP", "DK3.BMP",
-		"DK4.BMP", "DK5.BMP", "DK6.BMP", "DK7.BMP", "DK8.BMP", "DK9.BMP", "DK10.BMP", "DK11.BMP" };
+static char* donkeyKong_list[NUM_DONKEYKONG_IMGS] = {"DK1.BMP", "DK10.BMP", "DK2.BMP","DK9.BMP", "DK3.BMP",
+		"DK4.BMP", "DK5.BMP", "DK6.BMP", "DK7.BMP", "DK8.BMP"};
+static AnimMap DK_anim_list[NUM_DONKEYKONG_IMGS];
+static double dk_frame_dir = 0.03;
 static colour donkeyKong_alpha = { 0x1F, 0x00, 0x1F };
 
 static MovingObject* barrelListHead;
 static char* barrel_list[NUM_BARREL_IMGS] = {"B1.BMP", "B2.BMP", "B3.BMP", "B4.BMP", "B5.BMP"};
 static AnimMap barrel_anim_list[NUM_BARREL_IMGS];
 static colour barrel_alpha = { 0x00, 0x00, 0x00 };
-static double frame_dir = 0.5;
-static int barrel_dir = 1;
+static double frame_dir = 0.07;
 
 static MovingObject* fireListHead;
 static char* fire_list[NUM_FIRE_IMGS] = {"FIRE.BMP", "FIRE1.BMP", "FIRE2.BMP", "FIRE3.BMP"};
@@ -76,8 +77,12 @@ void loadFires()
 void drawBarrel(MovingObject* barrel)
 {
 	int cur_frame = (int) round(barrel->current_frame);
-	draw_bmp(barrel_anim_list[cur_frame].handle, barrel->x,
-			barrel->y, true, barrel_alpha, 1);
+	if (barrel->speed < 0){
+		draw_flipped_bmp(barrel_anim_list[cur_frame].handle,barrel->x, barrel->y, true, barrel_alpha,1);
+	}
+	else
+		draw_bmp(barrel_anim_list[cur_frame].handle, barrel->x,
+				barrel->y, true, barrel_alpha, 1);
 }
 
 void drawBarrels()
@@ -117,7 +122,7 @@ void addBarrel(MovingObject* newBarrel, int x, int y)
 	newBarrel->y = y;
 	newBarrel->speed = 1;
 	newBarrel->current_frame = FLAT_BARREL;
-	newBarrel->state = LAYING;
+	newBarrel->state = ROLLING; // TODO: change this to THROWABLE once DK is able to throw barrels.
 }
 
 void loadBarrels()
@@ -132,41 +137,65 @@ void loadBarrels()
 void animateBarrels(BarrelImage lowFrame, BarrelImage highFrame)
 {
 	MovingObject* barrelItr = barrelListHead;
-	barrelItr->past_frame = barrelItr->current_frame;
+	while(barrelItr != NULL){
+		barrelItr->past_frame = barrelItr->current_frame;
 
-	if (barrelItr->current_frame < lowFrame || barrelItr->current_frame > highFrame) {
-		barrelItr->current_frame = lowFrame;
-	} else {
-		barrelItr->current_frame += 0.1;
-	}
+		if (barrelItr->current_frame < lowFrame || barrelItr->current_frame > highFrame) {
+			barrelItr->current_frame = lowFrame;
+		} else {
+			barrelItr->current_frame += frame_dir;
+		}
 
-	if (barrelItr->current_frame > highFrame || barrelItr->current_frame < lowFrame) {
-		frame_dir = -0.1;
+		if (barrelItr->current_frame > highFrame || barrelItr->current_frame < lowFrame) {
+			frame_dir = -frame_dir;
+		}
+		barrelItr = barrelItr->next;
 	}
 }
 
 void moveBarrels(BarrelImage lowFrame, BarrelImage highFrame) {
 	//double tmp_frame = mario.current_frame;
 	MovingObject* barrelItr = barrelListHead;
-	if (barrelItr->x  + MOgetCurrentWidth(barrelItr) >= 320 || barrelItr->x <= 0)
-		barrel_dir = -barrel_dir;
-	barrelItr->x += barrel_dir;
 
-	if (barrelItr->y + MOgetCurrentHeight(barrelItr) > find_floor(barrelItr->x, barrelItr->y, 0))
-		barrelItr->y -= 1;
-	else if (barrelItr->y + MOgetCurrentHeight(barrelItr) < find_floor(barrelItr->x, barrelItr->y, 0)){
-		barrelItr->y += 1;
-		MOdrawBackground(barrelItr->x, barrelItr->y - 1 , barrelItr->x + MOgetCurrentWidth(barrelItr),barrelItr->y);
+	while(barrelItr != NULL){
+
+		if (barrelItr->state == THROWABLE){ // TODO: implement some DK thing here to trigger a throw
+			barrelItr->x = 20;
+			barrelItr->y = 70;
+			barrelItr->speed = 1;
+			barrelItr->state = ROLLING;
+		}
+
+		if (barrelItr->state == ROLLING){
+			if (should_barrel_die(barrelItr->x, barrelItr->y+MOgetCurrentHeight(barrelItr))){
+				if (barrelItr->x+MOgetCurrentWidth(barrelItr) <= 0)
+					barrelItr->state = THROWABLE;
+			}
+			else {
+				if (barrelItr->x  + MOgetCurrentWidth(barrelItr) >= 320 || barrelItr->x <= 0)
+					barrelItr->speed = -barrelItr->speed;
+
+				if (barrelItr->y + MOgetCurrentHeight(barrelItr) > find_floor(barrelItr->x, barrelItr->y, 0))
+					barrelItr->y -= 1;
+				else if (barrelItr->y + MOgetCurrentHeight(barrelItr) < find_floor(barrelItr->x, barrelItr->y, 0)){
+					barrelItr->y += 1;
+					MOdrawBackground(barrelItr->x, barrelItr->y - 1 , barrelItr->x + MOgetCurrentWidth(barrelItr),barrelItr->y);
+				}
+			}
+			barrelItr->x += barrelItr->speed;
+
+			animateBarrels(lowFrame, highFrame);
+
+			if (barrelItr->speed < 0)
+				MOdrawBackground(barrelItr->x + MOgetCurrentWidth(barrelItr), barrelItr->y,
+						barrelItr->x + MOgetPastWidth(barrelItr) + 1, barrelItr->y + MOgetCurrentHeight(barrelItr));
+			else
+				MOdrawBackground(barrelItr->x-2, barrelItr->y,
+								barrelItr->x-1, barrelItr->y + MOgetCurrentHeight(barrelItr));
+		}
+
+		barrelItr = barrelItr->next;
 	}
-
-	animateBarrels(lowFrame, highFrame);
-
-	if (barrel_dir < 0)
-		MOdrawBackground(barrelItr->x + MOgetCurrentWidth(barrelItr), barrelItr->y,
-				barrelItr->x + MOgetPastWidth(barrelItr) + 1, barrelItr->y + MOgetCurrentHeight(barrelItr));
-	else
-		MOdrawBackground(barrelItr->x-2, barrelItr->y,
-						barrelItr->x-1, barrelItr->y + MOgetCurrentHeight(barrelItr));
 }
 
 void MOdrawBackground(int x0, int y0, int x1, int y1) {
@@ -198,14 +227,14 @@ void loadDonkeyKong(int x, int y)
 	// Animation list for Donkey Kong
 	load_bmp(donkeyKong_list[STANDING_STILL], &(donkeyKong.animation[STANDING_STILL].handle));
 	load_bmp(donkeyKong_list[GRABBING_BARREL], &(donkeyKong.animation[GRABBING_BARREL].handle));
+	load_bmp(donkeyKong_list[CARRYING_BARREL], &(donkeyKong.animation[CARRYING_BARREL].handle));
+	load_bmp(donkeyKong_list[ROLLING_BARREL], &(donkeyKong.animation[ROLLING_BARREL].handle));
 	load_bmp(donkeyKong_list[ANGRY_LEFT], &(donkeyKong.animation[ANGRY_LEFT].handle));
 	load_bmp(donkeyKong_list[ANGRY_RIGHT], &(donkeyKong.animation[ANGRY_RIGHT].handle));
 	load_bmp(donkeyKong_list[CLIMBING_LEFT], &(donkeyKong.animation[CLIMBING_LEFT].handle));
 	load_bmp(donkeyKong_list[CLIMBING_RIGHT], &(donkeyKong.animation[CLIMBING_RIGHT].handle));
 	load_bmp(donkeyKong_list[UPSIDE_DOWN_LEFT], &(donkeyKong.animation[UPSIDE_DOWN_LEFT].handle));
 	load_bmp(donkeyKong_list[UPDATE_DOWN_RIGHT], &(donkeyKong.animation[UPDATE_DOWN_RIGHT].handle));
-	load_bmp(donkeyKong_list[WALK_RIGHT], &(donkeyKong.animation[WALK_RIGHT].handle));
-	load_bmp(donkeyKong_list[SUPER_ANGRY], &(donkeyKong.animation[SUPER_ANGRY].handle));
 
 	// There are no right-facing animations. It's all either facing the player or not.
 	// There are no flipping animations.
@@ -222,6 +251,22 @@ void drawDonkeyKong(void)
 	int cur_frame = (int) round(donkeyKong.current_frame);
 	draw_bmp(donkeyKong.animation[cur_frame].handle,
 			donkeyKong.x, donkeyKong.y, true, donkeyKong_alpha, 1);
+	animateDonkeyKong(STANDING_STILL,ROLLING_BARREL);
+}
+
+void animateDonkeyKong(DonkeyKongImage lowFrame, DonkeyKongImage highFrame)
+{
+	donkeyKong.past_frame = donkeyKong.current_frame;
+
+	if (donkeyKong.current_frame < lowFrame || donkeyKong.current_frame > highFrame) {
+		donkeyKong.current_frame = lowFrame;
+	} else {
+		donkeyKong.current_frame += dk_frame_dir;
+	}
+
+	if (donkeyKong.current_frame > highFrame || donkeyKong.current_frame < lowFrame) {
+		dk_frame_dir = -dk_frame_dir;
+	}
 }
 
 void drawPeach(void)

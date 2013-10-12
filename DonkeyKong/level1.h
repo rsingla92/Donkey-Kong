@@ -16,5 +16,6 @@ int find_ladder_top (int x, int y);
 
 void update_level1(void);
 void init_level1(void);
+int should_barrel_die(int x, int y);
 
 #endif /* LEVEL1_H_ */
