@@ -248,7 +248,7 @@ void changeMarioState(MarioState state)
 	{
 		if (mario.state == JUMPING || mario.state == FALLING) {
 			if (mario.state != FALLING) {
-				playMusic("boing.wav");
+				//playMusic("boing.wav");
 			}
 			mario.current_frame = WALK1_RIGHT;
 		}

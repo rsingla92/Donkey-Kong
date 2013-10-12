@@ -12,7 +12,7 @@ static short int sdcard_connected;
 
 short int checkConnectedAndFat();
 
-sdcard_handle* init_sdcard()
+sdcard_handle* init_sdcard(void)
 {
 	sdcard_handle *device_reference = NULL;
 	device_reference = alt_up_sd_card_open_dev(SDCARD_INTERFACE_NAME);
@@ -32,12 +32,12 @@ sdcard_handle* init_sdcard()
 	return device_reference;
 }
 
-short int card_connected()
+short int card_connected(void)
 {
 	return alt_up_sd_card_is_Present();
 }
 
-short int is_FAT16()
+short int is_FAT16(void)
 {
 	return alt_up_sd_card_is_FAT16();
 }
@@ -49,6 +49,11 @@ file_handle open_file(char *filename, bool create)
 	return alt_up_sd_card_fopen(filename, create);
 }
 
+void close_file(file_handle file)
+{
+	alt_up_sd_card_fclose(file);
+}
+
 byte read_file(file_handle file)
 {
 	if (!checkConnectedAndFat()) return -2;
@@ -56,7 +61,7 @@ byte read_file(file_handle file)
 	return alt_up_sd_card_read(file);
 }
 
-short int checkConnectedAndFat()
+short int checkConnectedAndFat(void)
 {
 	if (!sdcard_connected || !FAT16)
 	{
