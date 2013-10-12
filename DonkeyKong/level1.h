@@ -9,7 +9,7 @@
 #define LEVEL1_H_
 
 void draw_level1();
-int find_floor(int x, int y , double ref);
+int find_floor(int x, int y , double ref, unsigned char isMario);
 int is_ladder(int x, int y);
 int find_ladder_floor (int x, int y);
 int find_ladder_top (int x, int y);

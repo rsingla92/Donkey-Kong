@@ -130,7 +130,7 @@ static const Plane ladders[] =
 
 /* The following array is for efficiency. It maps a floor number to
  * the index in ladders that corresponds to the ladders for that floor. */
-static int floorToLadderMap[7] = {0, 3, 6, 10, 14, 16};
+static int floorToLadderMap[7] = {0, 0, 3, 6, 10, 14, 16};
 
 #define NUM_FLOORS (sizeof(floors)/sizeof(floors[0]))
 #define NUM_LADDERS (sizeof(ladders)/sizeof(ladders[0]))
@@ -168,6 +168,7 @@ int is_ladder (int x, int y){
 
 int find_ladder_floor (int x, int y) {
 	int i;
+	if (current_floor == 0) return -1;
 	for (i = floorToLadderMap[current_floor]; i < NUM_LADDERS; i++){
 		if (y <= ladders[i].end.y){
 			if(x >= ladders[i].start.x && x <= (ladders[i].start.x)+(ladders[i].width)/3)
@@ -179,7 +180,8 @@ int find_ladder_floor (int x, int y) {
 
 int find_ladder_top (int x, int y){
 	int i;
-	for (i = floorToLadderMap[current_floor]; i < NUM_LADDERS; i++){
+	if (current_floor == 6) return -1;
+	for (i = floorToLadderMap[current_floor + 1]; i < NUM_LADDERS; i++){
 		if (y <= ladders[i].end.y){
 			if(x >= ladders[i].start.x && x <= (ladders[i].start.x)+(ladders[i].width)/3)
 				return (ladders[i].start.y);
@@ -188,7 +190,7 @@ int find_ladder_top (int x, int y){
 	return -1;
 }
 
-int find_floor(int x, int y, double ref)
+int find_floor(int x, int y, double ref, unsigned char isMario)
 {
 	int i, start;
 
@@ -197,11 +199,11 @@ int find_floor(int x, int y, double ref)
 	if (y + ref <= FIRST_FLOOR_Y && x >= FIRST_FLOOR_X_LOW_BOUND && x <= FIRST_FLOOR_X_HIGH_BOUND)
 	{
 		start = FIRST_FLOOR_IND;
-		current_floor = 0;
+		if (isMario) current_floor = 0;
 	}
 	else if (y + ref <= SECOND_FLOOR_Y && x <= FLOOR_X_HIGH_BOUND)
 	{
-		current_floor = 1;
+		if (isMario) current_floor = 1;
 		if (x < floors[SECOND_FLOOR_IND + 3].start.x)
 		{
 			start = SECOND_FLOOR_IND;
@@ -213,7 +215,7 @@ int find_floor(int x, int y, double ref)
 	}
 	else if (y + ref <= THIRD_FLOOR_Y && x >= FLOOR_X_LOW_BOUND)
 	{
-		current_floor = 2;
+		if (isMario) current_floor = 2;
 		if (x < floors[THIRD_FLOOR_IND + 6].start.x)
 		{
 			start = THIRD_FLOOR_IND;
@@ -225,7 +227,7 @@ int find_floor(int x, int y, double ref)
 	}
 	else if (y+ref <= FOURTH_FLOOR_Y && x <= FLOOR_X_HIGH_BOUND)
 	{
-		current_floor = 3;
+		if (isMario) current_floor = 3;
 		if (x < floors[FOURTH_FLOOR_IND + 6].start.x)
 		{
 			start = FOURTH_FLOOR_IND;
@@ -237,7 +239,7 @@ int find_floor(int x, int y, double ref)
 	}
 	else if (y+ref <= FIFTH_FLOOR_Y && x >= FLOOR_X_LOW_BOUND)
 	{
-		current_floor = 4;
+		if (isMario) current_floor = 4;
 		if (x < floors[FIFTH_FLOOR_IND + 6].start.x)
 		{
 			start = FIFTH_FLOOR_IND;
@@ -249,7 +251,7 @@ int find_floor(int x, int y, double ref)
 	}
 	else if (y+ref <= SIXTH_FLOOR_Y && x <= FLOOR_X_HIGH_BOUND)
 	{
-		current_floor = 5;
+		if (isMario) current_floor = 5;
 		if (x < floors[SIXTH_FLOOR_IND + 6].start.x)
 		{
 			start = SIXTH_FLOOR_IND;
@@ -261,7 +263,7 @@ int find_floor(int x, int y, double ref)
 	}
 	else
 	{
-		current_floor = 6;
+		if (isMario) current_floor = 6;
 		if (x < floors[SEVENTH_FLOOR_IND + 3].start.x)
 		{
 			start = SEVENTH_FLOOR_IND;
@@ -369,7 +371,7 @@ void update_level1(void) {
 		// changeMarioState(WALKING);
 
 		/* Drop to the correct floor: */
-		floor = find_floor(getMario().x, getMario().y, 3*(getCurrentHeight()/4)) - getCurrentHeight();
+		floor = find_floor(getMario().x, getMario().y, 3*(getCurrentHeight()/4), 1) - getCurrentHeight();
 		if (getMario().y < floor) moveMario(DOWN);
 		else if (getMario().y > floor) moveMario(UP);
 

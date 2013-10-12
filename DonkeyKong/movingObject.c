@@ -174,9 +174,11 @@ void moveBarrels(BarrelImage lowFrame, BarrelImage highFrame) {
 				if (barrelItr->x  + MOgetCurrentWidth(barrelItr) >= 320 || barrelItr->x <= 0)
 					barrelItr->speed = -barrelItr->speed;
 
-				if (barrelItr->y + MOgetCurrentHeight(barrelItr) > find_floor(barrelItr->x, barrelItr->y, 0))
+				int floorFound = find_floor(barrelItr->x, barrelItr->y, 0, 0);
+
+				if (barrelItr->y + MOgetCurrentHeight(barrelItr) > floorFound)
 					barrelItr->y -= 1;
-				else if (barrelItr->y + MOgetCurrentHeight(barrelItr) < find_floor(barrelItr->x, barrelItr->y, 0)){
+				else if (barrelItr->y + MOgetCurrentHeight(barrelItr) < floorFound){
 					barrelItr->y += 1;
 					MOdrawBackground(barrelItr->x, barrelItr->y - 1 , barrelItr->x + MOgetCurrentWidth(barrelItr),barrelItr->y);
 				}
