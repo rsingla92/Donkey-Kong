@@ -110,15 +110,18 @@ int main(void) {
 
 	seed(alt_timestamp());
 
-	num_ticks = ticks_per_sec / 30;
-	alt_alarm *update_alarm = malloc(sizeof(alt_alarm));
-	alt_alarm_start(update_alarm, num_ticks, update, (void*)0);
-	// function calls here are tricky to predict
-	// printf only worked if only one printf statement was put
+	alt_u32 tickCount = alt_nticks();
+	num_ticks = ticks_per_sec / 60;
+	//alt_alarm *update_alarm = malloc(sizeof(alt_alarm));
+	//alt_alarm_start(update_alarm, num_ticks, update, (void*)0);
+
 	while (true)
 	{
-		// readDat();
-	//	alt_busy_sleep(1000);
+		if (alt_nticks() - tickCount >= num_ticks)
+		{
+			tickCount = alt_nticks();
+			update(0);
+		}
 	}
 
 	return 0;

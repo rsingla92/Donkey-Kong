@@ -16,6 +16,10 @@ static colour mario_alpha = { 0x00, 0x00, 0x00 };
 static double frame_dir = FRAME_SPEED;
 static float past_frame = STAND_LEFT;
 
+// Global Jump Buffer:
+unsigned int* jumpSoundBuf = 0;
+int jumpSoundBufLen = 0;
+
 Mario getMario(void) {
 	return mario;
 }
@@ -246,12 +250,13 @@ void changeMarioState(MarioState state)
 
 	float frame = round(mario.current_frame);
 
+	if (mario.state == JUMPING) {
+		addInSound(jumpSoundBuf, jumpSoundBufLen);
+	}
+
 	if (frame >= STAND_RIGHT && frame <= WALK2_RIGHT)
 	{
 		if (mario.state == JUMPING || mario.state == FALLING) {
-			if (mario.state != FALLING) {
-				//playMusic("boing.wav");
-			}
 			mario.current_frame = WALK1_RIGHT;
 		}
 	}

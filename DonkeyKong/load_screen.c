@@ -16,6 +16,10 @@ static colour back_alpha = { 0x00, 0x00, 0x00 };
 
 static void draw_load_screen(void);
 
+// From Mario:
+extern unsigned int* jumpSoundBuf;
+extern int jumpSoundBufLen;
+
 void updateLoadScreen(void)
 {
 	short int ret = load_bmp("LOAD.BMP", &background_bmp);
@@ -26,6 +30,7 @@ void updateLoadScreen(void)
 
 	draw_load_screen();
 
+	jumpSoundBufLen = loadSound("boing.wav", &jumpSoundBuf);
 	loadMario(0, 217, 1);
 	loadPeach(137, 43);
 	loadDonkeyKong(85, 71);
@@ -49,6 +54,7 @@ void updateLoadScreen(void)
 
 	close_bmp(background_bmp);
 
+	//pauseMusic();
 	changeState(LEVEL1);
 }
 

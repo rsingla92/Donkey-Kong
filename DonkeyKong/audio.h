@@ -43,4 +43,8 @@ void resumeMusic(void);
 
 void restartMusic(void);
 
+void addInSound(unsigned int* buf, int len);
+
+void removeSound(void);
+
 #endif /* AUDIO_H_ */

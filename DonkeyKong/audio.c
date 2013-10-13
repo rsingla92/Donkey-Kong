@@ -15,11 +15,28 @@ static void playMusicISR (void* context);
 static void playMusicISR (void* context, alt_u32 id);
 #endif
 
+// The main music Buffer
 static unsigned int* interruptMusicBuffer = 0;
 static unsigned int interruptBufSize = 0;
+
+// The additive sound buffer:
+// Currently we only support adding one sound.
+static unsigned int* soundBuffer = 0;
+static unsigned int soundBufSize = 0;
+static unsigned int soundBufferSample = 0;
+static unsigned char addSound = 0;
+
+// The music swap buffer (can completely swap music buffers).
+// This is more efficient than loading new music on demand. Instead,
+// we simply do a pointer assignment.
+static unsigned int* musicSwapBuffer = 0;
+static unsigned int bufSizeSwap = 0;
 static unsigned char musicLoop = 0;
+static unsigned char swapLoop = 0;
 static unsigned char musicDone = 0;
+static unsigned char swapDone = 0;
 static unsigned int interruptSample = 0;
+static unsigned int swapSample = 0;
 volatile int context = 0;
 
 static alt_up_av_config_dev* av_config;
@@ -117,6 +134,7 @@ static void playMusicISR (void* context, alt_u32 id)
 	/* Interrupt for writing*/
 	unsigned int space = alt_up_audio_write_fifo_space(audio, ALT_UP_AUDIO_RIGHT);
 	unsigned int* sample;
+	int i;
 
 	if (space > interruptBufSize - interruptSample)
 	{
@@ -126,10 +144,33 @@ static void playMusicISR (void* context, alt_u32 id)
 
 	if (space > 0)
 	{
-		sample = &(interruptMusicBuffer[interruptSample]);
-		alt_up_audio_write_fifo(audio, sample, space, ALT_UP_AUDIO_LEFT);
-		alt_up_audio_write_fifo(audio, sample, space, ALT_UP_AUDIO_RIGHT);
-		interruptSample += space;
+		if (addSound)
+		{
+			/* Add a sound in-- must add word by word. */
+			for (i = 0; i < space; i++)
+			{
+				int currentWord = interruptMusicBuffer[interruptSample++];
+				if (soundBufferSample < soundBufSize)
+				{
+					currentWord += soundBuffer[soundBufferSample++];
+				}
+				else
+				{
+					removeSound();
+				}
+
+				alt_up_audio_write_fifo(audio, &currentWord, 1, ALT_UP_AUDIO_LEFT);
+				alt_up_audio_write_fifo(audio, &currentWord, 1, ALT_UP_AUDIO_RIGHT);
+			}
+		}
+		else
+		{
+			sample = &(interruptMusicBuffer[interruptSample]);
+
+			alt_up_audio_write_fifo(audio, sample, space, ALT_UP_AUDIO_LEFT);
+			alt_up_audio_write_fifo(audio, sample, space, ALT_UP_AUDIO_RIGHT);
+			interruptSample += space;
+		}
 	}
 
 	if (interruptSample >= interruptBufSize)
@@ -142,6 +183,11 @@ static void playMusicISR (void* context, alt_u32 id)
 		{
 			musicDone = 1;
 			alt_up_audio_disable_write_interrupt(audio);
+
+			if (bufSizeSwap != 0)
+			{
+				swapOutSound();
+			}
 		}
 	}
 }
@@ -184,6 +230,128 @@ void initAudio(void)
 void resetAudio(void)
 {
 	alt_up_audio_reset_audio_core(audio);
+}
+
+void swapOutSound(void)
+{
+	interruptMusicBuffer = musicSwapBuffer;
+	interruptBufSize = bufSizeSwap;
+	musicLoop = swapLoop;
+	interruptSample = swapSample;
+	musicDone = swapDone;
+
+	swapSample = 0;
+	swapLoop = 0;
+	bufSizeSwap = 0;
+	musicSwapBuffer = 0;
+	swapDone = 0;
+
+	if (!musicDone)
+	{
+		alt_up_audio_enable_write_interrupt(audio);
+	}
+}
+
+void addInSound(unsigned int* buf, int len)
+{
+	addSound = 1;
+	soundBuffer = buf;
+	soundBufSize = len;
+	soundBufferSample = 0;
+}
+
+void removeSound(void)
+{
+	addSound = 0;
+	soundBuffer = 0;
+	soundBufSize = 0;
+	soundBufferSample = 0;
+}
+
+void swapInSound(unsigned int* buf, int len)
+{
+	if (bufSizeSwap == 0)
+	{
+		musicSwapBuffer = interruptMusicBuffer;
+		bufSizeSwap = interruptBufSize;
+		swapSample = interruptSample;
+		swapLoop = musicLoop;
+		swapDone = musicDone;
+
+		interruptMusicBuffer = buf;
+		interruptBufSize = len;
+		interruptSample = 0;
+		musicLoop = 0;
+		musicDone = 0;
+
+		unsigned int space = alt_up_audio_write_fifo_space(audio, ALT_UP_AUDIO_RIGHT);
+		unsigned int* sample;
+
+		if (space > interruptBufSize - interruptSample)
+		{
+			// Don't need to fully fill the rest of the buffer.
+			space = interruptBufSize - interruptSample;
+		}
+
+		if (space > 0)
+		{
+			sample = &(interruptMusicBuffer[interruptSample]);
+			alt_up_audio_write_fifo(audio, sample, space, ALT_UP_AUDIO_LEFT);
+			alt_up_audio_write_fifo(audio, sample, space, ALT_UP_AUDIO_RIGHT);
+			interruptSample += space;
+		}
+
+		if (interruptSample >= interruptBufSize)
+		{
+			if (musicLoop)
+			{
+				interruptSample = 0;
+				alt_up_audio_enable_write_interrupt(audio);
+			}
+		}
+		else
+		{
+			printf("Enabling interrupt.");
+			// Enable the write interrupt
+			alt_up_audio_enable_write_interrupt(audio);
+		}
+	}
+}
+
+// Note: The user is responsible for freeing buffer allocated in loadSound.
+// filename - The name of the sound file in the SD card.
+// buf - A pointer to the newly allocated buffer.
+// len - Returns the length of the newly allocated memory (in words)
+int loadSound(char* audioFile, unsigned int** buf)
+{
+	int i;
+	file_handle fileHandle = open_file(audioFile, false);
+
+	if (fileHandle < 0) {
+		printf("Reading file failed \n");
+		return AUDIO_ERROR;
+	}
+
+	int fileLength = findWavSize(fileHandle);
+
+	// Allocate a buffer that is the same byte size as the file
+	*buf = (unsigned int*) malloc((fileLength-32) * 2);
+
+	int bufSize = (fileLength-32)/2;
+
+	for (i = 0; i < bufSize; i++)
+	{
+		// Extract data and store in the buf.
+		unsigned char firstByte = read_file(fileHandle);
+		unsigned char secondByte = read_file(fileHandle);
+		unsigned short val = (secondByte << 8) | firstByte;
+		(*buf)[i] = val;
+	}
+
+	// Close the file on the sd card.
+	alt_up_sd_card_fclose(fileHandle);
+
+	return bufSize;
 }
 
 int loadMusic(char* audioFile, unsigned short loop)
