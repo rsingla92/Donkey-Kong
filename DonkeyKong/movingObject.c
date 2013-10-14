@@ -87,12 +87,16 @@ void loadFires()
 void drawBarrel(MovingObject* barrel)
 {
 	int cur_frame = (int) round(barrel->current_frame);
-	if (barrel->speed < 0){
-		draw_flipped_bmp(barrel_anim_list[cur_frame].handle, barrel->x, barrel->y, true, barrel_alpha, 1);
-	}
-	else {
-		draw_bmp(barrel_anim_list[cur_frame].handle, barrel->x,
-				barrel->y, true, barrel_alpha, 1);
+
+	if (barrel->state != THROWABLE)
+	{
+		if (barrel->speed < 0){
+			draw_flipped_bmp(barrel_anim_list[cur_frame].handle, barrel->x, barrel->y, true, barrel_alpha, 1);
+		}
+		else {
+			draw_bmp(barrel_anim_list[cur_frame].handle, barrel->x,
+					barrel->y, true, barrel_alpha, 1);
+		}
 	}
 }
 
@@ -135,7 +139,7 @@ void addBarrel(MovingObject* newBarrel, int x, int y)
 	newBarrel->currentFloor = 1;
 	newBarrel->byLadder = 0;
 	newBarrel->current_frame = FLAT_BARREL;
-	newBarrel->state = ROLLING; // TODO: change this to THROWABLE once DK is able to throw barrels.
+	newBarrel->state = THROWABLE;
 }
 
 void loadBarrels()
@@ -199,25 +203,36 @@ static unsigned int goDownLadder(MovingObject* barrelItr) {
 void moveBarrels(BarrelImage lowFrame, BarrelImage highFrame)
 {
 	MovingObject* barrelItr = barrelListHead;
+	unsigned char oneThrown = 0;
 
 	while(barrelItr != NULL)
 	{
 		int ladderIndicator = -1;
 
 		if (barrelItr->state == THROWABLE)
-		{ // TODO: implement some DK thing here to trigger a throw
-			barrelItr->x = 20;
-			barrelItr->y = 70;
-			barrelItr->speed = 1;
-			barrelItr->state = ROLLING;
+		{
+			// Should have logic here to figure out when to throw barrel.
+			if ((int) round(donkeyKong.current_frame) == ROLLING_BARREL &&
+					(int) round(donkeyKong.past_frame) == CARRYING_BARREL && !oneThrown)
+			{
+				oneThrown = 1;
+				barrelItr->x = 102;
+				barrelItr->y = 83;
+				barrelItr->speed = 1;
+				barrelItr->state = ROLLING;
+			}
 		}
-
-		if (barrelItr->state == ROLLING)
+		else if (barrelItr->state == ROLLING)
 		{
 			if (should_barrel_die(barrelItr->x, barrelItr->y + MOgetCurrentHeight(barrelItr)))
 			{
-				if (barrelItr->x+MOgetCurrentWidth(barrelItr) <= 0)
+				if (barrelItr->x+MOgetCurrentWidth(barrelItr) <= 0) {
 					barrelItr->state = THROWABLE;
+					if (donkeyKong.state == ANGRY) {
+						donkeyKong.state = THROWING;
+						donkeyKong.current_frame = STANDING_STILL;
+					}
+				}
 			}
 			else if ((ladderIndicator = find_ladder_top(barrelItr->x, barrelItr->y, MOgetCurrentHeight(barrelItr), barrelItr->currentFloor)) != -1 && goDownLadder(barrelItr))
 			{
@@ -295,6 +310,14 @@ void moveBarrels(BarrelImage lowFrame, BarrelImage highFrame)
 
 		barrelItr = barrelItr->next;
 	}
+
+	if (!oneThrown && (int) round(donkeyKong.current_frame) == ROLLING_BARREL &&
+			(int) round(donkeyKong.past_frame) == CARRYING_BARREL)
+	{
+		// Change donkey kong state to pounding chest-- no barrels to throw.
+		donkeyKong.state = ANGRY;
+		donkeyKong.current_frame = ANGRY_LEFT;
+	}
 }
 
 void MOdrawBackground(int x0, int y0, int x1, int y1)
@@ -342,16 +365,37 @@ void loadDonkeyKong(int x, int y)
 	donkeyKong.current_frame = STANDING_STILL;
 	donkeyKong.x = x;
 	donkeyKong.y = y;
-	donkeyKong.state = STANDING;
+	donkeyKong.state = THROWING;
 
 }
 
 void drawDonkeyKong(void)
 {
 	int cur_frame = (int) round(donkeyKong.current_frame);
+	int past_frame = (int) round(donkeyKong.past_frame);
+
 	draw_bmp(donkeyKong.animation[cur_frame].handle,
 			donkeyKong.x, donkeyKong.y, true, donkeyKong_alpha, 1);
-	animateDonkeyKong(STANDING_STILL,ROLLING_BARREL);
+
+	int past_width = donkeyKong.animation[past_frame].handle->bmp_info_header->width;
+	int cur_width = donkeyKong.animation[cur_frame].handle->bmp_info_header->width;
+
+	if (past_width > cur_width)
+	{
+		// Went from a larger frame to smaller-- erase background it might have left.
+		int cur_height = donkeyKong.animation[cur_frame].handle->bmp_info_header->height;
+		pushEraseNode(donkeyKong.x + cur_width, donkeyKong.y,
+				donkeyKong.x + past_width, donkeyKong.y + cur_height);
+	}
+
+	if (donkeyKong.state == THROWING)
+	{
+		animateDonkeyKong(STANDING_STILL, ROLLING_BARREL);
+	}
+	else if (donkeyKong.state == ANGRY)
+	{
+		animateDonkeyKong(ANGRY_LEFT, ANGRY_RIGHT);
+	}
 }
 
 void animateDonkeyKong(DonkeyKongImage lowFrame, DonkeyKongImage highFrame)

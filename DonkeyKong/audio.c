@@ -396,8 +396,6 @@ int loadMusic(char* audioFile, unsigned short loop, float volumeFactor)
 
 	int fileLength = findWavSize(fileHandle);
 
-	printf("Size: %d\n", fileLength);
-
 	// Discard header-- we are making an assumption about
 	// how the data is stored to make it easier to
 	// add sound to the music.

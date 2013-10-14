@@ -92,10 +92,8 @@ int main(void) {
 	sdcard_handle *sd_dev = init_sdcard();
 	initAudio();
 
-	printf("Loading\n");
-	loadMusic("Title2.wav", 1, 0.25);
+	//loadMusic("Title2.wav", 1, 0.25);
 
-	printf("Done loading\n");
 	// Set latch and clock to 0.
 	IOWR_8DIRECT(controller_out, 0, 0x00);
 
