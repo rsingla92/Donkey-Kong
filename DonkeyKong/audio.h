@@ -49,8 +49,8 @@ void removeSound(void);
 
 void swapInSound(int* buf, int len);
 
-int loadSound(char* audioFile, unsigned int** buf, float audioVolume);
+int loadSound(char* audioFile, int** buf, float audioVolume);
 
-int loadLargeMusic(char* audioFile, unsigned short loop, int allocate, float volumeFactor);
+void setMusicVolume(float factor);
 
 #endif /* AUDIO_H_ */

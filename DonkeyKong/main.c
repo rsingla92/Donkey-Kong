@@ -93,7 +93,7 @@ int main(void) {
 	initAudio();
 
 	printf("Loading\n");
-	loadLargeMusic("castle.wav", 1, 1048576, 0.25);
+	loadMusic("Title2.wav", 1, 0.25);
 
 	printf("Done loading\n");
 	// Set latch and clock to 0.

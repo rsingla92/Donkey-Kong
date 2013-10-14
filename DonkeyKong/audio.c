@@ -40,13 +40,6 @@ static unsigned int interruptSample = 0;
 static unsigned int swapSample = 0;
 volatile int context = 0;
 
-static int fileCursor = 0;
-static char bigFile = 0;
-static file_handle bigHandle;
-static unsigned int allocatedBuf = 0;
-static char* bigFileName;
-static float bigVolumeFactor;
-
 static alt_up_av_config_dev* av_config;
 static alt_up_audio_dev* audio;
 
@@ -101,7 +94,6 @@ int findWavSize(file_handle fileHandle)
 
 	//Do shifting math to get .wav file length
 	fileLength = (tempBuf[7] << 24) | (tempBuf[6] << 16) | (tempBuf[5] << 8) | tempBuf[4];
-//	fileLength /= 2;
 
 	return fileLength;
 }
@@ -139,117 +131,57 @@ static void playMusicISR (void* context, alt_u32 id)
 	unsigned int* sample;
 	int i;
 
-	if (bigFile)
+	if (space > interruptBufSize - interruptSample)
 	{
-		char firstByte;
-		char secondByte;
-		short val;
+		// Don't need to fully fill the rest of the buffer.
+		space = interruptBufSize - interruptSample;
+	}
 
-		if (space > allocatedBuf - interruptSample)
+	if (space > 0)
+	{
+		if (addSound)
 		{
-			space = allocatedBuf - interruptSample;
-		}
+			/* Add a sound in-- must add word by word. */
+			for (i = 0; i < space; i++)
+			{
+				int currentWord = interruptMusicBuffer[interruptSample++];
+				if (soundBufferSample < soundBufSize)
+				{
+					currentWord += soundBuffer[soundBufferSample++];
+				}
+				else
+				{
+					removeSound();
+				}
 
-		if (space > 0)
+				alt_up_audio_write_fifo(audio, &currentWord, 1, ALT_UP_AUDIO_LEFT);
+				alt_up_audio_write_fifo(audio, &currentWord, 1, ALT_UP_AUDIO_RIGHT);
+			}
+		}
+		else
 		{
 			sample = &(interruptMusicBuffer[interruptSample]);
 
 			alt_up_audio_write_fifo(audio, sample, space, ALT_UP_AUDIO_LEFT);
 			alt_up_audio_write_fifo(audio, sample, space, ALT_UP_AUDIO_RIGHT);
-
-			for (i = 0; i < space; i++)
-			{
-				firstByte = read_file(bigHandle);
-				secondByte = read_file(bigHandle);
-				fileCursor++;
-
-				if (fileCursor < interruptBufSize)
-				{
-						val = ( (unsigned char) secondByte << 8) | (unsigned char) firstByte;
-						val = val * bigVolumeFactor;
-						interruptMusicBuffer[interruptSample + i] = val;
-				}
-				else
-				{
-					// At the end of the big file. Possibly loop around.
-					if (musicLoop)
-					{
-						fileCursor = 0;
-						alt_up_sd_card_fclose(bigHandle);
-						open_file(bigFileName, false);
-						int j;
-						for (j = 0; j < 40; j++) read_file(bigHandle);
-					}
-					else
-					{
-						alt_up_sd_card_fclose(bigHandle);
-						bigFile = 0;
-					}
-				}
-			}
-
 			interruptSample += space;
 		}
+	}
 
-		if (interruptSample >= allocatedBuf)
+	if (interruptSample >= interruptBufSize)
+	{
+		if (musicLoop)
 		{
 			interruptSample = 0;
 		}
-	}
-	else
-	{
-		if (space > interruptBufSize - interruptSample)
+		else
 		{
-			// Don't need to fully fill the rest of the buffer.
-			space = interruptBufSize - interruptSample;
-		}
+			musicDone = 1;
+			alt_up_audio_disable_write_interrupt(audio);
 
-		if (space > 0)
-		{
-			if (addSound)
+			if (bufSizeSwap != 0)
 			{
-				/* Add a sound in-- must add word by word. */
-				for (i = 0; i < space; i++)
-				{
-					int currentWord = interruptMusicBuffer[interruptSample++];
-					if (soundBufferSample < soundBufSize)
-					{
-						currentWord += soundBuffer[soundBufferSample++];
-					}
-					else
-					{
-						removeSound();
-					}
-
-					alt_up_audio_write_fifo(audio, &currentWord, 1, ALT_UP_AUDIO_LEFT);
-					alt_up_audio_write_fifo(audio, &currentWord, 1, ALT_UP_AUDIO_RIGHT);
-				}
-			}
-			else
-			{
-				sample = &(interruptMusicBuffer[interruptSample]);
-
-				alt_up_audio_write_fifo(audio, sample, space, ALT_UP_AUDIO_LEFT);
-				alt_up_audio_write_fifo(audio, sample, space, ALT_UP_AUDIO_RIGHT);
-				interruptSample += space;
-			}
-		}
-
-		if (interruptSample >= interruptBufSize)
-		{
-			if (musicLoop)
-			{
-				interruptSample = 0;
-			}
-			else
-			{
-				musicDone = 1;
-				alt_up_audio_disable_write_interrupt(audio);
-
-				if (bufSizeSwap != 0)
-				{
-					swapOutSound();
-				}
+				swapOutSound();
 			}
 		}
 	}
@@ -385,7 +317,7 @@ void swapInSound(int* buf, int len)
 // filename - The name of the sound file in the SD card.
 // buf - A pointer to the newly allocated buffer.
 // len - Returns the length of the newly allocated memory (in words)
-int loadSound(char* audioFile, unsigned int** buf, float audioVolume)
+int loadSound(char* audioFile, int** buf, float audioVolume)
 {
 	int i;
 	file_handle fileHandle = open_file(audioFile, false);
@@ -420,6 +352,32 @@ int loadSound(char* audioFile, unsigned int** buf, float audioVolume)
 	return bufSize;
 }
 
+void setSoundVolume(int* buf, int bufSize, float factor)
+{
+	int i;
+
+	for (i = 0; i < bufSize; i++)
+	{
+		short val = buf[i];
+		val = val * factor;
+		buf[i] = val;
+	}
+}
+
+// Note: You should have the interrupt disabled before calling.
+void setMusicVolume(float factor)
+{
+	int i;
+
+	for (i = 0; i < interruptBufSize; i++)
+	{
+		// Extract data and store in the buf.
+		short val = interruptMusicBuffer[i];
+		val = val * factor;
+		interruptMusicBuffer[i] = val;
+	}
+}
+
 int loadMusic(char* audioFile, unsigned short loop, float volumeFactor)
 {
 	int i = 0;
@@ -428,7 +386,6 @@ int loadMusic(char* audioFile, unsigned short loop, float volumeFactor)
 	alt_up_audio_disable_write_interrupt(audio);
 
 	printf("Opening file\n");
-	bigFile = 0;
 
 	file_handle fileHandle = open_file(audioFile, false);
 
@@ -452,7 +409,6 @@ int loadMusic(char* audioFile, unsigned short loop, float volumeFactor)
 	musicDone = 0;
 	interruptMusicBuffer = (int*) malloc((fileLength-32) * 2);
 
-	printf("Return from malloc: %x\n", interruptMusicBuffer);
 	interruptBufSize = (fileLength-32)/2;
 	interruptSample = 0;
 
@@ -500,93 +456,6 @@ int loadMusic(char* audioFile, unsigned short loop, float volumeFactor)
 		// Enable the write interrupt
 		alt_up_audio_enable_write_interrupt(audio);
 	}
-
-	return 0;
-}
-
-int loadLargeMusic(char* audioFile, unsigned short loop, int allocate, float volumeFactor)
-{
-	int i = 0;
-	unsigned int *sample;
-
-	alt_up_audio_disable_write_interrupt(audio);
-
-	printf("Opening file\n");
-	strcpy(bigFileName, audioFile);
-
-	bigHandle = open_file(audioFile, false);
-	bigFile = 1;
-
-	if (bigHandle < 0) {
-		printf("Reading file failed \n");
-		return AUDIO_ERROR;
-	}
-
-	int fileLength = findWavSize(bigHandle);
-
-	printf("Size: %d\n", fileLength);
-
-	// Discard header-- we are making an assumption about
-	// how the data is stored to make it easier to
-	// add sound to the music.
-	for (i = 0; i < 32; i++) read_file(bigHandle);
-
-	// Allocate the main music buffer to be the size of the file.
-	if (interruptMusicBuffer != 0) free(interruptMusicBuffer);
-	musicLoop = loop;
-	musicDone = 0;
-	interruptMusicBuffer = (int*) malloc(allocate*2);
-	allocatedBuf = allocate/2;
-
-	printf("Return from malloc: %x\n", interruptMusicBuffer);
-	interruptBufSize = (fileLength-32)/2;
-	interruptSample = 0;
-
-	if (volumeFactor <= 0) volumeFactor = 1;
-
-	bigVolumeFactor = volumeFactor;
-
-	for (i = 0; i < allocatedBuf; i++)
-	{
-		// Extract data and store in the buf.
-		char firstByte = read_file(bigHandle);
-		char secondByte = read_file(bigHandle);
-		short val = ( (unsigned char) secondByte << 8) | (unsigned char) firstByte;
-		val = val * volumeFactor;
-		interruptMusicBuffer[i] = val;
-	}
-
-	unsigned int space = alt_up_audio_write_fifo_space(audio, ALT_UP_AUDIO_RIGHT);
-
-	if (space > allocatedBuf - interruptSample)
-	{
-		space = allocatedBuf - interruptSample;
-	}
-
-	if (space > 0)
-	{
-		sample = &(interruptMusicBuffer[interruptSample]);
-
-		alt_up_audio_write_fifo(audio, sample, space, ALT_UP_AUDIO_LEFT);
-		alt_up_audio_write_fifo(audio, sample, space, ALT_UP_AUDIO_RIGHT);
-
-		for (i = 0; i < space; i++)
-		{
-			char firstByte = read_file(bigHandle);
-			char secondByte = read_file(bigHandle);
-
-			short val = ( (unsigned char) secondByte << 8) | (unsigned char) firstByte;
-			val = val * bigVolumeFactor;
-			interruptMusicBuffer[interruptSample + i] = val;
-		}
-
-		interruptSample += space;
-		fileCursor += space;
-	}
-
-	printf("Enabling interrupt.");
-	// Enable the write interrupt
-	alt_up_audio_enable_write_interrupt(audio);
 
 	return 0;
 }
