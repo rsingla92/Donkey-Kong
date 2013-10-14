@@ -156,6 +156,7 @@ C_SRCS += state_machine.c
 C_SRCS += load_screen.c
 C_SRCS += mainMenu.c
 C_SRCS += random.c
+C_SRCS += game_over.c
 CXX_SRCS :=
 ASM_SRCS :=
 

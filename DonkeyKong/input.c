@@ -53,18 +53,18 @@ controller_buttons getControllerButtons(unsigned short dat)
 	if (!((dat >> 8) & 1)) {
 		/* Right */
 		controller.RIGHT_ARROW = 1;
-		//printf("Right Arrow Pressed\n");
+	//	printf("Right Arrow Pressed\n");
 	}
 	else if (!((dat >> 9) & 1)) {
 		/* Left */
 		controller.LEFT_ARROW = 1;
-		//printf("Left Arrow Pressed\n");
+	//	printf("Left Arrow Pressed\n");
 	}
 	else if (!((dat >> 11) & 1))
 	{
 		/* Up Button*/
 		controller.UP_ARROW = 1;
-		//printf("Up Arrow Pressed\n");
+	//	printf("Up Arrow Pressed\n");
 	}
 	else if (!((dat >> 10) & 1))
 	{
@@ -76,25 +76,25 @@ controller_buttons getControllerButtons(unsigned short dat)
 	if (!((dat >> 15) & 1)) {
 		/* B */
 		controller.B_BUTTON = 1;
-		//printf("B Button Pressed\n");
+		printf("B Button Pressed\n");
 	}
 
 	if (!((dat >> 14) & 1)) {
 		/* Y */
 		controller.Y_BUTTON = 1;
-		//printf("Y Button Pressed\n");
+		printf("Y Button Pressed\n");
 	}
 
 	if (!((dat >> 12) & 1)) {
 		/* Start button */
 		controller.START = 1;
-		//printf("Start Button Pressed\n");
+		printf("Start Button Pressed\n");
 	}
 
 	if (!((dat >> 13) & 1)) {
 		/* Select button */
 		controller.SELECT = 1;
-		//printf("Select Button Pressed\n");
+	//	printf("Select Button Pressed\n");
 	}
 
 	return controller;

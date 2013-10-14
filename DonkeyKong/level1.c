@@ -11,6 +11,7 @@
 #include "movingObject.h"
 #include "sys/alt_timestamp.h"
 #include "input.h"
+#include "state_machine.h"
 
 #define LADDER_ERROR	2
 #define MAX_POINTS		300
@@ -288,9 +289,7 @@ bool is_num_in_range(int num, int lowBound, int highBound) {
 	return (num >= lowBound && num <= highBound);
 }
 
-void init_level1(void) {
-
-}
+void init_level1(void) { }
 
 int should_barrel_die(int x, int y){
 	if (x <= barrels_die.x && y >= barrels_die.y)
@@ -406,7 +405,8 @@ void update_level1(void) {
 	}
 
 	if ((button_states[3] == 0 || button_states[2] == 0 ||
-			controller_state.RIGHT_ARROW || controller_state.LEFT_ARROW) && firstMove)
+			controller_state.RIGHT_ARROW || controller_state.LEFT_ARROW || controller_state.B_BUTTON)
+			&& firstMove)
 	{
 		alt_timestamp_start();
 		start_time = alt_timestamp();
@@ -428,4 +428,9 @@ void update_level1(void) {
 	eraseAllNoPop();
 	swap_buffers();
 	eraseAll();
+
+	if(!prev_controller_state.SELECT && controller_state.SELECT)
+	{
+		changeState(GAME_OVER);
+	}
 }

@@ -73,3 +73,10 @@ short int checkConnectedAndFat(void)
 		return 1;
 	}
 }
+
+short int write_byte_to_file( short int file_handle, byte byte_of_data)
+{
+	if(!checkConnectedAndFat()) return -2;
+
+	return alt_up_sd_card_write(file_handle, byte_of_data);
+}
