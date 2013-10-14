@@ -30,7 +30,7 @@ void updateLoadScreen(void)
 
 	draw_load_screen();
 
-	jumpSoundBufLen = loadSound("boing.wav", &jumpSoundBuf);
+	jumpSoundBufLen = loadSound("boing.wav", &jumpSoundBuf, 0.5);
 	loadMario(0, 217, 1);
 	loadPeach(137, 43);
 	loadDonkeyKong(85, 71);

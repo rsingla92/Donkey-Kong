@@ -35,7 +35,7 @@ void resetAudio(void);
 
 void initAudio(void);
 
-int loadMusic(char* audioFile, unsigned short loop);
+int loadMusic(char* audioFile, unsigned short loop, float volumeFactor);
 
 unsigned char isMusicDone(void);
 
@@ -43,8 +43,14 @@ void resumeMusic(void);
 
 void restartMusic(void);
 
-void addInSound(unsigned int* buf, int len);
+void addInSound(int* buf, int len);
 
 void removeSound(void);
+
+void swapInSound(int* buf, int len);
+
+int loadSound(char* audioFile, unsigned int** buf, float audioVolume);
+
+int loadLargeMusic(char* audioFile, unsigned short loop, int allocate, float volumeFactor);
 
 #endif /* AUDIO_H_ */
