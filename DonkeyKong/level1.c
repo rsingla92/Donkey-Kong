@@ -301,6 +301,8 @@ void update_level1(void) {
 	static bool firstMove = true;
 	int floor = 0;
 	int ladder_ind = 0;
+	static unsigned char deadFlag = 0;
+	static unsigned char jumpHang = 0;
 
 	if (!firstMove)
 	{
@@ -330,9 +332,17 @@ void update_level1(void) {
 		/* Mario is jumping */
 		if (getMario().y <= getMarioJumpStart() - MAX_JUMP)
 		{
-			changeMarioState(FALLING);
+			if (jumpHang > 5)
+			{
+				changeMarioState(FALLING);
+				jumpHang = 0;
+			}
+			else
+			{
+				jumpHang++;
+			}
 		}
-		else
+		else if (!jumpHang)
 		{
 			moveMario(UP);
 		}
@@ -384,11 +394,20 @@ void update_level1(void) {
 			}
 		}
 	}
-	else
+	else if (getMarioState() != DEAD)
 	{
-		// changeMarioState(WALKING);
-
 		/* Drop to the correct floor: */
+
+		if (deadFlag)
+		{
+			// Mario resurrected.
+			setDonkeyKongState(THROWING);
+			setDonkeyKongFrame(STANDING_STILL);
+			deadFlag = 0;
+			firstMove = true;
+			points = MAX_POINTS;
+		}
+
 		floor = find_floor(getMario().x, getMario().y, 3*(getCurrentHeight()/4), &(getMarioRef()->currentFloor)) - getCurrentHeight();
 		if (getMario().y < floor) moveMario(DOWN);
 		else if (getMario().y > floor) moveMario(UP);
@@ -421,7 +440,12 @@ void update_level1(void) {
 		else if (button_states[2] == 0 || controller_state.RIGHT_ARROW) moveMario(RIGHT);
 	}
 
-	moveBarrels(ROLLING_TOP_LEFT, ROLLING_BOTTOM_RIGHT);
+	if (moveBarrels(ROLLING_TOP_LEFT, ROLLING_BOTTOM_RIGHT))
+	{
+		// Mario was hit.
+		deadFlag = 1;
+	}
+
 	drawDonkeyKong();
 	drawBarrels();
 	drawMario(false);

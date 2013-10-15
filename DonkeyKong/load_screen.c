@@ -30,15 +30,21 @@ void updateLoadScreen(void)
 
 	draw_load_screen();
 
-	jumpSoundBufLen = loadSound("boing.wav", &jumpSoundBuf);
-	loadMario(0, 217, 1);
+	jumpSoundBufLen = loadSound("boing.wav", &jumpSoundBuf, 0.5);
+	loadMario(MARIO_START_X, MARIO_START_Y, 1);
 	loadPeach(137, 43);
-	loadDonkeyKong(85, 71);
+	loadDonkeyKong(76, 71);
 	loadBarrels();
 	loadBarrel(20, 70);
 	loadBarrel(50, 70);
 	loadBarrel(210, 30);
 	loadBarrel(240, 30);
+	loadBarrel(240, 30);
+	loadBarrel(240, 30);
+	//loadBarrel(240, 30);
+	//loadBarrel(240, 30);
+	//loadBarrel(240, 30);
+	//loadBarrel(240, 30);
 
 	draw_level1();
 	drawMario(false);
