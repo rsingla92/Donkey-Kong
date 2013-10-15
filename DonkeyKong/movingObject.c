@@ -200,7 +200,45 @@ static unsigned int goDownLadder(MovingObject* barrelItr) {
 	return ret && nextRand() % 3 == 0;
 }
 
-void moveBarrels(BarrelImage lowFrame, BarrelImage highFrame)
+void stopBarrels(void)
+{
+	MovingObject* barrelItr = barrelListHead;
+
+	while (barrelItr != NULL)
+	{
+		barrelItr->state = THROWABLE;
+		MOdrawBackground(barrelItr->x, barrelItr->y,
+				barrelItr->x + MOgetCurrentWidth(barrelItr), barrelItr->y + MOgetCurrentHeight(barrelItr));
+		barrelItr = barrelItr->next;
+	}
+}
+
+unsigned char handleCollision(void)
+{
+	MovingObject* barrelItr = barrelListHead;
+
+	while (barrelItr != NULL)
+	{
+
+		if (getMario().x <= barrelItr->x + MOgetCurrentWidth(barrelItr)
+				&& getMario().x + getCurrentWidth() >= barrelItr->x
+				&& getMario().y <= barrelItr->y + MOgetCurrentHeight(barrelItr)
+				&& getMario().y + getCurrentHeight() >= barrelItr->y )
+		{
+			// Colliding.
+			changeMarioState(DEAD);
+			stopBarrels();
+			donkeyKong.state = ANGRY;
+			return 1;
+		}
+
+		barrelItr = barrelItr->next;
+	}
+
+	return 0;
+}
+
+unsigned char moveBarrels(BarrelImage lowFrame, BarrelImage highFrame)
 {
 	MovingObject* barrelItr = barrelListHead;
 	unsigned char oneThrown = 0;
@@ -280,13 +318,19 @@ void moveBarrels(BarrelImage lowFrame, BarrelImage highFrame)
 
 				if (barrelItr->speed < 0)
 				{
-					MOdrawBackground(barrelItr->x + MOgetCurrentWidth(barrelItr), barrelItr->y,
-							barrelItr->x + MOgetPastWidth(barrelItr) + 1, barrelItr->y + MOgetCurrentHeight(barrelItr));
+					if (barrelItr->x + MOgetCurrentWidth(barrelItr) < 320)
+					{
+						MOdrawBackground(barrelItr->x + MOgetCurrentWidth(barrelItr), barrelItr->y,
+								barrelItr->x + MOgetPastWidth(barrelItr) + 1, barrelItr->y + MOgetCurrentHeight(barrelItr));
+					}
 				}
 				else
 				{
-					MOdrawBackground(barrelItr->x-2, barrelItr->y,
-									barrelItr->x-1, barrelItr->y + MOgetCurrentHeight(barrelItr));
+					if (barrelItr->x > 0)
+					{
+						MOdrawBackground(barrelItr->x-2, barrelItr->y,
+										barrelItr->x-1, barrelItr->y + MOgetCurrentHeight(barrelItr));
+					}
 				}
 			}
 		}
@@ -318,6 +362,8 @@ void moveBarrels(BarrelImage lowFrame, BarrelImage highFrame)
 		donkeyKong.state = ANGRY;
 		donkeyKong.current_frame = ANGRY_LEFT;
 	}
+
+	return handleCollision();
 }
 
 void MOdrawBackground(int x0, int y0, int x1, int y1)
@@ -411,6 +457,16 @@ void animateDonkeyKong(DonkeyKongImage lowFrame, DonkeyKongImage highFrame)
 	if (donkeyKong.current_frame > highFrame || donkeyKong.current_frame < lowFrame) {
 		dk_frame_dir = -dk_frame_dir;
 	}
+}
+
+void setDonkeyKongState(DonkeyKongState state)
+{
+	donkeyKong.state = state;
+}
+
+void setDonkeyKongFrame(float frame)
+{
+	donkeyKong.current_frame = frame;
 }
 
 void drawPeach(void)

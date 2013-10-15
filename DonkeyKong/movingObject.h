@@ -109,7 +109,7 @@ void drawBarrels();
 void loadBarrel(int, int);
 void addBarrel(MovingObject*, int, int);
 void loadBarrels();
-void moveBarrels(BarrelImage lowFrame, BarrelImage highFrame);
+unsigned char moveBarrels(BarrelImage lowFrame, BarrelImage highFrame);
 int MOgetCurrentWidth(MovingObject* itr);
 int MOgetCurrentHeight(MovingObject* itr);
 int MOgetPastWidth(MovingObject* itr);
@@ -131,5 +131,8 @@ void loadPeach(int, int);
 void drawOtherObject();
 void loadOtherObject(int, int);
 MovingObject* getBarrelListHead(void);
-
+void stopBarrels(void);
+unsigned char handleCollision(void);
+void setDonkeyKongState(DonkeyKongState state);
+void setDonkeyKongFrame(float frame);
 #endif /* MOVING_OBJECT_H_ */

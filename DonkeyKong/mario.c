@@ -58,6 +58,22 @@ void loadMario(int x, int y, int speed)
 void drawMario(bool bothBuffers)
 {
 	int cur_frame = (int) round(mario.current_frame);
+	static int deadCount = 0;
+
+	if (mario.state == DEAD)
+	{
+		deadCount++;
+		if (deadCount > 600)
+		{
+			mario.state = WALKING;
+			drawMarioBackground(mario.x, mario.y,
+					mario.x + getCurrentWidth(), mario.y + getCurrentHeight());
+			mario.x = MARIO_START_X;
+			mario.y = MARIO_START_Y;
+			deadCount = 0;
+		}
+		return;
+	}
 
 	if (cur_frame >= STAND_RIGHT && cur_frame <= WALK2_RIGHT)
 	{

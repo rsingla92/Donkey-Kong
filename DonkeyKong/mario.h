@@ -11,6 +11,8 @@
 #include "display.h"
 #include "bitmap.h"
 
+#define MARIO_START_X 	0
+#define MARIO_START_Y 	217
 typedef enum { UP, DOWN, LEFT, RIGHT } MarioDirection;
 
 /* Mario Files */
