@@ -24,9 +24,9 @@ typedef enum { STAND_LEFT, WALK1_LEFT, WALK2_LEFT, STAND_RIGHT,
 
 /* Mario States */
 typedef enum { WALKING, JUMPING, FALLING, M_CLIMBING, LADDER_BOTTOM,
-	LADDER_TOP, DEAD, NUM_MARIO_STATES } MarioState;
+	LADDER_TOP, DEAD, HAMMERING, NUM_MARIO_STATES } MarioState;
 
-#define MAX_JUMP 12
+#define MAX_JUMP 15
 
 typedef struct
 {

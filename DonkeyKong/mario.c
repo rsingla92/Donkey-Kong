@@ -63,19 +63,25 @@ void drawMario(bool bothBuffers)
 	if (mario.state == DEAD)
 	{
 		deadCount++;
-		if (deadCount > 600)
+		if (deadCount > 300)
 		{
 			mario.state = WALKING;
-			drawMarioBackground(mario.x, mario.y,
-					mario.x + getCurrentWidth(), mario.y + getCurrentHeight());
+			if (mario.x != MARIO_START_X && mario.y != MARIO_START_Y)
+			{
+				drawMarioBackground(mario.x, mario.y,
+						mario.x + getCurrentWidth(), mario.y + getCurrentHeight());
+			}
 			mario.x = MARIO_START_X;
 			mario.y = MARIO_START_Y;
+			mario.current_frame = STAND_RIGHT;
+			mario.jumpStart = MARIO_START_Y;
+			mario.currentFloor = 6;
 			deadCount = 0;
 		}
 		return;
 	}
 
-	if (cur_frame >= STAND_RIGHT && cur_frame <= WALK2_RIGHT)
+	if ((cur_frame >= STAND_RIGHT && cur_frame <= WALK2_RIGHT) || cur_frame == CLIMB2)
 	{
 		draw_flipped_bmp(mario.animation[cur_frame].handle,
 				mario.x, mario.y, true, mario_alpha, 1);
@@ -145,14 +151,9 @@ void move(int x, int y, MarioAnims lowFrame, MarioAnims highFrame, bool flip) {
 			mario.state == LADDER_BOTTOM) {
 		animate(lowFrame, highFrame);
 	}
-
-	//drawMario(flip);
 }
 
 void drawMarioBackground(int x0, int y0, int x1, int y1) {
-	//drawBackgroundSection(x0, y0, x1, y1);
-	//swap_buffers();
-	//drawBackgroundSection(x0, y0, x1, y1);
 	pushEraseNode(x0, y0, x1, y1);
 }
 
@@ -213,18 +214,6 @@ bool moveRight(void)
 
 bool moveDown(void)
 {
-	/*if (mario.y - mario.speed > 0) {
-		if (mario.current_frame >= STAND_LEFT && mario.current_frame <= WALK2_LEFT) {
-			move(0, mario.speed, STAND_LEFT, WALK2_LEFT, false);
-		} else {
-			move(0, mario.speed, STAND_RIGHT, WALK2_RIGHT, true);
-		}
-
-		drawMarioBackground(mario.x, mario.y - mario.height,
-				mario.x + mario.width, mario.y - mario.height - mario.speed);
-		return true;
-	}
-*/
 	mario.y += mario.speed;
 	drawMarioBackground(mario.x, mario.y - mario.speed,
 			mario.x + getCurrentWidth(), mario.y);
@@ -238,17 +227,6 @@ bool moveDown(void)
 
 bool moveUp(void)
 {
-	/*
-	if (mario.y + mario.height + mario.speed < 240) {
-		if (mario.current_frame >= STAND_LEFT && mario.current_frame <= WALK2_LEFT) {
-			move(0, -mario.speed, STAND_LEFT, WALK2_LEFT, false);
-		} else {
-			move(0, -mario.speed, STAND_RIGHT, WALK2_RIGHT, true);
-		}
-
-		drawMarioBackground(mario.x, mario.y + mario.speed,
-				mario.x + mario.width, mario.y);
-	}*/
 	mario.y -= mario.speed;
 	drawMarioBackground(mario.x, mario.y + getCurrentHeight(),
 			mario.x + getCurrentWidth(), mario.y + getCurrentHeight() + mario.speed);

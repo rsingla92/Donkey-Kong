@@ -303,6 +303,7 @@ void update_level1(void) {
 	int floor = 0;
 	int ladder_ind = 0;
 	static unsigned char deadFlag = 0;
+	static unsigned char jumpHang = 0;
 
 	if (!firstMove)
 	{
@@ -332,9 +333,17 @@ void update_level1(void) {
 		/* Mario is jumping */
 		if (getMario().y <= getMarioJumpStart() - MAX_JUMP)
 		{
-			changeMarioState(FALLING);
+			if (jumpHang > 5)
+			{
+				changeMarioState(FALLING);
+				jumpHang = 0;
+			}
+			else
+			{
+				jumpHang++;
+			}
 		}
-		else
+		else if (!jumpHang)
 		{
 			moveMario(UP);
 		}
@@ -396,6 +405,8 @@ void update_level1(void) {
 			setDonkeyKongState(THROWING);
 			setDonkeyKongFrame(STANDING_STILL);
 			deadFlag = 0;
+			firstMove = true;
+			points = MAX_POINTS;
 		}
 
 		floor = find_floor(getMario().x, getMario().y, 3*(getCurrentHeight()/4), &(getMarioRef()->currentFloor)) - getCurrentHeight();
@@ -411,10 +422,6 @@ void update_level1(void) {
 				setMarioJumpStart(getMario().y);
 			}
 		}
-	}
-	else
-	{
-
 	}
 
 	if ((button_states[3] == 0 || button_states[2] == 0 ||

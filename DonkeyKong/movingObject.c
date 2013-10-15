@@ -223,12 +223,23 @@ unsigned char handleCollision(void)
 		if (getMario().x <= barrelItr->x + MOgetCurrentWidth(barrelItr)
 				&& getMario().x + getCurrentWidth() >= barrelItr->x
 				&& getMario().y <= barrelItr->y + MOgetCurrentHeight(barrelItr)
-				&& getMario().y + getCurrentHeight() >= barrelItr->y )
+				&& getMario().y + getCurrentHeight() >= barrelItr->y
+				&& (barrelItr->state == OBJ_FALLING || barrelItr->state == ROLLING))
 		{
 			// Colliding.
-			changeMarioState(DEAD);
-			stopBarrels();
-			donkeyKong.state = ANGRY;
+			if (getMarioState() == HAMMERING)
+			{
+				// Barrel dies;
+				barrelItr->state = THROWABLE;
+				MOdrawBackground(barrelItr->x, barrelItr->y,
+								barrelItr->x + MOgetCurrentWidth(barrelItr), barrelItr->y + MOgetCurrentHeight(barrelItr));
+			}
+			else
+			{
+				changeMarioState(DEAD);
+				stopBarrels();
+				donkeyKong.state = ANGRY;
+			}
 			return 1;
 		}
 
