@@ -19,7 +19,7 @@ typedef struct {
 	unsigned char initialized;
 } State;
 
-typedef enum {MAIN_MENU, LOADING_SCREEN, LEVEL1, NUM_STATE_MACHINE_STATES} eState;
+typedef enum {MAIN_MENU, LOADING_SCREEN, LEVEL1, GAME_OVER, WIN_GAME, NUM_STATE_MACHINE_STATES} eState;
 
 void changeState(eState new_state);
 void runState();

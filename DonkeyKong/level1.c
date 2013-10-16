@@ -11,6 +11,8 @@
 #include "movingObject.h"
 #include "sys/alt_timestamp.h"
 #include "input.h"
+#include "game_over.h"
+#include "state_machine.h"
 
 #define LADDER_ERROR	2
 #define MAX_POINTS		300
@@ -21,7 +23,9 @@ extern controller_buttons controller_state;
 extern controller_buttons prev_controller_state;
 
 static alt_timestamp_type start_time;
-static int points = MAX_POINTS;
+static bool firstMove = true;
+int bonus = MAX_POINTS;
+int points = 0;
 
 Point barrels_die = {0,200};
 
@@ -191,6 +195,12 @@ int find_floor(int x, int y, double ref, int* current_floor)
 	{
 		start = FIRST_FLOOR_IND;
 		*current_floor = 0;
+
+		setDonkeyKongState(THROWING);
+		setDonkeyKongFrame(STANDING_STILL);
+		firstMove = true;
+		setMarioLives(3);
+		changeState(WIN_GAME);
 	}
 	else if (y + ref <= SECOND_FLOOR_Y && x <= FLOOR_X_HIGH_BOUND)
 	{
@@ -282,6 +292,7 @@ void draw_level1(void) {
 
 	// Draw the background
 	drawBackground();
+	drawLives();
 }
 
 bool is_num_in_range(int num, int lowBound, int highBound) {
@@ -299,7 +310,6 @@ int should_barrel_die(int x, int y){
 }
 
 void update_level1(void) {
-	static bool firstMove = true;
 	int floor = 0;
 	int ladder_ind = 0;
 	static unsigned char deadFlag = 0;
@@ -309,23 +319,58 @@ void update_level1(void) {
 	{
 		alt_timestamp_type end_time = alt_timestamp();
 		char buf[50];
+		char score_buf[50];
 
 		if ((2*(end_time - start_time)/alt_timestamp_freq()) > 1)
 		{
 			alt_timestamp_start();
 			start_time = alt_timestamp();
-			points = points - 1;
-			if (points < 0)
-				points = 0;
-			sprintf(buf, "Score: %03d", points);
+			bonus = bonus - 1;
+			if (bonus < 0)
+				bonus = 0;
+			sprintf(buf, "Bonus: %03d", bonus);
+			sprintf(score_buf, "Score: %03d", points);
 			draw_string(buf, 0, 0);
+			draw_string(score_buf, 0, 2);
 		}
 	}
 	else
 	{
 		char buf[50];
-		sprintf(buf, "Score: %03d", MAX_POINTS);
+		char score_buf[50];
+
+		sprintf(buf, "Bonus: %03d", MAX_POINTS);
+		sprintf(score_buf, "Score: %03d", points);
 		draw_string(buf, 0, 0);
+		draw_string(score_buf, 0, 2);
+	}
+
+	if (deadFlag && getMarioState() != DEAD)
+	{
+		if (getMario().lives > 0)
+		{
+			// Mario resurrected.
+			setDonkeyKongState(THROWING);
+			setDonkeyKongFrame(STANDING_STILL);
+			deadFlag = 0;
+			firstMove = true;
+			bonus = MAX_POINTS;
+		}
+		else
+		{
+			setDonkeyKongState(THROWING);
+			setDonkeyKongFrame(STANDING_STILL);
+			deadFlag = 0;
+			firstMove = true;
+			setMarioLives(3);
+			setMarioX(MARIO_START_X);
+			setMarioY(MARIO_START_Y);
+			setMarioCurrentFrame(STAND_RIGHT);
+			setMarioJumpStart(MARIO_START_Y);
+			setMarioCurrentFloor(6);
+			stopBarrels();
+			changeState(GAME_OVER);
+		}
 	}
 
 	if (getMarioState() == JUMPING)
@@ -348,7 +393,7 @@ void update_level1(void) {
 			moveMario(UP);
 		}
   	}
-	else if (getMarioState() != FALLING && (ladder_ind = is_ladder(getMario().x, getMario().y, getCurrentHeight(), getMario().currentFloor)) != -1)
+	else if (getMarioState() != FALLING && getMarioState() != DEAD && (ladder_ind = is_ladder(getMario().x, getMario().y, getCurrentHeight(), getMario().currentFloor)) != -1)
 	{
 		int ladder_end_y = ladders[ladder_ind].end.y;
 		int ladder_begin_y = ladders[ladder_ind].start.y;
@@ -398,17 +443,6 @@ void update_level1(void) {
 	else if (getMarioState() != DEAD)
 	{
 		/* Drop to the correct floor: */
-
-		if (deadFlag)
-		{
-			// Mario resurrected.
-			setDonkeyKongState(THROWING);
-			setDonkeyKongFrame(STANDING_STILL);
-			deadFlag = 0;
-			firstMove = true;
-			points = MAX_POINTS;
-		}
-
 		floor = find_floor(getMario().x, getMario().y, 3*(getCurrentHeight()/4), &(getMarioRef()->currentFloor)) - getCurrentHeight();
 		if (getMario().y < floor) moveMario(DOWN);
 		else if (getMario().y > floor) moveMario(UP);
@@ -443,6 +477,21 @@ void update_level1(void) {
 	if (moveBarrels(ROLLING_TOP_LEFT, ROLLING_BOTTOM_RIGHT))
 	{
 		// Mario was hit.
+		deadFlag = 1;
+	}
+
+	int kongWidth = getKong().animation[(int) round(getKong().current_frame)].handle->bmp_info_header->width;
+	int kongHeight = getKong().animation[(int) round(getKong().current_frame)].handle->bmp_info_header->height;
+
+	if (getMario().x <= getKong().x + kongWidth &&
+			getMario().x + getCurrentWidth() >= getKong().x &&
+			getMario().y <= getKong().y + kongHeight &&
+			getMario().y + getCurrentHeight() >= getKong().y)
+	{
+		// Collision with DK
+		changeMarioState(DEAD);
+		stopBarrels();
+		setDonkeyKongState(ANGRY);
 		deadFlag = 1;
 	}
 

@@ -92,7 +92,7 @@ int main(void) {
 	sdcard_handle *sd_dev = init_sdcard();
 	initAudio();
 
-	loadMusic("Title2.wav", 1, 0.25);
+	loadMusic("Tit2.wav", 1, 1.0);
 
 	// Set latch and clock to 0.
 	IOWR_8DIRECT(controller_out, 0, 0x00);

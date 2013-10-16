@@ -52,7 +52,22 @@ void loadMario(int x, int y, int speed)
 	mario.y = y;
 	mario.jumpStart = y;
 	mario.speed = speed;
+	mario.lives = 3;
 	mario.currentFloor = 6;
+}
+
+void setMarioX(int x)
+{
+	mario.x = x;
+}
+void setMarioY(int y)
+{
+	mario.y = y;
+}
+
+void setMarioCurrentFrame(float current_frame)
+{
+	mario.current_frame = current_frame;
 }
 
 void drawMario(bool bothBuffers)
@@ -66,11 +81,8 @@ void drawMario(bool bothBuffers)
 		if (deadCount > 300)
 		{
 			mario.state = WALKING;
-			if (mario.x != MARIO_START_X && mario.y != MARIO_START_Y)
-			{
-				drawMarioBackground(mario.x, mario.y,
-						mario.x + getCurrentWidth(), mario.y + getCurrentHeight());
-			}
+			drawMarioBackground(mario.x, mario.y,
+					mario.x + getCurrentWidth(), mario.y + getCurrentHeight());
 			mario.x = MARIO_START_X;
 			mario.y = MARIO_START_Y;
 			mario.current_frame = STAND_RIGHT;
@@ -264,6 +276,12 @@ void changeMarioState(MarioState state)
 	if (mario.state == M_CLIMBING) {
 		mario.current_frame = CLIMB1;
 	}
+
+	if (mario.state == DEAD)
+	{
+		mario.lives--;
+		eraseLives();
+	}
 }
 
 MarioState getMarioState(void)
@@ -286,4 +304,42 @@ void setMarioCurrentFloor(int currentFloor)
 	if (currentFloor < 0 || currentFloor > 6) return;
 
 	mario.currentFloor = currentFloor;
+}
+
+void setMarioLives(int lives)
+{
+	mario.lives = lives;
+}
+
+void drawLives(void)
+{
+	BitmapHandle* lifeHandle;
+
+	load_bmp("LIFE.BMP", &lifeHandle);
+	draw_bmp(lifeHandle, 0, 20, 0, mario_alpha, 1);
+	draw_bmp(lifeHandle, 23, 20, 0, mario_alpha, 1);
+	draw_bmp(lifeHandle, 46, 20, 0, mario_alpha, 1);
+	close_bmp(lifeHandle);
+}
+
+void eraseLives(void)
+{
+	if (mario.lives == 2)
+	{
+		// Erase first one
+		draw_box(46, 20, 68, 42, mario_alpha, 1);
+		draw_box(46, 20, 68, 42, mario_alpha, 0);
+	}
+	else if(mario.lives == 1)
+	{
+		// Erase second one
+		draw_box(23, 20, 45, 42, mario_alpha, 1);
+		draw_box(23, 20, 45, 42, mario_alpha, 0);
+	}
+	else if(mario.lives == 0)
+	{
+		// Erase last one
+		draw_box(0, 20, 22, 42, mario_alpha, 1);
+		draw_box(0, 20, 22, 42, mario_alpha, 0);
+	}
 }

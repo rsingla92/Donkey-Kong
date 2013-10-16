@@ -80,6 +80,8 @@ void clear_pixel_buffer()
 {
 	if (pixel_buffer == NULL) return;
 
+	alt_up_pixel_buffer_dma_clear_screen(pixel_buffer, 0);
+
 	// Swap background and foreground buffers
 	alt_up_pixel_buffer_dma_swap_buffers(pixel_buffer);
 

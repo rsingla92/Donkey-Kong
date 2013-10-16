@@ -13,6 +13,7 @@
 
 static BitmapHandle* background_bmp;
 static colour back_alpha = { 0x00, 0x00, 0x00 };
+static unsigned char alreadyLoaded = 0;
 
 static void draw_load_screen(void);
 
@@ -30,21 +31,26 @@ void updateLoadScreen(void)
 
 	draw_load_screen();
 
-	jumpSoundBufLen = loadSound("boing.wav", &jumpSoundBuf, 0.5);
-	loadMario(MARIO_START_X, MARIO_START_Y, 1);
-	loadPeach(137, 43);
-	loadDonkeyKong(76, 71);
-	loadBarrels();
-	loadBarrel(20, 70);
-	loadBarrel(50, 70);
-	loadBarrel(210, 30);
-	loadBarrel(240, 30);
-	loadBarrel(240, 30);
-	loadBarrel(240, 30);
-	//loadBarrel(240, 30);
-	//loadBarrel(240, 30);
-	//loadBarrel(240, 30);
-	//loadBarrel(240, 30);
+	if (!alreadyLoaded)
+	{
+		jumpSoundBufLen = loadSound("boin.wav", &jumpSoundBuf, 0.5);
+		loadMario(MARIO_START_X, MARIO_START_Y, 1);
+		loadPeach(137, 43);
+		loadDonkeyKong(76, 71);
+		loadBarrels();
+		loadBarrel(20, 70);
+		loadBarrel(50, 70);
+		loadBarrel(210, 30);
+		loadBarrel(240, 30);
+		loadBarrel(240, 30);
+		loadBarrel(240, 30);
+		//loadBarrel(240, 30);
+		//loadBarrel(240, 30);
+		//loadBarrel(240, 30);
+		//loadBarrel(240, 30);
+	}
+
+	alreadyLoaded = 1;
 
 	draw_level1();
 	drawMario(false);

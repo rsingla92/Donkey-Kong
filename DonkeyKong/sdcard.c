@@ -61,6 +61,13 @@ byte read_file(file_handle file)
 	return alt_up_sd_card_read(file);
 }
 
+void write_byte(file_handle file, byte to_write)
+{
+	if (!checkConnectedAndFat()) return -2;
+
+	alt_up_sd_card_write(file, to_write);
+}
+
 short int checkConnectedAndFat(void)
 {
 	if (!sdcard_connected || !FAT16)

@@ -23,7 +23,7 @@ static colour barrel_alpha = { 0x00, 0x00, 0x00 };
 static double frame_dir = 0.07;
 
 static MovingObject* fireListHead;
-static char* fire_list[NUM_FIRE_IMGS] = {"FIRE.BMP", "FIRE1.BMP", "FIRE2.BMP", "FIRE3.BMP"};
+static char* fire_list[NUM_FIRE_IMGS] = {"FIRE.BMP", "FI1.BMP", "FI2.BMP", "FI3.BMP"};
 static AnimMap fire_anim_list[NUM_FIRE_IMGS];
 static colour fire_alpha = { 0x1F, 0x00, 0x1F };
 
@@ -375,6 +375,11 @@ unsigned char moveBarrels(BarrelImage lowFrame, BarrelImage highFrame)
 	}
 
 	return handleCollision();
+}
+
+DonkeyKong getKong(void)
+{
+	return donkeyKong;
 }
 
 void MOdrawBackground(int x0, int y0, int x1, int y1)

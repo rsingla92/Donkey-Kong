@@ -135,4 +135,6 @@ void stopBarrels(void);
 unsigned char handleCollision(void);
 void setDonkeyKongState(DonkeyKongState state);
 void setDonkeyKongFrame(float frame);
+DonkeyKong getKong(void);
+
 #endif /* MOVING_OBJECT_H_ */
