@@ -11,7 +11,7 @@
 #define FRAME_SPEED		0.05
 
 static Mario mario;
-static char* anim_list[NUM_IMGS] = {"M9.BMP", "M10.BMP", "M11.BMP", "M12.BMP"};
+static char* anim_list[NUM_IMGS] = {"M9.BMP", "M10.BMP", "M11.BMP", "M12.BMP", "D1.BMP", "D2.BMP", "D3.BMP", "D4.BMP"};
 static colour mario_alpha = { 0x00, 0x00, 0x00 };
 static double frame_dir = FRAME_SPEED;
 static float past_frame = STAND_LEFT;
@@ -31,6 +31,10 @@ void loadMario(int x, int y, int speed)
 	load_bmp(anim_list[WALK1_IMG], &(mario.animation[WALK1_LEFT].handle));
 	load_bmp(anim_list[WALK2_IMG], &(mario.animation[WALK2_LEFT].handle));
 	load_bmp(anim_list[CLIMB_IMG], &(mario.animation[CLIMB1].handle));
+	load_bmp(anim_list[DEAD1_IMG], &(mario.animation[DEAD1].handle));
+	load_bmp(anim_list[DEAD2_IMG], &(mario.animation[DEAD2].handle));
+	load_bmp(anim_list[DEAD3_IMG], &(mario.animation[DEAD3].handle));
+	load_bmp(anim_list[DEAD4_IMG], &(mario.animation[DEAD4].handle));
 
 	/* The right-facing animations use the same images. */
 	mario.animation[STAND_RIGHT].handle = mario.animation[STAND_LEFT].handle;
@@ -89,8 +93,10 @@ void drawMario(bool bothBuffers)
 			mario.jumpStart = MARIO_START_Y;
 			mario.currentFloor = 6;
 			deadCount = 0;
+			return;
 		}
-		return;
+
+		animate(DEAD1, DEAD4);
 	}
 
 	if ((cur_frame >= STAND_RIGHT && cur_frame <= WALK2_RIGHT) || cur_frame == CLIMB2)
@@ -150,7 +156,15 @@ void animate(MarioAnims lowFrame, MarioAnims highFrame)
 	}
 
 	if (mario.current_frame > highFrame || mario.current_frame < lowFrame) {
-		frame_dir = -frame_dir;
+		if (mario.state != DEAD)
+		{
+			frame_dir = -frame_dir;
+		}
+		else
+		{
+			if (frame_dir > 0) mario.current_frame = lowFrame;
+			else mario.current_frame = highFrame;
+		}
 	}
 }
 
@@ -280,6 +294,7 @@ void changeMarioState(MarioState state)
 	if (mario.state == DEAD)
 	{
 		mario.lives--;
+		mario.current_frame = DEAD2;
 		eraseLives();
 	}
 }

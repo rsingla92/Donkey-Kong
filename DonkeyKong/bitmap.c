@@ -88,8 +88,15 @@ short int load_bmp(char *filename, BitmapHandle** bmp_handle)
 	colour *pixel_map = NULL;
 	file_handle file = 	open_file(filename, false);
 
+	if (handle == 0)
+	{
+		printf("Could not allocate memory when trying to load file %s\n", filename);
+		return -3;
+	}
+
 	if (file < 0)
 	{
+		printf("Could not load file %s\n", filename);
 		return file;
 	}
 
@@ -98,11 +105,13 @@ short int load_bmp(char *filename, BitmapHandle** bmp_handle)
 
 	if (bmp_file_header == NULL || bmp_info_header == NULL)
 	{
+		printf("Could not get header info for file %s\n", filename);
 		return -1;
 	}
 
 	if (!verify_bmp_type(bmp_file_header))
 	{
+		printf("Incorrect bitmap type for file %s\n", filename);
 		return -2;
 	}
 

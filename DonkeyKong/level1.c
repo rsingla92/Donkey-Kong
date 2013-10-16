@@ -22,6 +22,8 @@ extern unsigned char prev_state[4];
 extern controller_buttons controller_state;
 extern controller_buttons prev_controller_state;
 
+static unsigned char deadFlag = 0;
+static unsigned char jumpHang = 0;
 static alt_timestamp_type start_time;
 static bool firstMove = true;
 int bonus = MAX_POINTS;
@@ -196,10 +198,7 @@ int find_floor(int x, int y, double ref, int* current_floor)
 		start = FIRST_FLOOR_IND;
 		*current_floor = 0;
 
-		setDonkeyKongState(THROWING);
-		setDonkeyKongFrame(STANDING_STILL);
-		firstMove = true;
-		setMarioLives(3);
+		resetLevel();
 		changeState(WIN_GAME);
 	}
 	else if (y + ref <= SECOND_FLOOR_Y && x <= FLOOR_X_HIGH_BOUND)
@@ -295,6 +294,24 @@ void draw_level1(void) {
 	drawLives();
 }
 
+void resetLevel(void)
+{
+	setDonkeyKongState(THROWING);
+	setDonkeyKongFrame(STANDING_STILL);
+	deadFlag = 0;
+	jumpHang = 0;
+	firstMove = true;
+	bonus = MAX_POINTS;
+	points = 0;
+	setMarioLives(3);
+	setMarioX(MARIO_START_X);
+	setMarioY(MARIO_START_Y);
+	setMarioCurrentFrame(STAND_RIGHT);
+	setMarioJumpStart(MARIO_START_Y);
+	setMarioCurrentFloor(6);
+	stopBarrels();
+}
+
 bool is_num_in_range(int num, int lowBound, int highBound) {
 	return (num >= lowBound && num <= highBound);
 }
@@ -312,8 +329,6 @@ int should_barrel_die(int x, int y){
 void update_level1(void) {
 	int floor = 0;
 	int ladder_ind = 0;
-	static unsigned char deadFlag = 0;
-	static unsigned char jumpHang = 0;
 
 	if (!firstMove)
 	{
@@ -355,20 +370,11 @@ void update_level1(void) {
 			deadFlag = 0;
 			firstMove = true;
 			bonus = MAX_POINTS;
+			jumpHang = 0;
 		}
 		else
 		{
-			setDonkeyKongState(THROWING);
-			setDonkeyKongFrame(STANDING_STILL);
-			deadFlag = 0;
-			firstMove = true;
-			setMarioLives(3);
-			setMarioX(MARIO_START_X);
-			setMarioY(MARIO_START_Y);
-			setMarioCurrentFrame(STAND_RIGHT);
-			setMarioJumpStart(MARIO_START_Y);
-			setMarioCurrentFloor(6);
-			stopBarrels();
+			resetLevel();
 			changeState(GAME_OVER);
 		}
 	}
