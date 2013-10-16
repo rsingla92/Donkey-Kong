@@ -9,6 +9,8 @@
 #include "level1.h"
 #include "load_screen.h"
 #include "mainmenu.h"
+#include "game_over.h"
+#include "display.h"
 
 #define NULL 0
 
@@ -16,10 +18,11 @@ static State states[NUM_STATE_MACHINE_STATES] =
 {
 	{updateMainMenu, draw_main_menu, NULL, 0},	/* MAIN_MENU */
 	{updateLoadScreen, NULL, NULL, 0},	/* LOADING_SCREEN */
-	{update_level1, NULL, NULL, 0},	/* LEVEL1 */
+	{update_level1, NULL, clear_display, 0},	/* LEVEL1 */
+	{updateGameOver, draw_gameover, clear_display, 0} /* GAME OVER */
 };
 
-static eState current_state = MAIN_MENU;
+static eState current_state = GAME_OVER;
 
 void changeState(eState new_state)
 {
