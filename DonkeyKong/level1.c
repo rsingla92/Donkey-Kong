@@ -310,17 +310,19 @@ void drawHammer(void)
 void hitHammer(void)
 {
 
-	if (( (getMario().x >= hammer1_location.x && getMario().x <= hammer1_location.x+7) ||
+	if (((getMario().x >= hammer1_location.x && getMario().x <= hammer1_location.x+7) ||
 			(getMario().x+getCurrentWidth() >= hammer1_location.x && getMario().x+getCurrentWidth() <= hammer1_location.x+7))
-			&& (getMario().y >= hammer1_location.y && getMario().y <= hammer1_location.y+8))
+			&&((getMario().y >= hammer1_location.y && getMario().y <= hammer1_location.y+8) ||
+					(getMario().y+getCurrentHeight >= hammer1_location.y && getMario().y+getCurrentHeight() <= hammer1_location.y+8)))
 	{
 		eraseHammer(1);
 		changeMarioState(HAMMERING);
 	}
 
-	if (( (getMario().x >= hammer2_location.x && getMario().x <= hammer2_location.x+7) ||
-				(getMario().x+getCurrentWidth() >= hammer2_location.x && getMario().x+getCurrentWidth() <= hammer2_location.x+7))
-				&& (getMario().y >= hammer2_location.y && getMario().y <= hammer2_location.y+8))
+	if (((getMario().x >= hammer2_location.x && getMario().x <= hammer2_location.x+7) ||
+			(getMario().x+getCurrentWidth() >= hammer2_location.x && getMario().x+getCurrentWidth() <= hammer2_location.x+7))
+			&&((getMario().y >= hammer2_location.y && getMario().y <= hammer2_location.y+8) ||
+					(getMario().y+getCurrentHeight >= hammer2_location.y && getMario().y+getCurrentHeight() <= hammer2_location.y+8)))
 		{
 			eraseHammer(2);
 			changeMarioState(HAMMERING);
