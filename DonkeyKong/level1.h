@@ -21,7 +21,7 @@ typedef struct {
 
 void draw_level1();
 void drawHammer();
-//int hitHammer(int x, int y);
+void hitHammer(void);
 void eraseHammer(int number);
 int find_floor(int x, int y , double ref, int* current_floor);
 int is_ladder(int x, int y, int height, int current_floor);

@@ -306,7 +306,7 @@ void drawHammer(void)
 	close_bmp(hammerHandle);
 }
 
-int hitHammer(int x, int y)
+void hitHammer(void)
 {
 
 	if (( (getMario().x >= hammer1_location.x && getMario().x <= hammer1_location.x+7) ||
@@ -416,13 +416,7 @@ void update_level1(void) {
 		}
 	}
 
-	if (( (getMario().x >= hammer1_location.x && getMario().x <= hammer1_location.x+7) ||
-			(getMario().x+getCurrentWidth() >= hammer1_location.x && getMario().x+getCurrentWidth() <= hammer1_location.x+7))
-			&& (getMario().y >= hammer1_location.y && getMario().y <= hammer1_location.y+8))
-	{
-		eraseHammer(1);
-		changeMarioState(HAMMERING);
-	}
+	hitHammer(); // handles hammer collision
 
 	if (getMarioState() == JUMPING)
 	{

@@ -7,6 +7,7 @@
 #include "mario.h"
 #include "audio.h"
 #include "level1.h"
+#include "background.h"
 #include <math.h>
 
 #define FRAME_SPEED		0.05
@@ -137,7 +138,12 @@ void drawMario(bool bothBuffers)
 								mario.x + getCurrentWidth(), mario.y + getCurrentHeight());
 			mario.current_frame = STAND_RIGHT;
 			hammerCount = 0;
+			return;
 		}
+		if(mario.current_frame >= HMR1_RIGHT && mario.current_frame <= HMR6_RIGHT)
+			animate(HMR1_RIGHT, HMR6_RIGHT);
+		else
+			animate(HMR1_LEFT, HMR6_LEFT);
 	}
 
 	if ((cur_frame >= STAND_RIGHT && cur_frame <= WALK2_RIGHT) || cur_frame == CLIMB2 ||
@@ -207,6 +213,16 @@ void animate(MarioAnims lowFrame, MarioAnims highFrame)
 			if (frame_dir > 0) mario.current_frame = lowFrame;
 			else mario.current_frame = highFrame;
 		}
+	}
+
+	int past_width = getPastWidth();
+	int cur_width = getCurrentWidth();
+	if (past_width > cur_width)
+	{
+		// Went from a larger frame to smaller-- erase background it might have left.
+		int cur_height = getCurrentHeight();
+		pushEraseNode(mario.x + cur_width, mario.y,
+				mario.x + past_width, mario.y + cur_height);
 	}
 }
 
