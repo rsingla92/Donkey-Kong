@@ -28,11 +28,15 @@ extern controller_buttons prev_controller_state;
 extern int points;
 extern int bonus;
 
+extern int* menuSoundBuf;
+extern int menuSoundBufLen;
+
 void updateGameOver(void)
 {
 	if(!button_states[0] ||
 			(!prev_controller_state.B_BUTTON && controller_state.B_BUTTON ))
 	{
+		swapInSound(menuSoundBuf, menuSoundBufLen, 1);
 		close_bmp(background_bmp);
 		changeState(MAIN_MENU);
 	}
@@ -50,7 +54,7 @@ void draw_gameover(void)
     short int ret1 = load_bmp("CURS.BMP", &cursor_bmp);
 
 	// Draw background to both buffers
-
+    pauseMusic();
 	draw_bmp(background_bmp, 0, 240 - background_bmp->bmp_info_header->height,
 			false, back_alpha, 1);
 

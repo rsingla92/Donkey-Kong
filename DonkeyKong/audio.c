@@ -263,53 +263,53 @@ void removeSound(void)
 	soundBufferSample = 0;
 }
 
-void swapInSound(int* buf, int len)
+// Be careful not to swap twice in a row without swapping out, unless
+// that is your intention. If there is supposed to be a permanent music buffer,
+// it will be lost and cause a memory leak.
+void swapInSound(int* buf, int len, unsigned char loop)
 {
-	if (bufSizeSwap == 0)
+	musicSwapBuffer = interruptMusicBuffer;
+	bufSizeSwap = interruptBufSize;
+	swapSample = interruptSample;
+	swapLoop = musicLoop;
+	swapDone = musicDone;
+
+	interruptMusicBuffer = buf;
+	interruptBufSize = len;
+	interruptSample = 0;
+	musicLoop = loop;
+	musicDone = 0;
+
+	unsigned int space = alt_up_audio_write_fifo_space(audio, ALT_UP_AUDIO_RIGHT);
+	unsigned int* sample;
+
+	if (space > interruptBufSize - interruptSample)
 	{
-		musicSwapBuffer = interruptMusicBuffer;
-		bufSizeSwap = interruptBufSize;
-		swapSample = interruptSample;
-		swapLoop = musicLoop;
-		swapDone = musicDone;
+		// Don't need to fully fill the rest of the buffer.
+		space = interruptBufSize - interruptSample;
+	}
 
-		interruptMusicBuffer = buf;
-		interruptBufSize = len;
-		interruptSample = 0;
-		musicLoop = 0;
-		musicDone = 0;
+	if (space > 0)
+	{
+		sample = &(interruptMusicBuffer[interruptSample]);
+		alt_up_audio_write_fifo(audio, sample, space, ALT_UP_AUDIO_LEFT);
+		alt_up_audio_write_fifo(audio, sample, space, ALT_UP_AUDIO_RIGHT);
+		interruptSample += space;
+	}
 
-		unsigned int space = alt_up_audio_write_fifo_space(audio, ALT_UP_AUDIO_RIGHT);
-		unsigned int* sample;
-
-		if (space > interruptBufSize - interruptSample)
+	if (interruptSample >= interruptBufSize)
+	{
+		if (musicLoop)
 		{
-			// Don't need to fully fill the rest of the buffer.
-			space = interruptBufSize - interruptSample;
-		}
-
-		if (space > 0)
-		{
-			sample = &(interruptMusicBuffer[interruptSample]);
-			alt_up_audio_write_fifo(audio, sample, space, ALT_UP_AUDIO_LEFT);
-			alt_up_audio_write_fifo(audio, sample, space, ALT_UP_AUDIO_RIGHT);
-			interruptSample += space;
-		}
-
-		if (interruptSample >= interruptBufSize)
-		{
-			if (musicLoop)
-			{
-				interruptSample = 0;
-				alt_up_audio_enable_write_interrupt(audio);
-			}
-		}
-		else
-		{
-			printf("Enabling interrupt.");
-			// Enable the write interrupt
+			interruptSample = 0;
 			alt_up_audio_enable_write_interrupt(audio);
 		}
+	}
+	else
+	{
+		printf("Enabling interrupt.");
+		// Enable the write interrupt
+		alt_up_audio_enable_write_interrupt(audio);
 	}
 }
 

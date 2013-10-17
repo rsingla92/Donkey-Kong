@@ -30,6 +30,9 @@ static bool wonGame = false;
 int bonus = MAX_POINTS;
 int points = 0;
 
+unsigned int* lvlSoundBuf;
+int lvlSoundBufLen;
+
 Point barrels_die = {0,200};
 
 static const Plane floors[] =

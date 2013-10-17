@@ -17,8 +17,11 @@ static double frame_dir = FRAME_SPEED;
 static float past_frame = STAND_LEFT;
 
 // Global Jump Buffer:
-unsigned int* jumpSoundBuf = 0;
+int* jumpSoundBuf = 0;
 int jumpSoundBufLen = 0;
+
+int* deadSoundBuf;
+int deadSoundBufLen;
 
 Mario getMario(void) {
 	return mario;
@@ -293,6 +296,7 @@ void changeMarioState(MarioState state)
 
 	if (mario.state == DEAD)
 	{
+		swapInSound(deadSoundBuf, deadSoundBufLen, 0);
 		mario.lives--;
 		mario.current_frame = DEAD2;
 		eraseLives();

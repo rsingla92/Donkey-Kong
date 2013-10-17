@@ -47,10 +47,12 @@ void addInSound(int* buf, int len);
 
 void removeSound(void);
 
-void swapInSound(int* buf, int len);
+void swapInSound(int* buf, int len, unsigned char loop);
 
 int loadSound(char* audioFile, int** buf, float audioVolume);
 
 void setMusicVolume(float factor);
+
+unsigned char isMusicDone(void);
 
 #endif /* AUDIO_H_ */

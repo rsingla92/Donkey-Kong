@@ -46,6 +46,9 @@ unsigned char prev_state[4] = {1, 1, 1, 1};
 controller_buttons controller_state;
 controller_buttons prev_controller_state;
 
+int* menuSoundBuf;
+int menuSoundBufLen;
+
 #define BYTETOBINARYPATTERN "%d%d%d%d%d%d%d%d"
 #define BYTETOBINARY(byte)  \
   (byte & 0x80 ? 1 : 0), \
@@ -92,7 +95,8 @@ int main(void) {
 	sdcard_handle *sd_dev = init_sdcard();
 	initAudio();
 
-	loadMusic("Tit2.wav", 1, 1.0);
+	menuSoundBufLen = loadSound("Tit2.wav", &menuSoundBuf, 0.5);
+	swapInSound(menuSoundBuf, menuSoundBufLen, 1);
 
 	// Set latch and clock to 0.
 	IOWR_8DIRECT(controller_out, 0, 0x00);

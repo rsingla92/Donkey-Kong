@@ -18,8 +18,17 @@ static unsigned char alreadyLoaded = 0;
 static void draw_load_screen(void);
 
 // From Mario:
-extern unsigned int* jumpSoundBuf;
+extern int* jumpSoundBuf;
 extern int jumpSoundBufLen;
+extern int* deadSoundBuf;
+extern int deadSoundBufLen;
+extern int* winSoundBuf;
+extern int winSoundBufLen;
+extern unsigned int* lvlSoundBuf;
+extern int lvlSoundBufLen;
+
+static int* gameStartBuf;
+static int gameStartBufLen;
 
 void updateLoadScreen(void)
 {
@@ -31,9 +40,20 @@ void updateLoadScreen(void)
 
 	draw_load_screen();
 
-	if (!alreadyLoaded)
+	if (alreadyLoaded)
 	{
+		swapInSound(lvlSoundBuf, lvlSoundBufLen, 1);
+		swapInSound(gameStartBuf, gameStartBufLen, 0);
+	}
+	else
+	{
+		gameStartBufLen = loadSound("gs1.wav", &gameStartBuf, 0.1);
+		lvlSoundBufLen = loadSound("thm.wav", &lvlSoundBuf, 0.5);
+		swapInSound(lvlSoundBuf, lvlSoundBufLen, 1);
+		swapInSound(gameStartBuf, gameStartBufLen, 0);
 		jumpSoundBufLen = loadSound("boin.wav", &jumpSoundBuf, 0.5);
+		deadSoundBufLen = loadSound("dead.wav", &deadSoundBuf, 0.5);
+		winSoundBufLen = loadSound("end.wav", &winSoundBuf, 0.5);
 		loadMario(MARIO_START_X, MARIO_START_Y, 1);
 		loadPeach(137, 43);
 		loadDonkeyKong(76, 71);
@@ -66,7 +86,6 @@ void updateLoadScreen(void)
 
 	close_bmp(background_bmp);
 
-	//pauseMusic();
 	changeState(LEVEL1);
 }
 

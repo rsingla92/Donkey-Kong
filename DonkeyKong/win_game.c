@@ -26,12 +26,19 @@ extern controller_buttons prev_controller_state;
 extern int points;
 extern int bonus;
 
+int* winSoundBuf;
+int winSoundBufLen;
+
+extern int* menuSoundBuf;
+extern int menuSoundBufLen;
+
 void updateWinGame(void)
 {
 	if(!button_states[0] ||
 			(!prev_controller_state.B_BUTTON && controller_state.B_BUTTON ))
 	{
 		close_bmp(background_bmp);
+		swapInSound(menuSoundBuf, menuSoundBufLen, 1);
 		changeState(MAIN_MENU);
 	}
 	else if(!button_states[1] ||
@@ -46,6 +53,7 @@ void draw_wingame(void)
 {
 	short int ret = load_bmp("WIN.BMP", &background_bmp);
 
+	pauseMusic();
 	clear_display();
 
 	// Draw background to both buffers
@@ -57,6 +65,8 @@ void draw_wingame(void)
 	//draw_box( 90,  90,  110,  110, back_alpha,  1);
 	draw_bmp(background_bmp, 0, 240 - background_bmp->bmp_info_header->height,
 				false, back_alpha, 1);
+
+	swapInSound(winSoundBuf, winSoundBufLen, 1);
 
 	file_handle scores = open_file("s.txt", false);
 
