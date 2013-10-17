@@ -10,6 +10,7 @@
 #include "state_machine.h"
 #include "input.h"
 #include "sdcard.h"
+#include "level1.h"
 #include "background.h"
 
 #define FINAL_SCORE_X 50
@@ -105,5 +106,4 @@ void draw_gameover(void)
 	draw_string(buf, HIGH_SCORE_X, HIGH_SCORE_Y);
 
 	resetLevel();
-	bonus = 300;
 }

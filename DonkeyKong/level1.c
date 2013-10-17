@@ -431,7 +431,6 @@ void update_level1(void) {
 			deadFlag = 0;
 			firstMove = true;
 			bonus = MAX_POINTS;
-			points = 0;
 			// Fix attempt:
 			jumpHang = 0;
 		}
