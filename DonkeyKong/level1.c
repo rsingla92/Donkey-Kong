@@ -17,6 +17,7 @@
 #define LADDER_ERROR	2
 #define MAX_POINTS		300
 
+static colour hmr_alpha = { 0x00, 0x00, 0x00 };
 extern unsigned char button_states[4];
 extern unsigned char prev_state[4];
 extern controller_buttons controller_state;
@@ -30,6 +31,7 @@ int bonus = MAX_POINTS;
 int points = 0;
 
 Point barrels_die = {0,200};
+Point hammer1_location = {300,190};
 
 static const Plane floors[] =
 {
@@ -292,6 +294,35 @@ void draw_level1(void) {
 	// Draw the background
 	drawBackground();
 	drawLives();
+	drawHammer();
+	drawHammer();
+}
+
+void drawHammer(void)
+{
+	BitmapHandle* hammerHandle;
+	load_bmp("HMR.BMP", &hammerHandle);
+	draw_bmp(hammerHandle, hammer1_location.x, hammer1_location.y, 0, hmr_alpha, 1);
+	close_bmp(hammerHandle);
+}
+
+/*int hitHammer(int x, int y)
+{
+
+		return 1;
+	else
+		return 0;
+}*/
+
+void eraseHammer(int number)
+{
+	if(number == 1)
+	{
+		draw_box(hammer1_location.x, hammer1_location.y, hammer1_location.x + 7, hammer1_location.y + 8, hmr_alpha, 1);
+		draw_box(hammer1_location.x, hammer1_location.y, hammer1_location.x + 7, hammer1_location.y + 8, hmr_alpha, 0);
+		hammer1_location.x = 0;
+		hammer1_location.y = 0;
+	}
 }
 
 void resetLevel(void)
