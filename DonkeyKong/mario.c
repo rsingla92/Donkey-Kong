@@ -130,7 +130,7 @@ void drawMario(bool bothBuffers)
 	if(mario.state == HAMMERING)
 	{
 		hammerCount++;
-		if (hammerCount > 900)
+		if (hammerCount > 500)
 		{
 			mario.state = WALKING;
 			drawMarioBackground(mario.x, mario.y,
@@ -338,7 +338,9 @@ void changeMarioState(MarioState state)
 			mario.current_frame = WALK1_LEFT;
 		}
 	}
-
+	if (mario.state == HAMMERING){
+		mario.current_frame = HMR1_RIGHT;
+	}
 	if (mario.state == M_CLIMBING) {
 		mario.current_frame = CLIMB1;
 	}
@@ -350,14 +352,6 @@ void changeMarioState(MarioState state)
 		eraseLives();
 	}
 
-	if (( (mario.x >= hammer1_location.x && mario.x <= hammer1_location.x+7) ||
-			(mario.x+getCurrentWidth() >= hammer1_location.x && mario.x+getCurrentWidth() <= hammer1_location.x+7))
-			&& (mario.y >= hammer1_location.y && mario.y <= hammer1_location.y+8))
-	{
-		//eraseHammer(1);
-		mario.state = HAMMERING;
-		mario.current_frame = HMR1_RIGHT;
-	}
 }
 
 MarioState getMarioState(void)
