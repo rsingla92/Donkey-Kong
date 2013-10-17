@@ -140,13 +140,22 @@ void drawMario(bool bothBuffers)
 		if (hammerCount > 500)
 		{
 			mario.state = WALKING;
-			drawMarioBackground(mario.x, mario.y,
-								mario.x + getCurrentWidth(), mario.y + getCurrentHeight());
+			if (cur_frame == HMR2_LEFT || cur_frame == HMR4_LEFT || cur_frame == HMR6_LEFT)
+			{
+				drawMarioBackground(mario.x - 14, mario.y,
+									mario.x - 14 + getCurrentWidth(), mario.y + getCurrentHeight());
+			}
+			else
+			{
+				drawMarioBackground(mario.x, mario.y,
+									mario.x + getCurrentWidth(), mario.y + getCurrentHeight());
+			}
 			mario.current_frame = STAND_RIGHT;
 			hammerCount = 0;
 			swapOutSound(); // Stop hammer music, and continue level music.
 			return;
 		}
+
 		if(mario.current_frame >= HMR1_RIGHT && mario.current_frame <= HMR6_RIGHT)
 			animate(HMR1_RIGHT, HMR6_RIGHT);
 		else

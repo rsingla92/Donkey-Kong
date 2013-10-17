@@ -547,7 +547,7 @@ void update_level1(void) {
 		else if (button_states[2] == 0 || controller_state.RIGHT_ARROW) moveMario(RIGHT);
 	}
 
-	if (moveBarrels(ROLLING_TOP_LEFT, ROLLING_BOTTOM_RIGHT))
+	if (moveBarrels(ROLLING_TOP_LEFT, ROLLING_BOTTOM_RIGHT) && getMarioState() != HAMMERING)
 	{
 		// Mario was hit.
 		deadFlag = 1;
