@@ -32,6 +32,7 @@ int points = 0;
 
 Point barrels_die = {0,200};
 Point hammer1_location = {300,190};
+Point hammer2_location = {10, 106};
 
 static const Plane floors[] =
 {
@@ -295,7 +296,6 @@ void draw_level1(void) {
 	drawBackground();
 	drawLives();
 	drawHammer();
-	drawHammer();
 }
 
 void drawHammer(void)
@@ -303,6 +303,7 @@ void drawHammer(void)
 	BitmapHandle* hammerHandle;
 	load_bmp("HMR.BMP", &hammerHandle);
 	draw_bmp(hammerHandle, hammer1_location.x, hammer1_location.y, 0, hmr_alpha, 1);
+	draw_bmp(hammerHandle, hammer2_location.x, hammer2_location.y, 0, hmr_alpha, 1);
 	close_bmp(hammerHandle);
 }
 
@@ -316,6 +317,14 @@ void hitHammer(void)
 		eraseHammer(1);
 		changeMarioState(HAMMERING);
 	}
+
+	if (( (getMario().x >= hammer2_location.x && getMario().x <= hammer2_location.x+7) ||
+				(getMario().x+getCurrentWidth() >= hammer2_location.x && getMario().x+getCurrentWidth() <= hammer2_location.x+7))
+				&& (getMario().y >= hammer2_location.y && getMario().y <= hammer2_location.y+8))
+		{
+			eraseHammer(2);
+			changeMarioState(HAMMERING);
+		}
 }
 
 void eraseHammer(int number)
@@ -326,6 +335,13 @@ void eraseHammer(int number)
 		draw_box(hammer1_location.x, hammer1_location.y, hammer1_location.x + 7, hammer1_location.y + 8, hmr_alpha, 0);
 		hammer1_location.x = 0;
 		hammer1_location.y = 0;
+	}
+	else if(number == 2)
+	{
+		draw_box(hammer2_location.x, hammer2_location.y, hammer2_location.x + 7, hammer2_location.y + 8, hmr_alpha, 1);
+		draw_box(hammer2_location.x, hammer2_location.y, hammer2_location.x + 7, hammer2_location.y + 8, hmr_alpha, 0);
+		hammer2_location.x = 0;
+		hammer2_location.y = 0;
 	}
 }
 
@@ -347,6 +363,8 @@ void resetLevel(void)
 	stopBarrels();
 	hammer1_location.x = 300;
 	hammer1_location.y = 190;
+	hammer2_location.x = 10;
+	hammer2_location.y = 106;
 }
 
 bool is_num_in_range(int num, int lowBound, int highBound) {
