@@ -26,6 +26,8 @@ extern int* winSoundBuf;
 extern int winSoundBufLen;
 extern unsigned int* lvlSoundBuf;
 extern int lvlSoundBufLen;
+extern int* hammerSoundBuf;
+extern int hammerSoundBufLen;
 
 static int* gameStartBuf;
 static int gameStartBufLen;
@@ -54,6 +56,7 @@ void updateLoadScreen(void)
 		jumpSoundBufLen = loadSound("boin.wav", &jumpSoundBuf, 0.5);
 		deadSoundBufLen = loadSound("dead.wav", &deadSoundBuf, 0.5);
 		winSoundBufLen = loadSound("end.wav", &winSoundBuf, 0.5);
+		hammerSoundBufLen = loadSound("ht.wav", &hammerSoundBuf, 0.5);
 		loadMario(MARIO_START_X, MARIO_START_Y, 1);
 		loadPeach(137, 43);
 		loadDonkeyKong(76, 71);

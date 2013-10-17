@@ -109,5 +109,6 @@ void draw_wingame(void)
 	draw_string(score_buf, FINAL_SCORE_X, FINAL_SCORE_Y);
 	draw_string(buf, HIGH_SCORE_X, HIGH_SCORE_Y);
 
+	resetLevel();
 	bonus = 300;
 }

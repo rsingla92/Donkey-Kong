@@ -27,6 +27,9 @@ int jumpSoundBufLen = 0;
 int* deadSoundBuf;
 int deadSoundBufLen;
 
+int* hammerSoundBuf;
+int hammerSoundBufLen;
+
 Mario getMario(void) {
 	return mario;
 }
@@ -141,6 +144,7 @@ void drawMario(bool bothBuffers)
 								mario.x + getCurrentWidth(), mario.y + getCurrentHeight());
 			mario.current_frame = STAND_RIGHT;
 			hammerCount = 0;
+			swapOutSound(); // Stop hammer music, and continue level music.
 			return;
 		}
 		if(mario.current_frame >= HMR1_RIGHT && mario.current_frame <= HMR6_RIGHT)
@@ -154,22 +158,25 @@ void drawMario(bool bothBuffers)
 	{
 		draw_flipped_bmp(mario.animation[cur_frame].handle,
 				mario.x, mario.y, true, mario_alpha, 1);
-		if (bothBuffers == true)
-		{
-			swap_buffers();
-			draw_flipped_bmp(mario.animation[cur_frame].handle,
-					mario.x, mario.y, true, mario_alpha, 1);
-		}
 	}
 	else
 	{
-		draw_bmp(mario.animation[cur_frame].handle,
-				mario.x, mario.y, true, mario_alpha, 1);
-		if (bothBuffers == true)
+		if (cur_frame == HMR2_LEFT || cur_frame == HMR4_LEFT || cur_frame == HMR6_LEFT)
 		{
-			swap_buffers();
+			draw_bmp(mario.animation[cur_frame].handle,
+					mario.x - 14, mario.y, true, mario_alpha, 1);
+		}
+		else
+		{
 			draw_bmp(mario.animation[cur_frame].handle,
 					mario.x, mario.y, true, mario_alpha, 1);
+		}
+
+		if (cur_frame == HMR1_LEFT || cur_frame == HMR3_LEFT || cur_frame == HMR5_LEFT)
+		{
+			// Clean up after last frame
+			drawMarioBackground(mario.x - 14, mario.y,
+								mario.x, mario.y + getCurrentHeight());
 		}
 	}
 }
@@ -278,11 +285,19 @@ bool moveLeft(void)
 {
 	if (mario.x - mario.speed > 0) {
 		if (mario.state == HAMMERING){
+			int cur_frame = (int) round(mario.current_frame);
+			if (cur_frame == HMR2_LEFT || cur_frame == HMR4_LEFT || cur_frame == HMR6_LEFT)
+			{
+				drawMarioBackground(mario.x - 14 + getCurrentWidth(), mario.y,
+						mario.x + getPastWidth() + mario.speed, mario.y + getCurrentHeight());
+			}
 			move(-mario.speed, 0, HMR1_LEFT, HMR6_LEFT, false);
 		}
 		else{
 			move(-mario.speed, 0, STAND_LEFT, WALK2_LEFT, false);
 		}
+
+
 		drawMarioBackground(mario.x + getCurrentWidth(), mario.y,
 				mario.x + getPastWidth() + mario.speed, mario.y + getCurrentHeight());
 
@@ -296,6 +311,12 @@ bool moveRight(void)
 {
 	if (mario.x + getCurrentWidth() + mario.speed < 320) {
 		if (mario.state == HAMMERING){
+			int cur_frame = (int) round(mario.current_frame);
+			if (cur_frame == HMR2_LEFT || cur_frame == HMR4_LEFT || cur_frame == HMR6_LEFT)
+			{
+				drawMarioBackground(mario.x - 14 - mario.speed, mario.y,
+									mario.x, mario.y + getCurrentHeight());
+			}
 			move(mario.speed, 0, HMR1_RIGHT, HMR6_RIGHT, true);
 		}
 		else {
@@ -357,9 +378,11 @@ void changeMarioState(MarioState state)
 			mario.current_frame = WALK1_LEFT;
 		}
 	}
-	if (mario.state == HAMMERING){
+	if (mario.state == HAMMERING) {
 		mario.current_frame = HMR1_RIGHT;
+		swapInSound(hammerSoundBuf, hammerSoundBufLen, 1);
 	}
+
 	if (mario.state == M_CLIMBING) {
 		mario.current_frame = CLIMB1;
 	}

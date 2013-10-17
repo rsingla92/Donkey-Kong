@@ -205,7 +205,6 @@ int find_floor(int x, int y, double ref, int* current_floor)
 		start = FIRST_FLOOR_IND;
 		*current_floor = 0;
 
-		resetLevel();
 		wonGame = true;
 		changeState(WIN_GAME);
 	}
@@ -328,10 +327,10 @@ void hitHammer(void)
 			(getMario().x+getCurrentWidth() >= hammer2_location.x && getMario().x+getCurrentWidth() <= hammer2_location.x+7))
 			&&((getMario().y >= hammer2_location.y && getMario().y <= hammer2_location.y+8) ||
 					(getMario().y+getCurrentHeight >= hammer2_location.y && getMario().y+getCurrentHeight() <= hammer2_location.y+8)))
-		{
-			eraseHammer(2);
-			changeMarioState(HAMMERING);
-		}
+	{
+		eraseHammer(2);
+		changeMarioState(HAMMERING);
+	}
 }
 
 void eraseHammer(int number)
@@ -432,12 +431,12 @@ void update_level1(void) {
 			deadFlag = 0;
 			firstMove = true;
 			bonus = MAX_POINTS;
+			points = 0;
 			// Fix attempt:
 			jumpHang = 0;
 		}
 		else
 		{
-			resetLevel();
 			changeState(GAME_OVER);
 		}
 	}
