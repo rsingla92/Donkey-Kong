@@ -26,6 +26,7 @@ static unsigned char deadFlag = 0;
 static unsigned char jumpHang = 0;
 static alt_timestamp_type start_time;
 static bool firstMove = true;
+static bool wonGame = false;
 int bonus = MAX_POINTS;
 int points = 0;
 
@@ -199,6 +200,7 @@ int find_floor(int x, int y, double ref, int* current_floor)
 		*current_floor = 0;
 
 		resetLevel();
+		wonGame = true;
 		changeState(WIN_GAME);
 	}
 	else if (y + ref <= SECOND_FLOOR_Y && x <= FLOOR_X_HIGH_BOUND)
@@ -502,10 +504,17 @@ void update_level1(void) {
 		deadFlag = 1;
 	}
 
-	drawDonkeyKong();
-	drawBarrels();
-	drawMario(false);
-	eraseAllNoPop();
-	swap_buffers();
-	eraseAll();
+	if (!wonGame)
+	{
+		drawDonkeyKong();
+		drawBarrels();
+		drawMario(false);
+		eraseAllNoPop();
+		swap_buffers();
+		eraseAll();
+	}
+	else
+	{
+		wonGame = false;
+	}
 }

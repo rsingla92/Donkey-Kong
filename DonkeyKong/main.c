@@ -111,9 +111,7 @@ int main(void) {
 	seed(alt_timestamp());
 
 	alt_u32 tickCount = alt_nticks();
-	num_ticks = ticks_per_sec / 60;
-	//alt_alarm *update_alarm = malloc(sizeof(alt_alarm));
-	//alt_alarm_start(update_alarm, num_ticks, update, (void*)0);
+	num_ticks = ticks_per_sec / 30;
 
 	while (true)
 	{

@@ -46,6 +46,8 @@ void draw_wingame(void)
 {
 	short int ret = load_bmp("WIN.BMP", &background_bmp);
 
+	clear_display();
+
 	// Draw background to both buffers
 	draw_bmp(background_bmp, 0, 240 - background_bmp->bmp_info_header->height,
 			false, back_alpha, 1);

@@ -20,7 +20,7 @@ static MovingObject* barrelListHead;
 static char* barrel_list[NUM_BARREL_IMGS] = {"B1.BMP", "B2.BMP", "B3.BMP", "B4.BMP", "B5.BMP"};
 static AnimMap barrel_anim_list[NUM_BARREL_IMGS];
 static colour barrel_alpha = { 0x00, 0x00, 0x00 };
-static double frame_dir = 0.07;
+static double frame_dir = 0.14;
 
 static MovingObject* fireListHead;
 static char* fire_list[NUM_FIRE_IMGS] = {"FIRE.BMP", "FI1.BMP", "FI2.BMP", "FI3.BMP"};
@@ -135,7 +135,7 @@ void addBarrel(MovingObject* newBarrel, int x, int y)
 {
 	newBarrel->x = x;
 	newBarrel->y = y;
-	newBarrel->speed = 1;
+	newBarrel->speed = 2;
 	newBarrel->currentFloor = 1;
 	newBarrel->byLadder = 0;
 	newBarrel->current_frame = FLAT_BARREL;
@@ -267,7 +267,7 @@ unsigned char moveBarrels(BarrelImage lowFrame, BarrelImage highFrame)
 				oneThrown = 1;
 				barrelItr->x = 102;
 				barrelItr->y = 83;
-				barrelItr->speed = 1;
+				barrelItr->speed = 2;
 				barrelItr->state = ROLLING;
 			}
 		}
@@ -276,11 +276,13 @@ unsigned char moveBarrels(BarrelImage lowFrame, BarrelImage highFrame)
 			if (should_barrel_die(barrelItr->x, barrelItr->y + MOgetCurrentHeight(barrelItr)))
 			{
 				if (barrelItr->x+MOgetCurrentWidth(barrelItr) <= 0) {
+					MOdrawBackground(0, barrelItr->y, abs(barrelItr->speed), barrelItr->y + MOgetCurrentHeight(barrelItr));
 					barrelItr->state = THROWABLE;
 					if (donkeyKong.state == ANGRY) {
 						donkeyKong.state = THROWING;
 						donkeyKong.current_frame = STANDING_STILL;
 					}
+					continue;
 				}
 			}
 			else if ((ladderIndicator = find_ladder_top(barrelItr->x, barrelItr->y, MOgetCurrentHeight(barrelItr), barrelItr->currentFloor)) != -1 && goDownLadder(barrelItr))
@@ -332,14 +334,20 @@ unsigned char moveBarrels(BarrelImage lowFrame, BarrelImage highFrame)
 					if (barrelItr->x + MOgetCurrentWidth(barrelItr) < 320)
 					{
 						MOdrawBackground(barrelItr->x + MOgetCurrentWidth(barrelItr), barrelItr->y,
-								barrelItr->x + MOgetPastWidth(barrelItr) + 1, barrelItr->y + MOgetCurrentHeight(barrelItr));
+								barrelItr->x + MOgetPastWidth(barrelItr) + abs(barrelItr->speed), barrelItr->y + MOgetCurrentHeight(barrelItr));
 					}
 				}
 				else
 				{
-					if (barrelItr->x > 0)
+					if (barrelItr->x <= barrelItr->speed)
 					{
-						MOdrawBackground(barrelItr->x-2, barrelItr->y,
+						// HACK -- barrel was leaving residue when changing directions
+						MOdrawBackground(0, barrelItr->y,
+										barrelItr->x, barrelItr->y + MOgetCurrentHeight(barrelItr));
+					}
+					else if (barrelItr->x > 0)
+					{
+						MOdrawBackground(barrelItr->x-1 - abs(barrelItr->speed), barrelItr->y,
 										barrelItr->x-1, barrelItr->y + MOgetCurrentHeight(barrelItr));
 					}
 				}

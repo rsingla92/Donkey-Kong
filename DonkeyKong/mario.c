@@ -8,7 +8,7 @@
 #include "audio.h"
 #include <math.h>
 
-#define FRAME_SPEED		0.05
+#define FRAME_SPEED		0.1
 
 static Mario mario;
 static char* anim_list[NUM_IMGS] = {"M9.BMP", "M10.BMP", "M11.BMP", "M12.BMP", "D1.BMP", "D2.BMP", "D3.BMP", "D4.BMP"};
@@ -82,7 +82,7 @@ void drawMario(bool bothBuffers)
 	if (mario.state == DEAD)
 	{
 		deadCount++;
-		if (deadCount > 300)
+		if (deadCount > 150)
 		{
 			mario.state = WALKING;
 			drawMarioBackground(mario.x, mario.y,
