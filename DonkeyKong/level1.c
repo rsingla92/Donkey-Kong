@@ -17,6 +17,7 @@
 #define LADDER_ERROR	2
 #define MAX_POINTS		300
 
+static colour hmr_alpha = { 0x00, 0x00, 0x00 };
 extern unsigned char button_states[4];
 extern unsigned char prev_state[4];
 extern controller_buttons controller_state;
@@ -34,6 +35,8 @@ unsigned int* lvlSoundBuf;
 int lvlSoundBufLen;
 
 Point barrels_die = {0,200};
+Point hammer1_location = {300,190};
+Point hammer2_location = {10, 106};
 
 static const Plane floors[] =
 {
@@ -297,6 +300,56 @@ void draw_level1(void) {
 	// Draw the background
 	drawBackground();
 	drawLives();
+	drawHammer();
+}
+
+void drawHammer(void)
+{
+	BitmapHandle* hammerHandle;
+	load_bmp("HMR.BMP", &hammerHandle);
+	draw_bmp(hammerHandle, hammer1_location.x, hammer1_location.y, 0, hmr_alpha, 1);
+	draw_bmp(hammerHandle, hammer2_location.x, hammer2_location.y, 0, hmr_alpha, 1);
+	close_bmp(hammerHandle);
+}
+
+void hitHammer(void)
+{
+
+	if (((getMario().x >= hammer1_location.x && getMario().x <= hammer1_location.x+7) ||
+			(getMario().x+getCurrentWidth() >= hammer1_location.x && getMario().x+getCurrentWidth() <= hammer1_location.x+7))
+			&&((getMario().y >= hammer1_location.y && getMario().y <= hammer1_location.y+8) ||
+					(getMario().y+getCurrentHeight >= hammer1_location.y && getMario().y+getCurrentHeight() <= hammer1_location.y+8)))
+	{
+		eraseHammer(1);
+		changeMarioState(HAMMERING);
+	}
+
+	if (((getMario().x >= hammer2_location.x && getMario().x <= hammer2_location.x+7) ||
+			(getMario().x+getCurrentWidth() >= hammer2_location.x && getMario().x+getCurrentWidth() <= hammer2_location.x+7))
+			&&((getMario().y >= hammer2_location.y && getMario().y <= hammer2_location.y+8) ||
+					(getMario().y+getCurrentHeight >= hammer2_location.y && getMario().y+getCurrentHeight() <= hammer2_location.y+8)))
+		{
+			eraseHammer(2);
+			changeMarioState(HAMMERING);
+		}
+}
+
+void eraseHammer(int number)
+{
+	if(number == 1)
+	{
+		draw_box(hammer1_location.x, hammer1_location.y, hammer1_location.x + 7, hammer1_location.y + 8, hmr_alpha, 1);
+		draw_box(hammer1_location.x, hammer1_location.y, hammer1_location.x + 7, hammer1_location.y + 8, hmr_alpha, 0);
+		hammer1_location.x = 0;
+		hammer1_location.y = 0;
+	}
+	else if(number == 2)
+	{
+		draw_box(hammer2_location.x, hammer2_location.y, hammer2_location.x + 7, hammer2_location.y + 8, hmr_alpha, 1);
+		draw_box(hammer2_location.x, hammer2_location.y, hammer2_location.x + 7, hammer2_location.y + 8, hmr_alpha, 0);
+		hammer2_location.x = 0;
+		hammer2_location.y = 0;
+	}
 }
 
 void resetLevel(void)
@@ -315,6 +368,10 @@ void resetLevel(void)
 	setMarioJumpStart(MARIO_START_Y);
 	setMarioCurrentFloor(6);
 	stopBarrels();
+	hammer1_location.x = 300;
+	hammer1_location.y = 190;
+	hammer2_location.x = 10;
+	hammer2_location.y = 106;
 }
 
 bool is_num_in_range(int num, int lowBound, int highBound) {
@@ -385,6 +442,8 @@ void update_level1(void) {
 		}
 	}
 
+	hitHammer(); // handles hammer collision
+
 	if (getMarioState() == JUMPING)
 	{
 		/* Mario is jumping */
@@ -405,7 +464,7 @@ void update_level1(void) {
 			moveMario(UP);
 		}
   	}
-	else if (getMarioState() != FALLING && getMarioState() != DEAD && (ladder_ind = is_ladder(getMario().x, getMario().y, getCurrentHeight(), getMario().currentFloor)) != -1)
+	else if (getMarioState() != FALLING && getMarioState() != DEAD && getMarioState() != HAMMERING && (ladder_ind = is_ladder(getMario().x, getMario().y, getCurrentHeight(), getMario().currentFloor)) != -1)
 	{
 		int ladder_end_y = ladders[ladder_ind].end.y;
 		int ladder_begin_y = ladders[ladder_ind].start.y;
@@ -461,11 +520,14 @@ void update_level1(void) {
 
 		if (getMario().y > floor - 2 && getMario().y < floor + 2)
 		{
-			changeMarioState(WALKING);
-			if (button_states[1] == 0 || controller_state.B_BUTTON)
+			if (getMarioState() != HAMMERING)
 			{
-				changeMarioState(JUMPING);
-				setMarioJumpStart(getMario().y);
+				changeMarioState(WALKING);
+				if (button_states[1] == 0 || controller_state.B_BUTTON)
+				{
+					changeMarioState(JUMPING);
+					setMarioJumpStart(getMario().y);
+				}
 			}
 		}
 	}
@@ -480,7 +542,7 @@ void update_level1(void) {
 
 	if (getMarioState() == WALKING || getMarioState() == LADDER_BOTTOM ||
 			getMarioState() == LADDER_TOP ||
-			getMarioState() == JUMPING || getMarioState() == FALLING)
+			getMarioState() == JUMPING || getMarioState() == FALLING || getMarioState() == HAMMERING)
 	{
 		if (button_states[3] == 0 || controller_state.LEFT_ARROW) moveMario(LEFT);
 		else if (button_states[2] == 0 || controller_state.RIGHT_ARROW) moveMario(RIGHT);

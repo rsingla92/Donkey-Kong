@@ -6,16 +6,20 @@
  */
 #include "mario.h"
 #include "audio.h"
+#include "level1.h"
+#include "background.h"
 #include <math.h>
 
 #define FRAME_SPEED		0.1
 
 static Mario mario;
-static char* anim_list[NUM_IMGS] = {"M9.BMP", "M10.BMP", "M11.BMP", "M12.BMP", "D1.BMP", "D2.BMP", "D3.BMP", "D4.BMP"};
+static char* anim_list[NUM_IMGS] = {"M9.BMP", "M10.BMP", "M11.BMP", "M12.BMP", "D1.BMP", "D2.BMP", "D3.BMP",
+		"D4.BMP", "M2.BMP", "M3.BMP","M4.BMP","M5.BMP","M6.BMP","M7.BMP"};
 static colour mario_alpha = { 0x00, 0x00, 0x00 };
 static double frame_dir = FRAME_SPEED;
 static float past_frame = STAND_LEFT;
-
+extern Point hammer1_location;
+//Point hammer1_location = {300,190};
 // Global Jump Buffer:
 int* jumpSoundBuf = 0;
 int jumpSoundBufLen = 0;
@@ -38,20 +42,44 @@ void loadMario(int x, int y, int speed)
 	load_bmp(anim_list[DEAD2_IMG], &(mario.animation[DEAD2].handle));
 	load_bmp(anim_list[DEAD3_IMG], &(mario.animation[DEAD3].handle));
 	load_bmp(anim_list[DEAD4_IMG], &(mario.animation[DEAD4].handle));
+	load_bmp(anim_list[HMR1_IMG], &(mario.animation[HMR1_LEFT].handle));
+	load_bmp(anim_list[HMR2_IMG], &(mario.animation[HMR2_LEFT].handle));
+	load_bmp(anim_list[HMR3_IMG], &(mario.animation[HMR3_LEFT].handle));
+	load_bmp(anim_list[HMR4_IMG], &(mario.animation[HMR4_LEFT].handle));
+	load_bmp(anim_list[HMR5_IMG], &(mario.animation[HMR5_LEFT].handle));
+	load_bmp(anim_list[HMR6_IMG], &(mario.animation[HMR6_LEFT].handle));
 
 	/* The right-facing animations use the same images. */
 	mario.animation[STAND_RIGHT].handle = mario.animation[STAND_LEFT].handle;
 	mario.animation[WALK1_RIGHT].handle = mario.animation[WALK1_LEFT].handle;
 	mario.animation[WALK2_RIGHT].handle = mario.animation[WALK2_LEFT].handle;
 	mario.animation[CLIMB2].handle = mario.animation[CLIMB1].handle;
+	mario.animation[HMR1_RIGHT].handle = mario.animation[HMR1_LEFT].handle;
+	mario.animation[HMR2_RIGHT].handle = mario.animation[HMR2_LEFT].handle;
+	mario.animation[HMR3_RIGHT].handle = mario.animation[HMR3_LEFT].handle;
+	mario.animation[HMR4_RIGHT].handle = mario.animation[HMR4_LEFT].handle;
+	mario.animation[HMR5_RIGHT].handle = mario.animation[HMR5_LEFT].handle;
+	mario.animation[HMR6_RIGHT].handle = mario.animation[HMR6_LEFT].handle;
 
 	mario.animation[STAND_LEFT].flip = false;
 	mario.animation[WALK1_LEFT].flip = false;
 	mario.animation[WALK2_LEFT].flip = false;
+	mario.animation[HMR1_LEFT].flip = false;
+	mario.animation[HMR2_LEFT].flip = false;
+	mario.animation[HMR3_LEFT].flip = false;
+	mario.animation[HMR4_LEFT].flip = false;
+	mario.animation[HMR5_LEFT].flip = false;
+	mario.animation[HMR6_LEFT].flip = false;
 	mario.animation[STAND_RIGHT].flip = true;
 	mario.animation[WALK1_RIGHT].flip = true;
 	mario.animation[WALK2_RIGHT].flip = true;
 	mario.animation[CLIMB2].flip = true;
+	mario.animation[HMR1_RIGHT].flip = true;
+	mario.animation[HMR2_RIGHT].flip = true;
+	mario.animation[HMR3_RIGHT].flip = true;
+	mario.animation[HMR4_RIGHT].flip = true;
+	mario.animation[HMR5_RIGHT].flip = true;
+	mario.animation[HMR6_RIGHT].flip = true;
 
 	mario.current_frame = STAND_RIGHT;
 	mario.state = WALKING;
@@ -81,6 +109,7 @@ void drawMario(bool bothBuffers)
 {
 	int cur_frame = (int) round(mario.current_frame);
 	static int deadCount = 0;
+	static int hammerCount = 0;
 
 	if (mario.state == DEAD)
 	{
@@ -102,7 +131,26 @@ void drawMario(bool bothBuffers)
 		animate(DEAD1, DEAD4);
 	}
 
-	if ((cur_frame >= STAND_RIGHT && cur_frame <= WALK2_RIGHT) || cur_frame == CLIMB2)
+	if(mario.state == HAMMERING)
+	{
+		hammerCount++;
+		if (hammerCount > 500)
+		{
+			mario.state = WALKING;
+			drawMarioBackground(mario.x, mario.y,
+								mario.x + getCurrentWidth(), mario.y + getCurrentHeight());
+			mario.current_frame = STAND_RIGHT;
+			hammerCount = 0;
+			return;
+		}
+		if(mario.current_frame >= HMR1_RIGHT && mario.current_frame <= HMR6_RIGHT)
+			animate(HMR1_RIGHT, HMR6_RIGHT);
+		else
+			animate(HMR1_LEFT, HMR6_LEFT);
+	}
+
+	if ((cur_frame >= STAND_RIGHT && cur_frame <= WALK2_RIGHT) || cur_frame == CLIMB2 ||
+			(cur_frame >= HMR1_RIGHT && cur_frame <= HMR6_RIGHT))
 	{
 		draw_flipped_bmp(mario.animation[cur_frame].handle,
 				mario.x, mario.y, true, mario_alpha, 1);
@@ -169,6 +217,16 @@ void animate(MarioAnims lowFrame, MarioAnims highFrame)
 			else mario.current_frame = highFrame;
 		}
 	}
+
+	int past_width = getPastWidth();
+	int cur_width = getCurrentWidth();
+	if (past_width > cur_width)
+	{
+		// Went from a larger frame to smaller-- erase background it might have left.
+		int cur_height = getCurrentHeight();
+		pushEraseNode(mario.x + cur_width, mario.y,
+				mario.x + past_width, mario.y + cur_height);
+	}
 }
 
 void move(int x, int y, MarioAnims lowFrame, MarioAnims highFrame, bool flip) {
@@ -177,7 +235,7 @@ void move(int x, int y, MarioAnims lowFrame, MarioAnims highFrame, bool flip) {
 	mario.y += y;
 
 	if (mario.state == WALKING || mario.state == LADDER_TOP ||
-			mario.state == LADDER_BOTTOM) {
+			mario.state == LADDER_BOTTOM || mario.state == HAMMERING) {
 		animate(lowFrame, highFrame);
 	}
 }
@@ -219,7 +277,12 @@ int getMarioJumpStart(void)
 bool moveLeft(void)
 {
 	if (mario.x - mario.speed > 0) {
-		move(-mario.speed, 0, STAND_LEFT, WALK2_LEFT, false);
+		if (mario.state == HAMMERING){
+			move(-mario.speed, 0, HMR1_LEFT, HMR6_LEFT, false);
+		}
+		else{
+			move(-mario.speed, 0, STAND_LEFT, WALK2_LEFT, false);
+		}
 		drawMarioBackground(mario.x + getCurrentWidth(), mario.y,
 				mario.x + getPastWidth() + mario.speed, mario.y + getCurrentHeight());
 
@@ -232,7 +295,12 @@ bool moveLeft(void)
 bool moveRight(void)
 {
 	if (mario.x + getCurrentWidth() + mario.speed < 320) {
-		move(mario.speed, 0, STAND_RIGHT, WALK2_RIGHT, true);
+		if (mario.state == HAMMERING){
+			move(mario.speed, 0, HMR1_RIGHT, HMR6_RIGHT, true);
+		}
+		else {
+			move(mario.speed, 0, STAND_RIGHT, WALK2_RIGHT, true);
+		}
 		drawMarioBackground(mario.x-mario.speed, mario.y,
 				mario.x, mario.y + getCurrentHeight());
 		return true;
@@ -289,7 +357,9 @@ void changeMarioState(MarioState state)
 			mario.current_frame = WALK1_LEFT;
 		}
 	}
-
+	if (mario.state == HAMMERING){
+		mario.current_frame = HMR1_RIGHT;
+	}
 	if (mario.state == M_CLIMBING) {
 		mario.current_frame = CLIMB1;
 	}
@@ -301,6 +371,7 @@ void changeMarioState(MarioState state)
 		mario.current_frame = DEAD2;
 		eraseLives();
 	}
+
 }
 
 MarioState getMarioState(void)

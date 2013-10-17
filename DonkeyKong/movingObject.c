@@ -20,7 +20,9 @@ static MovingObject* barrelListHead;
 static char* barrel_list[NUM_BARREL_IMGS] = {"B1.BMP", "B2.BMP", "B3.BMP", "B4.BMP", "B5.BMP"};
 static AnimMap barrel_anim_list[NUM_BARREL_IMGS];
 static colour barrel_alpha = { 0x00, 0x00, 0x00 };
+
 static double frame_dir = 0.14;
+extern int points;
 
 static MovingObject* fireListHead;
 static char* fire_list[NUM_FIRE_IMGS] = {"FIRE.BMP", "FI1.BMP", "FI2.BMP", "FI3.BMP"};
@@ -231,6 +233,7 @@ unsigned char handleCollision(void)
 			{
 				// Barrel dies;
 				barrelItr->state = THROWABLE;
+				points +=50;
 				MOdrawBackground(barrelItr->x, barrelItr->y,
 								barrelItr->x + MOgetCurrentWidth(barrelItr), barrelItr->y + MOgetCurrentHeight(barrelItr));
 			}
