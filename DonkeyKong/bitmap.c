@@ -12,6 +12,7 @@ static BmpFileHeader* fill_bmp_header(file_handle file);
 static BmpInfoHeader* fill_info_header(file_handle file);
 static short int verify_bmp_type(BmpFileHeader* bmp_file_header);
 
+// Given a bitmap handle, draw it at the specified location with the known alpha
 void draw_bmp(BitmapHandle* handle, int x, int y, bool alpha_enable, colour alpha_col, int backbuffer)
 {
 	if (handle->pixel_map == NULL || handle->bmp_info_header == NULL) return;
@@ -47,6 +48,7 @@ void draw_bmp(BitmapHandle* handle, int x, int y, bool alpha_enable, colour alph
 	}
 }
 
+// Save ourselves the effort of reversing the bitmap manually
 void draw_flipped_bmp(BitmapHandle* handle, int x, int y, bool alpha_enable, colour alpha_col, int backbuffer)
 {
 	if (handle->pixel_map == NULL || handle->bmp_info_header == NULL) return;
@@ -80,6 +82,7 @@ void draw_flipped_bmp(BitmapHandle* handle, int x, int y, bool alpha_enable, col
 	}
 }
 
+// Load a bitmap into memory into its bitmap handle
 short int load_bmp(char *filename, BitmapHandle** bmp_handle)
 {
 	BitmapHandle* handle = (BitmapHandle *) malloc(sizeof(BitmapHandle));
@@ -159,6 +162,7 @@ short int load_bmp(char *filename, BitmapHandle** bmp_handle)
 	return 0;
 }
 
+// Free the handle
 void close_bmp(BitmapHandle* handle)
 {
 	if (handle == NULL) return;
@@ -168,6 +172,7 @@ void close_bmp(BitmapHandle* handle)
 	free(handle);
 }
 
+// Determine the header information of a bitmap
 void dump_header_info(BmpFileHeader* bmp_file_header, BmpInfoHeader* bmp_info_header)
 {
 	if (bmp_file_header == NULL) return;
@@ -186,6 +191,7 @@ void dump_header_info(BmpFileHeader* bmp_file_header, BmpInfoHeader* bmp_info_he
 			bmp_info_header->colours_used);
 }
 
+// Populate the bitmap header
 static BmpFileHeader* fill_bmp_header(file_handle file)
 {
 	byte *byte_list = (byte *) malloc(sizeof(BmpFileHeader));
@@ -204,6 +210,7 @@ static BmpFileHeader* fill_bmp_header(file_handle file)
 	return bmp_file_header;
 }
 
+// Populate the info header
 static BmpInfoHeader* fill_info_header(file_handle file)
 {
 	byte *byte_list = (byte *) malloc(sizeof(BmpInfoHeader));
@@ -222,6 +229,7 @@ static BmpInfoHeader* fill_info_header(file_handle file)
 	return bmp_info_header;
 }
 
+// Make sure it's the required bitmap
 static short int verify_bmp_type(BmpFileHeader* bmp_file_header)
 {
 	if((bmp_file_header->header_field & 0x00FF) != BITMAP_TYPE_BYTE1 ||
