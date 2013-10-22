@@ -23,8 +23,11 @@ extern unsigned char prev_state[4];
 extern controller_buttons controller_state;
 extern controller_buttons prev_controller_state;
 
+// mario flags
 static unsigned char deadFlag = 0;
 static unsigned char jumpHang = 0;
+
+// score flags
 static alt_timestamp_type start_time;
 static bool firstMove = true;
 static bool wonGame = false;
@@ -34,10 +37,12 @@ int points = 0;
 unsigned int* lvlSoundBuf;
 int lvlSoundBufLen;
 
+// Points of interest
 Point barrels_die = {0,200};
 Point hammer1_location = {300,190};
 Point hammer2_location = {10, 106};
 
+// Map of the different floors that exist
 static const Plane floors[] =
 {
 	{{137,62}, {205,62}, 0 }, 	// top floor
@@ -103,6 +108,7 @@ static const Plane floors[] =
 	{{297,226}, {320,226}, 0 },
 };
 
+// Location of the ladders
 static const Plane ladders[] =
 {
 	{{108,26}, {108,91}, 13 },
@@ -154,11 +160,13 @@ static int floorToLadderMap[7] = {0, 0, 3, 6, 10, 14, 16};
 #define FLOOR_X_LOW_BOUND			23
 #define FLOOR_X_HIGH_BOUND			296
 
+// Get the ladder at index
 Plane getLaddersElement(int index)
 {
 	return ladders[index];
 }
 
+// Check if the location is a ladder
 int is_ladder (int x, int y, int height, int current_floor){
 	int i;
 	for (i = floorToLadderMap[current_floor]; i < NUM_LADDERS; i++){
@@ -194,6 +202,7 @@ int find_ladder_top (int x, int y, int height, int current_floor){
 	return -1;
 }
 
+// Get the closest floor
 int find_floor(int x, int y, double ref, int* current_floor)
 {
 	int i, start;
@@ -290,6 +299,7 @@ int find_floor(int x, int y, double ref, int* current_floor)
 	return -1;
 }
 
+// draw the level one bitmap
 void draw_level1(void) {
 	short int ret = loadBackground("LVL1.BMP");
 	if (ret < 0) {
@@ -302,6 +312,7 @@ void draw_level1(void) {
 	drawHammer();
 }
 
+// draw the hammers at known locations
 void drawHammer(void)
 {
 	BitmapHandle* hammerHandle;
@@ -311,6 +322,7 @@ void drawHammer(void)
 	close_bmp(hammerHandle);
 }
 
+// Did Mario get the hammer?
 void hitHammer(void)
 {
 
@@ -333,6 +345,7 @@ void hitHammer(void)
 	}
 }
 
+// We got the hammer, so remove it from the screen
 void eraseHammer(int number)
 {
 	if(number == 1)
@@ -351,6 +364,7 @@ void eraseHammer(int number)
 	}
 }
 
+// Level needs to be reset. Force it.
 void resetLevel(void)
 {
 	setDonkeyKongState(THROWING);
@@ -377,16 +391,17 @@ bool is_num_in_range(int num, int lowBound, int highBound) {
 	return (num >= lowBound && num <= highBound);
 }
 
-void init_level1(void) {
+void init_level1(void) {}
 
-}
-
+// Check if the barrel is beyond it's death point.
 int should_barrel_die(int x, int y){
 	if (x <= barrels_die.x && y >= barrels_die.y)
 		return 1;
 	return 0;
 }
 
+// Update mario's movement, the score, and whatever else is needed on each 
+// iteration of gameplay.
 void update_level1(void) {
 	int floor = 0;
 	int ladder_ind = 0;
@@ -530,6 +545,7 @@ void update_level1(void) {
 		}
 	}
 
+	// Deal with the button inputs. Takes the push button and controllers.
 	if ((button_states[3] == 0 || button_states[2] == 0 ||
 			controller_state.RIGHT_ARROW || controller_state.LEFT_ARROW) && firstMove)
 	{
@@ -552,6 +568,7 @@ void update_level1(void) {
 		deadFlag = 1;
 	}
 
+	// Deal with DonkeyKong
 	int kongWidth = getKong().animation[(int) round(getKong().current_frame)].handle->bmp_info_header->width;
 	int kongHeight = getKong().animation[(int) round(getKong().current_frame)].handle->bmp_info_header->height;
 
@@ -567,6 +584,7 @@ void update_level1(void) {
 		deadFlag = 1;
 	}
 
+	// Game checking
 	if (!wonGame)
 	{
 		drawDonkeyKong();
