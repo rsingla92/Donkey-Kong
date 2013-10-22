@@ -12,6 +12,7 @@ static short int sdcard_connected;
 
 short int checkConnectedAndFat();
 
+// Set up the SD card core
 sdcard_handle* init_sdcard(void)
 {
 	sdcard_handle *device_reference = NULL;
@@ -32,11 +33,15 @@ sdcard_handle* init_sdcard(void)
 	return device_reference;
 }
 
+// Make sure it's connected properly
 short int card_connected(void)
 {
 	return alt_up_sd_card_is_Present();
 }
 
+/* A series of wrapper functions over the altera functions.
+ * Done so that code is more readable, and minor error checking is added.
+*/
 short int is_FAT16(void)
 {
 	return alt_up_sd_card_is_FAT16();
