@@ -32,6 +32,7 @@ extern int hammerSoundBufLen;
 static int* gameStartBuf;
 static int gameStartBufLen;
 
+// Tran
 void updateLoadScreen(void)
 {
 	short int ret = load_bmp("LOAD.BMP", &background_bmp);
@@ -92,6 +93,7 @@ void updateLoadScreen(void)
 	changeState(LEVEL1);
 }
 
+// Initializer function for the load state
 static void draw_load_screen(void)
 {
 	// Draw the background to both buffers.
