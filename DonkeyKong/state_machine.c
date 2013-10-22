@@ -14,7 +14,7 @@
 #include "win_game.h"
 
 #define NULL 0
-
+// Expandable state machine states, with their initializer, run, and descutrctor functions
 static State states[NUM_STATE_MACHINE_STATES] =
 {
 	{updateMainMenu, draw_main_menu, NULL, 0},	/* MAIN_MENU */
@@ -24,8 +24,10 @@ static State states[NUM_STATE_MACHINE_STATES] =
 	{updateWinGame, draw_wingame, clear_display, 0} /* WIN_GAME */
 };
 
+// start off in main menu
 static eState current_state = MAIN_MENU;
 
+// call the destructor function and go to a new state
 void changeState(eState new_state)
 {
 	if (states[current_state].destructor_func != NULL)
@@ -37,6 +39,7 @@ void changeState(eState new_state)
 	current_state = new_state;
 }
 
+// Initialize if needed and run the state
 void runState()
 {
 	if (!states[current_state].initialized &&
