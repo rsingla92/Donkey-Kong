@@ -25,6 +25,7 @@ int draw_pixel_fast(alt_up_pixel_buffer_dma_dev *pixel_buffer,
 	return 0;
 }
 
+// Set the display up
 void init_display()
 {
 	pixel_buffer =
@@ -57,18 +58,21 @@ void init_display()
 	alt_up_pixel_buffer_dma_clear_screen(pixel_buffer, 1);
 }
 
+//Switch between back and fore buffers
 void swap_buffers()
 {
 	alt_up_pixel_buffer_dma_swap_buffers(pixel_buffer);
 	while (alt_up_pixel_buffer_dma_check_swap_buffers_status(pixel_buffer));
 }
 
+// Clear everything
 void clear_display()
 {
 	clear_pixel_buffer();
 	clear_character_buffer();
 }
 
+// Clear the text
 void clear_character_buffer()
 {
 	if (char_buffer == NULL) return;
@@ -76,6 +80,7 @@ void clear_character_buffer()
 	alt_up_char_buffer_clear(char_buffer);
 }
 
+// Clear pixels
 void clear_pixel_buffer()
 {
 	if (pixel_buffer == NULL) return;
@@ -92,6 +97,7 @@ void clear_pixel_buffer()
 	alt_up_pixel_buffer_dma_clear_screen(pixel_buffer, 0);
 }
 
+// Make a line at the specified coordinates
 void draw_line(int x0, int y0, int x1, int y1, colour col, int backbuffer)
 {
 	if (pixel_buffer == NULL) return;
@@ -101,6 +107,7 @@ void draw_line(int x0, int y0, int x1, int y1, colour col, int backbuffer)
 			intCol, backbuffer);
 }
 
+// Draw a bow at the specified location
 void draw_box(int x0, int y0, int x1, int y1, colour col, int backbuffer)
 {
 	if (pixel_buffer == NULL) return;
@@ -110,17 +117,20 @@ void draw_box(int x0, int y0, int x1, int y1, colour col, int backbuffer)
 			intCol, backbuffer);
 }
 
+// Mangle together a colour
 colour makeCol(unsigned char r, unsigned char g, unsigned char b)
 {
 	colour col = {r, g, b};
 	return col;
 }
 
+// Write some text
 void draw_string(const char *str, unsigned int x, unsigned int y)
 {
 	alt_up_char_buffer_string(char_buffer, str, x, y);
 }
 
+// Draw a single coloured pixel
 void draw_pixel(int x, int y, colour col)
 {
 	if (pixel_buffer == NULL) return;
@@ -130,6 +140,7 @@ void draw_pixel(int x, int y, colour col)
 	draw_pixel_fast(pixel_buffer, intCol, x, y);
 }
 
+// Make the colour a single int
 int colourToInt(colour col)
 {
 	int col_val = 0;
@@ -141,6 +152,7 @@ int colourToInt(colour col)
 	return col_val;
 }
 
+// Determine colour from an int
 colour intToColour(int col_val)
 {
 	colour col;
