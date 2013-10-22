@@ -30,10 +30,12 @@ int deadSoundBufLen;
 int* hammerSoundBuf;
 int hammerSoundBufLen;
 
+// accessor for mario
 Mario getMario(void) {
 	return mario;
 }
 
+// make a mario here
 void loadMario(int x, int y, int speed)
 {
 	/* Prepare the animation map. */
@@ -94,26 +96,32 @@ void loadMario(int x, int y, int speed)
 	mario.currentFloor = 6;
 }
 
+// move mario horizontally
 void setMarioX(int x)
 {
 	mario.x = x;
 }
+
+// move mario vertically
 void setMarioY(int y)
 {
 	mario.y = y;
 }
 
+// change mario's frame
 void setMarioCurrentFrame(float current_frame)
 {
 	mario.current_frame = current_frame;
 }
 
+// draw mario on both or single buffer
 void drawMario(bool bothBuffers)
 {
 	int cur_frame = (int) round(mario.current_frame);
 	static int deadCount = 0;
 	static int hammerCount = 0;
 
+	// life tracking
 	if (mario.state == DEAD)
 	{
 		deadCount++;
@@ -134,6 +142,7 @@ void drawMario(bool bothBuffers)
 		animate(DEAD1, DEAD4);
 	}
 
+	// change collision detetection if he has a hammer
 	if(mario.state == HAMMERING)
 	{
 		hammerCount++;
@@ -161,6 +170,7 @@ void drawMario(bool bothBuffers)
 		else
 			animate(HMR1_LEFT, HMR6_LEFT);
 	}
+
 
 	if ((cur_frame >= STAND_RIGHT && cur_frame <= WALK2_RIGHT) || cur_frame == CLIMB2 ||
 			(cur_frame >= HMR1_RIGHT && cur_frame <= HMR6_RIGHT))
@@ -190,6 +200,7 @@ void drawMario(bool bothBuffers)
 	}
 }
 
+// directional movement
 bool moveMario(MarioDirection dir)
 {
 	bool ret = true;
@@ -212,6 +223,7 @@ bool moveMario(MarioDirection dir)
 	return ret;
 }
 
+// introduce some animation for mario as he moves
 void animate(MarioAnims lowFrame, MarioAnims highFrame)
 {
 	past_frame = mario.current_frame;
@@ -245,6 +257,7 @@ void animate(MarioAnims lowFrame, MarioAnims highFrame)
 	}
 }
 
+// move mario by specified increment
 void move(int x, int y, MarioAnims lowFrame, MarioAnims highFrame, bool flip) {
 	//double tmp_frame = mario.current_frame;
 	mario.x += x;
@@ -256,6 +269,7 @@ void move(int x, int y, MarioAnims lowFrame, MarioAnims highFrame, bool flip) {
 	}
 }
 
+// wrapper to erase mario's previous image
 void drawMarioBackground(int x0, int y0, int x1, int y1) {
 	pushEraseNode(x0, y0, x1, y1);
 }
@@ -290,6 +304,7 @@ int getMarioJumpStart(void)
 	return mario.jumpStart;
 }
 
+// move mario to the left, taking into account his state for the proper image
 bool moveLeft(void)
 {
 	if (mario.x - mario.speed > 0) {
@@ -316,6 +331,7 @@ bool moveLeft(void)
 	return false;
 }
 
+// move mario to the right, taking into account his state for the proper image
 bool moveRight(void)
 {
 	if (mario.x + getCurrentWidth() + mario.speed < 320) {
@@ -339,6 +355,7 @@ bool moveRight(void)
 	return false;
 }
 
+// move mario downwards, taking into account his state for the proper image
 bool moveDown(void)
 {
 	mario.y += mario.speed;
@@ -352,6 +369,7 @@ bool moveDown(void)
 	return true;
 }
 
+// move mario upward, taking into account his state for the proper image
 bool moveUp(void)
 {
 	mario.y -= mario.speed;
@@ -365,6 +383,7 @@ bool moveUp(void)
 	return true;
 }
 
+// dictate mario's own state, limiting what his state transitions are
 void changeMarioState(MarioState state)
 {
 	mario.state = state;
@@ -421,6 +440,7 @@ int getMarioCurrentFloor(void)
 	return mario.currentFloor;
 }
 
+// change the floor mario is on
 void setMarioCurrentFloor(int currentFloor)
 {
 	if (currentFloor < 0 || currentFloor > 6) return;
@@ -428,11 +448,13 @@ void setMarioCurrentFloor(int currentFloor)
 	mario.currentFloor = currentFloor;
 }
 
+// change his number of lives
 void setMarioLives(int lives)
 {
 	mario.lives = lives;
 }
 
+// lives drawn
 void drawLives(void)
 {
 	BitmapHandle* lifeHandle;
@@ -444,6 +466,7 @@ void drawLives(void)
 	close_bmp(lifeHandle);
 }
 
+// clear the lives
 void eraseLives(void)
 {
 	if (mario.lives == 2)
