@@ -13,9 +13,11 @@
 #include "level1.h"
 #include "background.h"
 
+// Location for final score text
 #define FINAL_SCORE_X 50
 #define FINAL_SCORE_Y 30
 
+// Location for high score text
 #define HIGH_SCORE_X 50
 #define HIGH_SCORE_Y 34
 
@@ -32,6 +34,7 @@ extern int bonus;
 extern int* menuSoundBuf;
 extern int menuSoundBufLen;
 
+// Transition if buttons were pressed
 void updateGameOver(void)
 {
 	if(!button_states[0] ||
@@ -49,8 +52,10 @@ void updateGameOver(void)
 	}
 }
 
+// Initializer function
 void draw_gameover(void)
 {
+	// game over and cursor
 	short int ret = load_bmp("GO.BMP", &background_bmp);
     short int ret1 = load_bmp("CURS.BMP", &cursor_bmp);
 
@@ -67,6 +72,7 @@ void draw_gameover(void)
 
 	file_handle scores = open_file("s.txt", false);
 
+	// bad scores.txt file
 	if( scores == -1)
 	{
 		printf("UH OH...\n");
@@ -87,9 +93,11 @@ void draw_gameover(void)
 
 	int high_score = ((buf[0] - '0') * 100) + ((buf[1] - '0')*10) + (buf[2] - '0');
 
+	// format and print properly
 	char score_buf[4];
 	sprintf(score_buf, "%3d", points);
 
+	// save if needed
 	if (high_score < points)
 	{
 		high_score = points;
