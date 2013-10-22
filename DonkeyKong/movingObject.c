@@ -4,11 +4,7 @@
 #include "random.h"
 #include "mario.h"
 
-/*
- * Need to maintain a list of moving objects
- * Need to implement random AI
- * Need to rough plan this out
- */
+// DK, Barrels, Fire and Peach all need a bitmap list, animiation list, direction and alpha.
 static DonkeyKong donkeyKong;
 static char* donkeyKong_list[NUM_DONKEYKONG_IMGS] = {"DK1.BMP", "DK10.BMP", "DK2.BMP","DK9.BMP", "DK3.BMP",
 		"DK4.BMP", "DK5.BMP", "DK6.BMP", "DK7.BMP", "DK8.BMP"};
@@ -22,6 +18,8 @@ static AnimMap barrel_anim_list[NUM_BARREL_IMGS];
 static colour barrel_alpha = { 0x00, 0x00, 0x00 };
 
 static double frame_dir = 0.14;
+
+// for incrementing points
 extern int points;
 
 static MovingObject* fireListHead;
@@ -35,17 +33,20 @@ static colour peach_alpha = { 0x00, 0x00, 0x00 };
 
 static unsigned int goDownLadder(MovingObject* barrelItr);
 
+// retrieve the head of the list
 MovingObject* getBarrelListHead(void)
 {
 	return barrelListHead;
 }
 
+// Not used. draw a fire image
 void drawFire(MovingObject* fire)
 {
 	int cur_frame = (int) round(fire->current_frame);
 	draw_bmp(fire_anim_list[cur_frame].handle, fire->x, fire->y,true, fire_alpha, 1);
 }
 
+// Not used. draw a series of fire images.
 void drawFires()
 {
 	MovingObject* fireItr = fireListHead;
@@ -55,6 +56,7 @@ void drawFires()
 	}
 }
 
+// Loading fire list
 void loadFire( int x, int y)
 {
 	MovingObject* fireItr = fireListHead;
@@ -67,6 +69,7 @@ void loadFire( int x, int y)
 	addFire(newFire, x, y);
 }
 
+// Add a fire object
 void addFire(MovingObject* newFire, int x, int y)
 {
 	newFire->x = x;
@@ -78,6 +81,7 @@ void addFire(MovingObject* newFire, int x, int y)
 	newFire->currentFloor = 6;
 }
 
+// Load the fire images
 void loadFires()
 {
 	load_bmp(fire_list[FIRE_BUCKET], &(fire_anim_list[FIRE_BUCKET].handle));
@@ -86,6 +90,8 @@ void loadFires()
 	load_bmp(fire_list[FIRE_BALL_THREE], &(fire_anim_list[FIRE_BALL_THREE].handle));
 }
 
+// Draw a barrels and add it to the list.
+// Taking into consideration the throwable flag
 void drawBarrel(MovingObject* barrel)
 {
 	int cur_frame = (int) round(barrel->current_frame);
@@ -102,6 +108,7 @@ void drawBarrel(MovingObject* barrel)
 	}
 }
 
+// draw the barrels in the list
 void drawBarrels()
 {
 	MovingObject* barrelItr = barrelListHead;
@@ -112,6 +119,7 @@ void drawBarrels()
 	}
 }
 
+// make a barrel at the specified spot
 void loadBarrel( int x, int y)
 {
 	MovingObject* barrelItr = barrelListHead;
@@ -133,6 +141,7 @@ void loadBarrel( int x, int y)
 	addBarrel(barrelItr, x, y);
 }
 
+// default values for a barrel
 void addBarrel(MovingObject* newBarrel, int x, int y)
 {
 	newBarrel->x = x;
@@ -144,6 +153,7 @@ void addBarrel(MovingObject* newBarrel, int x, int y)
 	newBarrel->state = THROWABLE;
 }
 
+// load bit map images for barrles
 void loadBarrels()
 {
 	load_bmp(barrel_list[FLAT_BARREL], &(barrel_anim_list[FLAT_BARREL].handle));
@@ -153,6 +163,7 @@ void loadBarrels()
 	load_bmp(barrel_list[ROLLING_BOTTOM_RIGHT], &(barrel_anim_list[ROLLING_BOTTOM_RIGHT].handle));
 }
 
+// make the barrels animate
 void animateBarrels(BarrelImage lowFrame, BarrelImage highFrame)
 {
 	MovingObject* barrelItr = barrelListHead;
@@ -172,6 +183,7 @@ void animateBarrels(BarrelImage lowFrame, BarrelImage highFrame)
 	}
 }
 
+// randomly fall down a ladder
 static unsigned int goDownLadder(MovingObject* barrelItr) {
 	unsigned int ret = 0;
 
@@ -202,6 +214,7 @@ static unsigned int goDownLadder(MovingObject* barrelItr) {
 	return ret && nextRand() % 3 == 0;
 }
 
+// kill a barrel
 void stopBarrels(void)
 {
 	MovingObject* barrelItr = barrelListHead;
@@ -215,6 +228,7 @@ void stopBarrels(void)
 	}
 }
 
+// did we rn into mario? if so deal with it. also consider the hammering state.
 unsigned char handleCollision(void)
 {
 	MovingObject* barrelItr = barrelListHead;
