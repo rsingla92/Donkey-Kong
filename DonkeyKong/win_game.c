@@ -33,6 +33,7 @@ int winSoundBufLen;
 extern int* menuSoundBuf;
 extern int menuSoundBufLen;
 
+// See if buttons were pressed, if so, then transition.
 void updateWinGame(void)
 {
 	if(!button_states[0] ||
@@ -50,6 +51,7 @@ void updateWinGame(void)
 	}
 }
 
+// Initializer function for this state. Load the winning bitmaps.
 void draw_wingame(void)
 {
 	short int ret = load_bmp("WIN.BMP", &background_bmp);
@@ -80,6 +82,7 @@ void draw_wingame(void)
 	int i = 0;
 	char buf[4];
 
+	// High scores
 	while(dataByte >= 0 && i < 3)
 	{
 		buf[i] = dataByte;
