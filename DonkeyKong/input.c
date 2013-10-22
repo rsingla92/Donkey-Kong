@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include "io.h"
 
+// assume it's all not pressed
 void initController(controller_buttons* controller) {
 	controller->UP_ARROW = 0;
 	controller->RIGHT_ARROW = 0;
@@ -25,6 +26,7 @@ void initController(controller_buttons* controller) {
 	controller->R_BUTTON = 0;
 }
 
+// shallow copy of controller to controller
 void copyController(controller_buttons* copy_to, controller_buttons copy_from)
 {
 	copy_to->UP_ARROW = copy_from.UP_ARROW;
