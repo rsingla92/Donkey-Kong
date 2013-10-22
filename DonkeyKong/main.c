@@ -26,6 +26,7 @@
 
 #define leds (volatile char *) LEDS_BASE
 
+// List of all the bitmaps
 static char* file_list[NUM_FILES] = { "4B.BMP", "B1.BMP", "B2.BMP", "B3.BMP",
 		"B4.BMP", "B5.BMP", "DK1.BMP", "DK2.BMP", "DK3.BMP", "DK4.BMP",
 		"DK5.BMP", "DK6.BMP", "DK7.BMP", "DK8.BMP", "DK9.BMP", "DK10.BMP",
@@ -49,6 +50,7 @@ controller_buttons prev_controller_state;
 int* menuSoundBuf;
 int menuSoundBufLen;
 
+// Used for debugging. Macros to convert from bytes to binary
 #define BYTETOBINARYPATTERN "%d%d%d%d%d%d%d%d"
 #define BYTETOBINARY(byte)  \
   (byte & 0x80 ? 1 : 0), \
@@ -65,6 +67,7 @@ static void readDat(){
 	int i;
 	copyController(&prev_controller_state, controller_state);
 
+	// Clocks and latches for the controller
 	IOWR_8DIRECT(controller_out, 0, 0x01);
 	IOWR_8DIRECT(controller_out, 0, 0x03);
 	alt_busy_sleep(12);
@@ -73,6 +76,7 @@ static void readDat(){
 
 	accumulatedData = IORD_8DIRECT(controller_in, 0);
 
+	// Clock and read in data
 	for (i = 0; i < 16; i++)
 	{
 		IOWR_8DIRECT(controller_out, 0, 0x00);
@@ -85,9 +89,11 @@ static void readDat(){
 
 	IOWR_8DIRECT(leds, 0, accumulatedData);
 
+	// Update the old controller nicely
 	copyController(&controller_state, getControllerButtons(accumulatedData));
 }
 
+// Main loop
 int main(void) {
 	// Start the timestamp -- will be used for seeding the random number generator.
 
@@ -95,6 +101,7 @@ int main(void) {
 	sdcard_handle *sd_dev = init_sdcard();
 	initAudio();
 
+	// Music
 	menuSoundBufLen = loadSound("Tit2.wav", &menuSoundBuf, 0.5);
 	swapInSound(menuSoundBuf, menuSoundBufLen, 1);
 
@@ -119,6 +126,7 @@ int main(void) {
 
 	while (true)
 	{
+		// Loop and run only when needed
 		if (alt_nticks() - tickCount >= num_ticks)
 		{
 			tickCount = alt_nticks();
@@ -129,6 +137,7 @@ int main(void) {
 	return 0;
 }
 
+// The real magic is right here.
 alt_32 update(void *context) {
 	int i;
 	for (i = 0; i < 4; i++) prev_state[i] = button_states[i];
