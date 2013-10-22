@@ -43,6 +43,7 @@ volatile int context = 0;
 static alt_up_av_config_dev* av_config;
 static alt_up_audio_dev* audio;
 
+// Initialize the AV config core
 int initAVConfig(alt_up_av_config_dev* av_config) {
 
 	if (av_config == NULL) {
@@ -64,6 +65,7 @@ int initAVConfig(alt_up_av_config_dev* av_config) {
 
 }
 
+// Initialize the audio core
 int initAudioCore(alt_up_audio_dev* audio) {
 
 	alt_up_audio_reset_audio_core(audio);
@@ -98,23 +100,27 @@ int findWavSize(file_handle fileHandle)
 	return fileLength;
 }
 
+// Stop writing to the buffer
 void pauseMusic(void)
 {
 	// Stops writing to the audio buffer.
 	alt_up_audio_disable_write_interrupt(audio);
 }
 
+// Start writing to the buffer
 void resumeMusic(void)
 {
 	alt_up_audio_enable_write_interrupt(audio);
 }
 
+// Start from a clean state
 void restartMusic(void)
 {
 	interruptSample = 0;
 	alt_up_audio_enable_write_interrupt(audio);
 }
 
+// Bool check for music
 unsigned char isMusicDone(void)
 {
 	return musicDone;
@@ -187,6 +193,7 @@ static void playMusicISR (void* context, alt_u32 id)
 	}
 }
 
+// Set the interrupt with the proper config
 int set_audio_interrupt(alt_up_audio_dev *audio, volatile int edge_capture_thing)
 {
     // Need to disable both audio interrupts before setting them up
@@ -203,6 +210,7 @@ int set_audio_interrupt(alt_up_audio_dev *audio, volatile int edge_capture_thing
 	#endif
 }
 
+// Initialize both the audio config, core, and SD with music
 void initAudio(void)
 {
 	//Set up audio and sd parts
@@ -227,6 +235,7 @@ void resetAudio(void)
 	alt_up_audio_reset_audio_core(audio);
 }
 
+// Don't splice the music, let's swap the buffers
 void swapOutSound(void)
 {
 	interruptMusicBuffer = musicSwapBuffer;
@@ -235,18 +244,21 @@ void swapOutSound(void)
 	interruptSample = swapSample;
 	musicDone = swapDone;
 
+	// Reset swap
 	swapSample = 0;
 	swapLoop = 0;
 	bufSizeSwap = 0;
 	musicSwapBuffer = 0;
 	swapDone = 0;
 
+	// Play music
 	if (!musicDone)
 	{
 		alt_up_audio_enable_write_interrupt(audio);
 	}
 }
 
+// Superimposing waves creates sound
 void addInSound(int* buf, int len)
 {
 	addSound = 1;
@@ -255,6 +267,7 @@ void addInSound(int* buf, int len)
 	soundBufferSample = 0;
 }
 
+// Kill the sound
 void removeSound(void)
 {
 	addSound = 0;
@@ -352,6 +365,7 @@ int loadSound(char* audioFile, int** buf, float audioVolume)
 	return bufSize;
 }
 
+// Set the volume to the specified sound of the factor
 void setSoundVolume(int* buf, int bufSize, float factor)
 {
 	int i;
@@ -378,6 +392,7 @@ void setMusicVolume(float factor)
 	}
 }
 
+// Read some music file and put that into memory
 int loadMusic(char* audioFile, unsigned short loop, float volumeFactor)
 {
 	int i = 0;
@@ -458,8 +473,7 @@ int loadMusic(char* audioFile, unsigned short loop, float volumeFactor)
 	return 0;
 }
 
-// Requires:
-// Effects: Plays an audio .wav file, blocking the CPU until the song has completed.
+// Plays an audio .wav file, blocking the CPU until the song has completed.
 int playBlockingMusic(char* audioFile)
 {
 	int i = 0;
