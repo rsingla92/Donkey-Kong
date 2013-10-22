@@ -13,8 +13,10 @@
 
 static colour background_map[SCREEN_WIDTH][SCREEN_HEIGHT];
 
+// Stack to erase at the end of update
 static EraseStack* head = 0;
 
+// Add to the stack
 void pushEraseNode(int x0, int y0, int x1, int y1)
 {
 	EraseRect newRect;
@@ -30,6 +32,7 @@ void pushEraseNode(int x0, int y0, int x1, int y1)
 	head = newNode;
 }
 
+// Remove from the stack
 EraseRect popEraseNode()
 {
 	EraseRect retRect = {-1, -1, -1, -1};
@@ -46,6 +49,7 @@ EraseRect popEraseNode()
 	return retRect;
 }
 
+// Erase it all 
 void eraseAllNoPop()
 {
 	EraseStack* it = head;
@@ -60,6 +64,7 @@ void eraseAllNoPop()
 	}
 }
 
+// Erase it all without using pop()
 void eraseAll()
 {
 	while (1)
@@ -71,6 +76,7 @@ void eraseAll()
 	}
 }
 
+// Take the background and put it into a bmp so we can access it as needed
 short int loadBackground(char *filename)
 {
 	BitmapHandle *bmp;
@@ -98,11 +104,13 @@ short int loadBackground(char *filename)
 	return 0;
 }
 
+// Load the known background 
 void drawBackground()
 {
 	drawBackgroundSection(0, 0, SCREEN_WIDTH-1, SCREEN_HEIGHT-1);
 }
 
+// Load a subset of the background
 void drawBackgroundSection(int x0, int y0, int x1, int y1)
 {
 	int x, y;
