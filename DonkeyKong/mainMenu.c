@@ -16,6 +16,7 @@ extern unsigned char button_states[4];
 extern controller_buttons controller_state;
 extern controller_buttons prev_controller_state;
 
+// Check if start button was pressed and transition
 void updateMainMenu(void)
 {
 	// no character bitmap loading needed
@@ -28,6 +29,7 @@ void updateMainMenu(void)
 	}
 }
 
+// Draw the main menu bitmap and music
 void draw_main_menu(void)
 {
 	short int ret = load_bmp("MM1.BMP", &background_bmp);
